@@ -6,15 +6,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class TaskAssign {
+public class TaskAssign extends CoreEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,5 +23,15 @@ public class TaskAssign {
     private Task task;
 
     private String assignTo;
+
+    public TaskAssign(String createdBy, String createdAt, String updateBy, String updateAt, Long id, Task task,
+            String assignTo) {
+        super(createdBy, createdAt, updateBy, updateAt);
+        this.id = id;
+        this.task = task;
+        this.assignTo = assignTo;
+    }
+
+    
     
 }
