@@ -36,6 +36,9 @@ public abstract class CoreEntity {
         }
     }
 
+    public CoreEntity() {
+    }
+
     public LocalDateTime convertTime(String dateString) throws Exception {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

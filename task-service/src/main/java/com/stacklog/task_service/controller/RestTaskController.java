@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+
 
 
 @RestController
@@ -23,9 +26,22 @@ public class RestTaskController {
     
     @GetMapping("")
     public ResponseEntity<List<Task>> getAllTask() {
-        List<Task> tasks = taskService.getAll().stream().sorted().toList();
+        List<Task> tasks = taskService.getAll();
         return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
     }
+
+    @GetMapping("/{groupId}")
+    public ResponseEntity<List<Task>> getAllTask(@PathVariable(name = "groupId") String groupId) {
+        List<Task> tasks = taskService.getAllByGroupId(groupId);
+        return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
+    }
+    
+    @PostMapping("")
+    public ResponseEntity<Task> save() {
+        taskService.save(new Task());
+        return new ResponseEntity<Task>(new Task(), HttpStatus.OK);
+    }
+    
     
 
 }

@@ -1,15 +1,21 @@
 package com.stacklog.task_service.model.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.repo.TaskRepo;
+import com.stacklog.task_service.utils.kafka.KafkaService;
 
 @Service
 public class TaskService implements IService<Task> {
+
+    @Autowired
+    KafkaService kafkaService;
 
     @Autowired
     TaskRepo taskRepo;
@@ -19,8 +25,14 @@ public class TaskService implements IService<Task> {
         return taskRepo.findAll();
     }
 
+    public List<Task> getAllByGroupId(String groupId) {
+        return taskRepo.getAllByGroupId(groupId).stream()
+                .flatMap(o -> o.isPresent() ? Stream.of(o.get()) : Stream.empty())
+                .collect(Collectors.toList());
+    }
+
     @Override
-    public Task getById(String id) {
+    public Task getById(Long id) {
         return taskRepo.getReferenceById(id);
     }
 
@@ -28,20 +40,20 @@ public class TaskService implements IService<Task> {
     public Task save(Task e) {
         e.setCreatedAt(CURRENT_TIME);
         e.setUpdateAt(CURRENT_TIME);
+        kafkaService.sendNotification("hello worlds");
+        // return new Task();
         return taskRepo.save(e);
     }
 
     @Override
-    public Task remove(String id) {
+    public Task remove(Long id) {
         Task task = getById(id);
         if (task != null) {
             taskRepo.deleteById(id);
             return task;
         }
         return null;
-        
+
     }
 
-    
-    
 }

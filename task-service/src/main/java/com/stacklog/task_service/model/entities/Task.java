@@ -3,7 +3,13 @@ package com.stacklog.task_service.model.entities;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -19,16 +25,20 @@ import lombok.ToString;
 public class Task extends CoreEntity {
 
     @Id
-    private String taskId;
+    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    private Long taskId;
 
     private String taskTitle;
     private String taskDescription;
     private String groupId;
-    private String doucumentId;
+    private String documentId;
     private Integer taskPoint;
     private LocalDateTime taskDueDate;
 
-    public enum priority {
+    @Enumerated(EnumType.STRING) // hoặc EnumType.ORDINAL
+    private Priority priority;
+
+    public enum Priority {
         HIGH, MEDIUM, LOW
     }
 
@@ -41,20 +51,20 @@ public class Task extends CoreEntity {
     private Task parentTask;
 
     @OneToMany(mappedBy = "parentTask")
+    @JsonIgnore
     private List<Task> subtasks;
 
     @OneToMany(mappedBy = "task")
     private List<TaskAssign> assigns;
 
-    public Task(String createdBy, String createdAt, String updateBy, String updateAt, String taskId, String taskTitle,
-            String taskDescription, String groupId, String doucumentId, Integer taskPoint, String taskDueDate,
+    public Task(String createdBy, String createdAt, String updateBy, String updateAt, String taskTitle,
+            String taskDescription, String groupId, String documentId, Integer taskPoint, String taskDueDate,
             StatusTask statusTask, Task parentTask, List<Task> subtasks, List<TaskAssign> assigns) {
         super(createdBy, createdAt, updateBy, updateAt);
-        this.taskId = taskId;
         this.taskTitle = taskTitle;
         this.taskDescription = taskDescription;
         this.groupId = groupId;
-        this.doucumentId = doucumentId;
+        this.documentId = documentId;
         this.taskPoint = taskPoint;
         this.statusTask = statusTask;
         this.parentTask = parentTask;
@@ -67,6 +77,9 @@ public class Task extends CoreEntity {
             this.taskDueDate = null;
         }
 
+    }
+
+    public Task() {
     }
     
     

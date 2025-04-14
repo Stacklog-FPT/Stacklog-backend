@@ -3,6 +3,8 @@ package com.stacklog.task_service.model.entities;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -15,7 +17,8 @@ import lombok.Setter;
 public class CheckItem extends CoreEntity{
     
     @Id
-    private String checkItemId;
+    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    private Long checkItemId;
 
     private String checkItemTitle;
     private String checkItemDescription;
@@ -26,10 +29,9 @@ public class CheckItem extends CoreEntity{
     @JoinColumn(name = "checkListId")
     private CheckList checkList;
 
-    public CheckItem(String createdBy, String createdAt, String updateBy, String updateAt, String checkItemId,
+    public CheckItem(String createdBy, String createdAt, String updateBy, String updateAt,
             String checkItemTitle, String checkItemDescription, String checkItemDueDate, Boolean isChecked) {
         super(createdBy, createdAt, updateBy, updateAt);
-        this.checkItemId = checkItemId;
         this.checkItemTitle = checkItemTitle;
         this.checkItemDescription = checkItemDescription;
         this.isChecked = isChecked;
@@ -41,8 +43,8 @@ public class CheckItem extends CoreEntity{
         }
     }
 
-    
-
+    public CheckItem() {
+    }
     
 
 }

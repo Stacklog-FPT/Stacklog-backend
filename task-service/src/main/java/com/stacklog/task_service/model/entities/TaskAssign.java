@@ -1,5 +1,7 @@
 package com.stacklog.task_service.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,25 +15,26 @@ import lombok.Setter;
 @Setter
 @Entity
 public class TaskAssign extends CoreEntity {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "taskId")
+    @JsonIgnore
     private Task task;
 
     private String assignTo;
 
-    public TaskAssign(String createdBy, String createdAt, String updateBy, String updateAt, Long id, Task task,
+    public TaskAssign(String createdBy, String createdAt, String updateBy, String updateAt, Task task,
             String assignTo) {
         super(createdBy, createdAt, updateBy, updateAt);
-        this.id = id;
         this.task = task;
         this.assignTo = assignTo;
     }
 
-    
-    
+    public TaskAssign() {
+    }
+
 }

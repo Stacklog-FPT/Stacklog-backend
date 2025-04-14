@@ -2,7 +2,11 @@ package com.stacklog.task_service.model.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -18,7 +22,8 @@ import lombok.ToString;
 public class CheckList extends CoreEntity {
 
     @Id
-    private String checkListId;
+    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    private Long checkListId;
 
     private String checkListName;
 
@@ -26,18 +31,22 @@ public class CheckList extends CoreEntity {
     private List<CheckItem> listItems;
 
     @ManyToOne
-    @JoinColumn(name = "task")
+    @JoinColumn(name = "taskId")
+    @JsonIgnore
     private Task task;
 
-    public CheckList(String createdBy, String createdAt, String updateBy, String updateAt, String checkListId,
+    public CheckList(String createdBy, String createdAt, String updateBy, String updateAt,
             String checkListName, List<CheckItem> listItems, Task task) {
         super(createdBy, createdAt, updateBy, updateAt);
-        this.checkListId = checkListId;
         this.checkListName = checkListName;
         this.listItems = listItems;
         this.task = task;
     }
 
+    public CheckList() {
+    }
+
+    
     
 
 }

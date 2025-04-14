@@ -8,10 +8,10 @@ public interface IService<E> {
 
     public List<E> getAll();
     
-    public E getById(String id);
+    public E getById(Long id);
 
     public E save(E e);
 
-    public E remove(String id);
+    public E remove(Long id);
 
 }
