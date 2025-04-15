@@ -1,87 +1,144 @@
+version: '3.8'
+
 services:
+
+  # --- API Gateway ---
+  api-gateway:
+    image: nginx:1.24.0-alpine
+    container_name: api-gateway
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - authservice
+      - profileservice
+      - taskservice
+
+
+  # --- Prometheus ---
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - app-network    
+
+  # --- Zookeeper ---
   zookeeper:
-    image: confluentinc/cp-zookeeper
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - 2181:2181
-    restart: "on-failure"
+      - "2181:2181"
+    restart: on-failure
 
+  # --- Kafka Brokers ---
   kafka-1:
-    image: confluentinc/cp-kafka
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka-1
     depends_on:
       - zookeeper
     ports:
-      - 9092:9092
-    restart: "on-failure"
+      - "9092:9092"
+    restart: on-failure
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  #
+
   kafka-2:
-    image: confluentinc/cp-kafka
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka-2
     depends_on:
       - zookeeper
     ports:
-      - 9093:9093
-    restart: "on-failure"
+      - "9093:9093"
+    restart: on-failure
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   kafka-3:
-    image: confluentinc/cp-kafka
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka-3
     depends_on:
       - zookeeper
     ports:
-      - 9094:9094
-    restart: "on-failure"
+      - "9094:9094"
+    restart: on-failure
     environment:
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:9094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  # microservice
-  # auth-service:
+
+  # --- Redis ---
+  redis:
+    image: redis:7.2.4
+    container_name: redis
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+
+  # # --- Auth Service ---
+  # authservice:
   #   build:
-  #     context: authservice
+  #     context: ./authservice
   #     dockerfile: Dockerfile
   #   image: auth-service
+  #   container_name: authservice
   #   ports:
-  #     - 2001:2001
+  #     - "2000:2000"
   #   restart: on-failure
   #   env_file:
-  #     - local.env
+  #     - ./authservice/local.env
 
-  # profile-service:
+  # # --- Profile Service ---
+  # profileservice:
   #   build:
-  #     context: profileservice
+  #     context: ./profileservice
   #     dockerfile: Dockerfile
   #   image: profile-service
+  #   container_name: profileservice
   #   ports:
-  #     - 2002:2002
+  #     - "2001:2001"
   #   restart: on-failure
   #   env_file:
-  #     - local.env
+  #     - ./profileservice/local.env
 
-  # task-service:
+  # # --- Task Service ---
+  # taskservice:
   #   build:
-  #     context: taskservice
+  #     context: ./taskservice
   #     dockerfile: Dockerfile
   #   image: task-service
+  #   container_name: taskservice
   #   ports:
-  #     - 2003:2003
+  #     - "2002:2002"
   #   restart: on-failure
   #   env_file:
-  #     - local.env
+  #     - ./taskservice/local.env
+
+networks:
+  app-network:
+    driver: bridge
