@@ -18,5 +18,5 @@ COPY --from=build /app/target/*.jar app.jar
 
 ENV JAVA_OPTS="-Xmx512m -Xms256m"
 
-EXPOSE 2003
+EXPOSE 2002
 ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar app.jar"]
