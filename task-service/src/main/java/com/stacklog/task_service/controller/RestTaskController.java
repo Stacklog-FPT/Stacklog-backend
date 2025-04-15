@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 
 @RestController
-@RequestMapping(path = {"/api/task"})
+@RequestMapping(path = {""})
 public class RestTaskController {
 
     @Autowired

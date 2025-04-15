@@ -1,7 +1,7 @@
 const { Kafka } = require("kafkajs");
 const User = require("../models/User");
 
-const KAFKA_BROKER = process.env.KAFKA_BROKER || "localhost:9092";
+const KAFKA_BROKER = process.env.KAFKA_BROKER || "kafka-1:9092";
 const CLIENT_ID = process.env.KAFKA_CLIENT_ID || "auth-service";
 const GROUP_ID = process.env.KAFKA_GROUP_ID || "auth-group";
 
