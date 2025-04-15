@@ -14,10 +14,6 @@ public class KafkaService {
     @Autowired
     KafkaTemplate<String, Object> kafkaTemplate;
 
-    // final private String KAFKA_TOPIC_MESSAGE_SAVE = "Save task";
-    // final private String KAFKA_TOPIC_MESSAGE_UPDATE_STATUS = "Save task";
-    // final private String KAFKA_TOPIC_MESSAGE_GET = "Get task";
-
 
     public void sendNotification(String statisticMessage) {
         Statastic stat = new Statastic(statisticMessage, LocalDateTime.now());
