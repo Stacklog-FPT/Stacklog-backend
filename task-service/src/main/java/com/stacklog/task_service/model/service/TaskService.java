@@ -10,15 +10,24 @@ import org.springframework.stereotype.Service;
 import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.repo.TaskRepo;
 import com.stacklog.task_service.utils.kafka.KafkaService;
+import com.stacklog.task_service.utils.redis.RedisService;
 
 @Service
 public class TaskService implements IService<Task> {
+
+    RedisService<Task> redisTaskService;
+    
+    public TaskService(RedisService<Task> redisTaskService) {
+        this.redisTaskService = redisTaskService;
+    }
 
     @Autowired
     KafkaService kafkaService;
 
     @Autowired
     TaskRepo taskRepo;
+
+    
 
     @Override
     public List<Task> getAll() {
@@ -40,7 +49,6 @@ public class TaskService implements IService<Task> {
     public Task save(Task e) {
         e.setCreatedAt(CURRENT_TIME);
         e.setUpdateAt(CURRENT_TIME);
-        kafkaService.sendNotification("hello worlds");
         // return new Task();
         return taskRepo.save(e);
     }

@@ -5,13 +5,13 @@ import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
-@AllArgsConstructor
-@ToString
 @NoArgsConstructor
-public class Statastic {
-    private String message;
-    private LocalDateTime createdDate;
+@AllArgsConstructor
+public class TaskEvent {
+    private Long taskId;
+    private String eventType;
+    private String createdBy;
+    private LocalDateTime createdAt;
 }
