@@ -9,13 +9,13 @@ import org.springframework.stereotype.Service;
 
 import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.repo.TaskRepo;
-import com.stacklog.task_service.utils.kafka.KafkaService;
+import com.stacklog.task_service.utils.kafka.KafkaProducer;
 
 @Service
 public class TaskService implements IService<Task> {
 
     @Autowired
-    KafkaService kafkaService;
+    KafkaProducer kafkaProducer;
 
     @Autowired
     TaskRepo taskRepo;
@@ -40,8 +40,7 @@ public class TaskService implements IService<Task> {
     public Task save(Task e) {
         e.setCreatedAt(CURRENT_TIME);
         e.setUpdateAt(CURRENT_TIME);
-        kafkaService.sendNotification("hello worlds");
-        // return new Task();
+        
         return taskRepo.save(e);
     }
 
