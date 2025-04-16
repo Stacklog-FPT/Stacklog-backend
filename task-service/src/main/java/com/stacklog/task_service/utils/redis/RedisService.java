@@ -1,5 +1,6 @@
 package com.stacklog.task_service.utils.redis;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
@@ -55,18 +56,22 @@ public class RedisService<E> {
         return null;
     }
 
-    public void saveToRedis(E e, String eId) {
+    public void saveToRedis(E e, String eId, Duration ttl) {
         String json = null;
         try {
             json = objectMapper.writeValueAsString(e);
         } catch (JsonProcessingException e1) {
             e1.printStackTrace();
         }
-        redisTemplate.opsForValue().set(key(eId), json);
+        redisTemplate.opsForValue().set(key(eId), json, ttl);
     }
 
     public void deleteFromRedis(String eId) {
         redisTemplate.delete(key(eId));
+    }
+
+    public void getUserCurrent() {
+        
     }
 
 }

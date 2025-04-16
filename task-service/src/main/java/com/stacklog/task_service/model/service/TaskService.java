@@ -49,6 +49,7 @@ public class TaskService implements IService<Task> {
     public Task save(Task e) {
         e.setCreatedAt(CURRENT_TIME);
         e.setUpdateAt(CURRENT_TIME);
+        e.setCreatedBy();
         // return new Task();
         return taskRepo.save(e);
     }
