@@ -4,8 +4,6 @@ public class KafkaService {
 
     KafkaProducer kafkaProducer;
 
-
-
     public void sendNotification(String statisticMessage) {
     }
 

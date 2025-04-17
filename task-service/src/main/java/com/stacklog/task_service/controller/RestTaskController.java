@@ -17,45 +17,54 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
-
 @RestController
-@RequestMapping(path = {""})
+@RequestMapping(path = { "" })
 public class RestTaskController {
 
     @Autowired
     TaskService taskService;
-    
-    // @GetMapping("")
-    // public ResponseEntity<List<Task>> getAllTask() {
-    //     List<Task> tasks = taskService.getAll();
-    //     return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
-    // }
 
     @GetMapping("/{groupId}")
     public ResponseEntity<List<Task>> getAllTask(@PathVariable(name = "groupId") String groupId) {
-        List<Task> tasks = taskService.getAllByGroupId(groupId);
-        return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
+        try {
+            List<Task> tasks = taskService.getByGroupId(groupId);
+            return new ResponseEntity<List<Task>>(tasks, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        return ResponseEntity.badRequest().build();
+
     }
-    
+
     @PostMapping("")
-    public ResponseEntity<Task> save(@RequestBody()) {
-        boolean result = taskService.save(new Task()) == null ? true:false;
-        return new ResponseEntity<Task>(new Task(), HttpStatus.OK);
+    public ResponseEntity<Task> save(@RequestBody Task task) {
+        try {
+            Task newTask = taskService.save(task);
+            return new ResponseEntity<Task>(newTask, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.badRequest().build();
+
     }
 
     @DeleteMapping("/{taskId}")
-    public ResponseEntity<Task> delete(@PathVariable(name = "taskId") String taskId ) {
-        taskService.remove(Long.parseLong(taskId));
-        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    public ResponseEntity<Task> delete(@PathVariable(name = "taskId") String taskId) {
+        try {
+            taskService.remove(Long.parseLong(taskId));
+            return new ResponseEntity<>(HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.badRequest().build();
     }
-    
-    
 
 }
 
-class TaskDTO {
-    private Long statusTaskId;
-    private 
-    
-}
+// class TaskDTO {
+// private Long statusTaskId;
+// private String groupId;
+// private String
+
+// }
