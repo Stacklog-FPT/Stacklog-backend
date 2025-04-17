@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.repo.TaskRepo;
+import com.stacklog.task_service.utils.kafka.TaskEvent;
+import com.stacklog.task_service.utils.kafka.TaskProducer;
 // import com.stacklog.task_service.utils.kafka.KafkaService;
 import com.stacklog.task_service.utils.redis.RedisService;
 
@@ -19,8 +21,11 @@ public class TaskService implements IService<Task> {
 
     RedisService<Task> redisTaskService;
 
-    public TaskService(RedisService<Task> redisTaskService) {
+    TaskProducer taskProducer;
+
+    public TaskService(RedisService<Task> redisTaskService, TaskProducer taskProducer) {
         this.redisTaskService = redisTaskService;
+        this.taskProducer = taskProducer;
     }
 
     // @Autowired
@@ -66,6 +71,16 @@ public class TaskService implements IService<Task> {
             e.setCreatedAt(CURRENT_TIME);
             e.setCreatedBy(redisTaskService.getCurrentUserId());
         }
+
+        // kafka
+        TaskEvent taskEvent = new TaskEvent();
+        taskEvent.setStatus("PENDING");
+        taskEvent.setMessage("order is in pending state");
+        taskEvent.setTask(e);
+
+        taskProducer.sendMessage(taskEvent);
+
+        // redis
         return redisTaskService.saveToRedis(e, e.getTaskId().toString(), "PENDING_WRITE");
 
     }
