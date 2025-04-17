@@ -27,7 +27,7 @@ const login = async (req, res) => {
         const token = generateToken(user);
 
         // Lưu token vào Redis với TTL 1 ngày
-        await redisClient.setEx(`currentuser:${user._id}`, process.env.SESSION_EXPIRY, token);
+        await redisClient.setEx(`currentuser`, process.env.SESSION_EXPIRY, token);
         console.log(JSON.stringify(user));
 
         // Gửi event người dùng đăng nhập vào kafka
