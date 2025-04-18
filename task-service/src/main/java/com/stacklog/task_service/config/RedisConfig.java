@@ -16,8 +16,7 @@ public class RedisConfig {
     @Bean
     public RedisService<Task> redisTaskService(
             RedisTemplate<String, String> redisTemplate,
-            ObjectMapper objectMapper
-    ) {
+            ObjectMapper objectMapper) {
         return new RedisService<>(Task.class);
     }
 
