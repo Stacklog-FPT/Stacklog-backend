@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const redisClient = require("../config/redis");
-const sendKafkaEvent = require("../config/kafka");
+const { sendKafkaEvent } = require("../config/kafka");
 
 const generateToken = (user) => {
     return jwt.sign(
