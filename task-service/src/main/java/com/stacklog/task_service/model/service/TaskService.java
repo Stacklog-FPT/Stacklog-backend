@@ -66,7 +66,7 @@ public class TaskService implements IService<Task> {
         e.setUpdateBy(redisTaskService.getCurrentUserId());
 
         if (e.getTaskId() == null || !taskRepo.findById(e.getTaskId()).isPresent()) {
-            Long eId = UUID.randomUUID().timestamp();
+            Long eId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
             e.setTaskId(eId);
             e.setCreatedAt(CURRENT_TIME);
             e.setCreatedBy(redisTaskService.getCurrentUserId());
