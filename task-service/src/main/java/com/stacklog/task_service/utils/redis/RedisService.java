@@ -20,6 +20,8 @@ public class RedisService<E> {
 
     private final Duration ttl = Duration.ofMinutes(5);
 
+    private final JwtDecoder jwtDecoder;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -28,8 +30,9 @@ public class RedisService<E> {
 
     private final Class<E> clazz;
 
-    public RedisService(Class<E> clazz) {
+    public RedisService(Class<E> clazz, JwtDecoder jwtDecoder) {
         this.clazz = clazz;
+        this.jwtDecoder = jwtDecoder;
     }
 
     private String key(String id) {
@@ -134,7 +137,11 @@ public class RedisService<E> {
     }
 
     public String getCurrentUserId() {
-        return new JwtDecoder().getIdFromToken(redisTemplate.opsForValue().get("currentuser"));
+        String token = redisTemplate.opsForValue().get("currentuser");
+        if (token == null) {
+            throw new RuntimeException("Token không tồn tại trong Redis");
+        }
+        return jwtDecoder.getIdFromToken(token);
     }
 
 }

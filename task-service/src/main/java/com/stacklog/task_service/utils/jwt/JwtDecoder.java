@@ -7,14 +7,20 @@ import java.security.Key;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 import com.stacklog.task_service.config.JwtProperties;
 
+@Component
 @EnableConfigurationProperties
 public class JwtDecoder {
 
+    private final JwtProperties jwtProperties;
+
     @Autowired
-    JwtProperties jwtProperties;
+    public JwtDecoder(JwtProperties jwtProperties) {
+        this.jwtProperties = jwtProperties;
+    }
 
     public String getIdFromToken(String token) {
 
