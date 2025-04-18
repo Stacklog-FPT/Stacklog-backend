@@ -17,6 +17,7 @@ public class RedisConfig {
     @Bean
     public RedisService<Task> redisTaskService(
             RedisTemplate<String, String> redisTemplate,
+
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder
     ) {
