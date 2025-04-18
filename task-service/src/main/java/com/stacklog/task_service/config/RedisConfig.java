@@ -8,6 +8,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stacklog.task_service.model.entities.Task;
+import com.stacklog.task_service.utils.jwt.JwtDecoder;
 import com.stacklog.task_service.utils.redis.RedisService;
 
 @Configuration
@@ -16,9 +17,10 @@ public class RedisConfig {
     @Bean
     public RedisService<Task> redisTaskService(
             RedisTemplate<String, String> redisTemplate,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            JwtDecoder jwtDecoder
     ) {
-        return new RedisService<>(Task.class);
+        return new RedisService<>(Task.class, jwtDecoder);
     }
 
     @Bean
