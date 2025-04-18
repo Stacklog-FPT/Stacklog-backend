@@ -1,17 +1,16 @@
 package com.stacklog.task_service.utils.kafka;
 
-import java.time.LocalDateTime;
+import com.stacklog.task_service.model.entities.Task;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class TaskEvent {
-    private Long taskId;
-    private String eventType;
-    private String createdBy;
-    private LocalDateTime createdAt;
+    private String message;
+    private String status;
+    private Task task;
 }
