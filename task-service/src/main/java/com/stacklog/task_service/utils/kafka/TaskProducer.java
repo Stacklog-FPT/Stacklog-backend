@@ -1,6 +1,5 @@
 package com.stacklog.task_service.utils.kafka;
 
-import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -14,12 +13,11 @@ public class TaskProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskProducer.class);
 
-    private NewTopic topic;
+    private final String KAFKA_CREATED_TASK = "task.created";
 
     private KafkaTemplate<String, TaskEvent> kafkaTemplate;
 
-    public TaskProducer(NewTopic topic, KafkaTemplate<String, TaskEvent> kafkaTemplate) {
-        this.topic = topic;
+    public TaskProducer(KafkaTemplate<String, TaskEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
@@ -28,10 +26,10 @@ public class TaskProducer {
 
         // create message
         Message<TaskEvent> message = MessageBuilder
-                                            .withPayload(taskEvent)
-                                            .setHeader(KafkaHeaders.TOPIC, topic.name())
-                                            .build();
+                .withPayload(taskEvent)
+                .setHeader(KafkaHeaders.TOPIC, KAFKA_CREATED_TASK)
+                .build();
         kafkaTemplate.send(message);
-
+        System.out.println("Task event => " + taskEvent.toString());
     }
 }
