@@ -76,7 +76,7 @@ public class TaskService implements IService<Task> {
         TaskEvent taskEvent = new TaskEvent();
         taskEvent.setStatus("PENDING");
         taskEvent.setMessage("order is in pending state");
-        taskEvent.setTask(e);
+        taskEvent.setTask(e.toString());
 
         taskProducer.sendMessage(taskEvent);
 
