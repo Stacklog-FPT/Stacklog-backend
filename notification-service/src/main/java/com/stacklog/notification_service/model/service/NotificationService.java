@@ -1,8 +1,10 @@
 package com.stacklog.notification_service.model.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.stacklog.notification_service.model.entities.Notification;
@@ -13,6 +15,10 @@ public class NotificationService {
     
     @Autowired
     NotificationRepo notificationRepo;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
 
     public List<Notification> getAll() {
         return notificationRepo.findAll();
@@ -27,8 +33,8 @@ public class NotificationService {
         return notificationRepo.saveAll(list);
     }
 
-    // public List<Notification> getByCriteria(Predicate p) {
-    //     return notificationRepo.findAll().stream().filter(p).toList();
-    // }
+    public void save(String message) {
+        messagingTemplate.convertAndSend("/topic/notification", Map.of("message", message));
+    }
 
 }
