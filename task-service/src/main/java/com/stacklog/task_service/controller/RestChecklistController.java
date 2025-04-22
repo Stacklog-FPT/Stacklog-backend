@@ -34,7 +34,6 @@ public class RestChecklistController {
     @PostMapping("")
     public ResponseEntity<CheckList> saveCheckList(@RequestBody CheckList checkList) {
         checkListService.save(checkList);
-        
         return ResponseEntity.ok(checkList);
     }
     
