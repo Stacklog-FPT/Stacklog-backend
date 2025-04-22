@@ -28,9 +28,6 @@ public class TaskService implements IService<Task> {
         this.taskProducer = taskProducer;
     }
 
-    // @Autowired
-    // KafkaService kafkaService;
-
     @Autowired
     TaskRepo taskRepo;
 
@@ -75,7 +72,7 @@ public class TaskService implements IService<Task> {
         // kafka
         TaskEvent taskEvent = new TaskEvent();
         taskEvent.setStatus("PENDING");
-        taskEvent.setMessage("order is in pending state");
+        taskEvent.setMessage("");
         taskEvent.setTask(e.toString());
 
         taskProducer.sendMessage(taskEvent);
