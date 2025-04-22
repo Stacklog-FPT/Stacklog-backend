@@ -61,10 +61,3 @@ public class RestTaskController {
     }
 
 }
-
-// class TaskDTO {
-// private Long statusTaskId;
-// private String groupId;
-// private String
-
-// }
