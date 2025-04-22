@@ -24,7 +24,9 @@ public class NotificationConsumer {
 
     @KafkaListener(topics = "task.created", groupId = "notification-service")
     public void consumerTask(String message) {
+        notificationService.save(message);
         LOGGER.info(String.format("Message received -> %s", message));
+        
 
     }
     // Message received -> {"message":"order is in pending
