@@ -13,7 +13,7 @@ import lombok.ToString;
 public class StatusTask extends CoreEntity {
 
     @Id
-    private Long statusTaskId;
+    private String statusTaskId;
 
     private String statusTaskName;
     private String statusTaskColor;

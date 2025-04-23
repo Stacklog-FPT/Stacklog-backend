@@ -25,12 +25,12 @@ public class StatusTaskService implements IService<StatusTask> {
     }
 
     @Override
-    public StatusTask getById(Long id) {
+    public StatusTask getById(String id) {
         return statusTaskRepo.findById(id).orElseThrow();
     }
 
     @Override
-    public StatusTask remove(Long id) {
+    public StatusTask remove(String id) {
         StatusTask statusTask = getById(id);
         statusTaskRepo.deleteById(id);
         return statusTask;

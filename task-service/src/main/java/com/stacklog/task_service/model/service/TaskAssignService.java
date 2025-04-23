@@ -23,12 +23,12 @@ public class TaskAssignService implements IService<TaskAssign> {
     }
 
     @Override
-    public TaskAssign getById(Long id) {
+    public TaskAssign getById(String id) {
         return taskAssignRepo.findById(id).orElseThrow();
     }
 
     @Override
-    public TaskAssign remove(Long id) {
+    public TaskAssign remove(String id) {
         TaskAssign taskAssign = getById(id);
         taskAssignRepo.deleteById(id);
         return taskAssign;

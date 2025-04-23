@@ -79,10 +79,23 @@ public class RestTaskController {
 
     }
 
+    @PutMapping("")
+    public ResponseEntity<Task> saveUpdateTask(@RequestBody Task task) {
+        try {
+            System.out.println(task.toString());
+            Task newTask = taskService.save(task);
+            return new ResponseEntity<Task>(newTask, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.badRequest().build();
+
+    }
+
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Task> delete(@PathVariable(name = "taskId") String taskId) {
         try {
-            taskService.remove(Long.parseLong(taskId));
+            taskService.remove(taskId);
             return new ResponseEntity<>(HttpStatus.ACCEPTED);
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,33 +103,34 @@ public class RestTaskController {
         return ResponseEntity.badRequest().build();
     }
 
-    @PutMapping("/{taskId}/checklist")
-    public ResponseEntity<Task> updateChecklist(@PathVariable(name = "taskId") String taskId, @RequestBody CheckList checkList) {
-        checkListService.save(checkList);
-        Task task = taskService.sendNotification(taskService.getById(Long.parseLong(taskId)), "checklist");
-        return ResponseEntity.ok().body(task);
-    }
+    // @PutMapping("/{taskId}/checklist")
+    // public ResponseEntity<Task> updateChecklist(@PathVariable(name = "taskId") String taskId, @RequestBody CheckList checkList) {
+    //     checkListService.save(checkList);
+    //     Task task = taskService.sendNotification(taskService.getById(Long.parseLong(taskId)), "checklist");
+    //     return ResponseEntity.ok().body(task);
+    // }
 
-    @PutMapping("/{taskId}/checkItem")
-    public ResponseEntity<Task> putMethodName(@PathVariable(name = "taskId") String taskId, @RequestBody CheckItem checkItem) {
-        checkItemService.save(checkItem);
-        Task task = taskService.sendNotification(taskService.getById(Long.parseLong(taskId)), "checkitem");
-        return ResponseEntity.ok().body(task);
-    }
+    // @PutMapping("/{taskId}/checkItem")
+    // public ResponseEntity<Task> putMethodName(@PathVariable(name = "taskId") String taskId, @RequestBody CheckItem checkItem) {
+    //     checkItemService.save(checkItem);
+    //     Task task = taskService.sendNotification(taskService.getById(Long.parseLong(taskId)), "checkitem");
+    //     return ResponseEntity.ok().body(task);
+    // }
 
-    @PutMapping("/{taskId}/taskAssign")
-    public ResponseEntity<Task> updateAssign(@PathVariable(name = "taskId") String taskId, @RequestBody TaskAssign taskAssign) {
-        taskAssignService.save(taskAssign);
-        Task task = taskService.sendNotification(taskService.getById(Long.parseLong(taskId)), "taskassign");
-        return ResponseEntity.ok().body(task);
-    }
+    // @PutMapping("/{taskId}/taskAssign")
+    // public ResponseEntity<Task> updateAssign(@PathVariable(name = "taskId") String taskId, @RequestBody TaskAssign taskAssign) {
+    //     taskAssignService.save(taskAssign);
+    //     Task task = taskService.sendNotification(taskService.getById(Long.parseLong(taskId)), "taskassign");
+    //     return ResponseEntity.ok().body(task);
+    // }
 
-    @PutMapping("/{taskId}/statusTask")
-    public ResponseEntity<Task> updateStatusOfTask(@PathVariable(name = "taskId") String taskId, @RequestBody StatusTask statusTask) {
-        statusTaskService.save(statusTask);
-        Task task = taskService.sendNotification(taskService.getById(Long.parseLong(taskId)), "taskstatustask");
-        return ResponseEntity.ok().body(task);
-    }
+    // @PutMapping("/{taskId}/statusTask")
+    // public ResponseEntity<Task> updateStatusOfTask(@PathVariable(name = "taskId") String taskId, @RequestBody StatusTask statusTask) {
+    //     Task task = taskService.getById(Long.parseLong(taskId));
+    //     task.setStatusTask(statusTask);
+    //     taskService.sendNotification(taskService.getById(Long.parseLong(taskId)), "taskstatustask");
+    //     return ResponseEntity.ok().body(task);
+    // }
 
     
 

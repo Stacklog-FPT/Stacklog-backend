@@ -119,6 +119,7 @@ public class RedisService<E> {
     // ===== ✅ Save 1 entity
     public E saveToRedis(E e, String eId, String status) {
         String userId = getCurrentUserId();
+        deleteFromRedis(eId);
         try {
             String json = objectMapper.writeValueAsString(e);
             redisTemplate.opsForValue().set(key(userId, eId, status), json, ttl);
