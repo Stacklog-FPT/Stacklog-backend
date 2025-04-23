@@ -8,28 +8,37 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
+import com.stacklog.task_service.model.entities.StatusTask;
+import com.stacklog.task_service.model.entities.Task;
+
 @Service
 public class TaskProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskProducer.class);
 
-    private final String KAFKA_CREATED_TASK = "task.created";
+    private KafkaTemplate<String, Task> kafkaTemplate;
 
-    private KafkaTemplate<String, TaskEvent> kafkaTemplate;
-
-    public TaskProducer(KafkaTemplate<String, TaskEvent> kafkaTemplate) {
+    public TaskProducer(KafkaTemplate<String, Task> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendMessage(TaskEvent taskEvent) {
-        LOGGER.info(String.format("Task event => %s", taskEvent.toString()));
+    public void sendMessage(Task task, String topic) {
+        LOGGER.info(String.format("Task => %s", task));
 
         // create message
-        Message<TaskEvent> message = MessageBuilder
-                .withPayload(taskEvent)
-                .setHeader(KafkaHeaders.TOPIC, KAFKA_CREATED_TASK)
+        Message<Task> message = MessageBuilder
+                .withPayload(task)
+                .setHeader(KafkaHeaders.TOPIC, topic)
                 .build();
         kafkaTemplate.send(message);
-        System.out.println("Task event => " + taskEvent.toString());
+    }
+
+    public void sendMessage(StatusTask statusTask, String topic) {
+        // create message
+        Message<StatusTask> message = MessageBuilder
+                .withPayload(statusTask)
+                .setHeader(KafkaHeaders.TOPIC, topic)
+                .build();
+        kafkaTemplate.send(message);
     }
 }

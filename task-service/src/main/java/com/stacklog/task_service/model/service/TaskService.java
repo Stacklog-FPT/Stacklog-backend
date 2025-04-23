@@ -4,13 +4,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.repo.TaskRepo;
-import com.stacklog.task_service.utils.kafka.TaskEvent;
 import com.stacklog.task_service.utils.kafka.TaskProducer;
-// import com.stacklog.task_service.utils.kafka.KafkaService;
 import com.stacklog.task_service.utils.redis.RedisService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +18,20 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class TaskService implements IService<Task> {
 
+    private final String KAFKA_CREATED_TASK = "task-service.task.created";
+    private final String KAFKA_UPDATED_TASK = "task-service.task.updated";
+    private final String KAFKA_UPDATED_CHECKLIST = "task-service.checklist.updated";
+    private final String KAFKA_UPDATED_CHECKITEM = "task-service.checkitem.updated";
+    private final String KAFKA_UPDATED_TASKASSIGN = "task-service.taskassign.updated";
+    private final String KAFKA_UPDATED_TASKSTATUSTASK = "task-service.taksstatustask.updated";
+    
+
     RedisService<Task> redisTaskService;
 
     TaskProducer taskProducer;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     public TaskService(RedisService<Task> redisTaskService, TaskProducer taskProducer) {
         this.redisTaskService = redisTaskService;
@@ -34,13 +44,13 @@ public class TaskService implements IService<Task> {
     @Override
     public List<Task> getAll() {
         List<Task> tasks = redisTaskService.getDatas();
-        
+
         if (!tasks.isEmpty()) {
             log.info("✅ Loaded {} tasks from Redis cache", tasks.size());
         } else {
             tasks = taskRepo.findAll();
             redisTaskService.saveListToRedis(tasks);
-            
+
         }
         return tasks;
     }
@@ -61,21 +71,20 @@ public class TaskService implements IService<Task> {
     public Task save(Task e) {
         e.setUpdateAt(CURRENT_TIME);
         e.setUpdateBy(redisTaskService.getCurrentUserId());
-
+        String topic = KAFKA_UPDATED_TASK;
         if (e.getTaskId() == null || !taskRepo.findById(e.getTaskId()).isPresent()) {
             Long eId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
             e.setTaskId(eId);
             e.setCreatedAt(CURRENT_TIME);
             e.setCreatedBy(redisTaskService.getCurrentUserId());
+            topic = KAFKA_CREATED_TASK;
         }
 
-        // kafka
-        TaskEvent taskEvent = new TaskEvent();
-        taskEvent.setStatus("PENDING");
-        taskEvent.setMessage("");
-        taskEvent.setTask(e.toString());
+        // websocket
+        messagingTemplate.convertAndSend("/topic/task", e);
 
-        taskProducer.sendMessage(taskEvent);
+        // kafka
+        taskProducer.sendMessage(e, topic);
 
         // redis
         return redisTaskService.saveToRedis(e, e.getTaskId().toString(), "PENDING_WRITE");
@@ -89,8 +98,34 @@ public class TaskService implements IService<Task> {
 
     public List<Task> getByGroupId(String groupId) {
         return getAll().stream()
-                        .filter(task -> task.getGroupId().equals(groupId))
-                        .toList();
+                .filter(task -> task.getGroupId().equals(groupId))
+                .toList();
+    }
+
+    public Task sendNotification(Task task, String topic) {
+        task.setUpdateAt(CURRENT_TIME);
+        task.setUpdateBy(redisTaskService.getCurrentUserId());
+        switch (topic) {
+            case "task":
+                taskProducer.sendMessage(task, KAFKA_UPDATED_TASK);
+                break;
+            case "checklist":
+                taskProducer.sendMessage(task, KAFKA_UPDATED_CHECKLIST);
+                break;
+            case "checkitem":
+                taskProducer.sendMessage(task, KAFKA_UPDATED_CHECKITEM);
+                break;
+            case "taskassign":
+                taskProducer.sendMessage(task, KAFKA_UPDATED_TASKASSIGN);
+                break;
+            case "taskstatustask":
+                taskProducer.sendMessage(task, KAFKA_UPDATED_TASKSTATUSTASK);
+                break;
+            default:
+                break;
+        }
+
+        return task;
     }
 
 }
