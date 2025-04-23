@@ -15,7 +15,7 @@ import lombok.Setter;
 public class CheckItem extends CoreEntity{
     
     @Id
-    private Long checkItemId;
+    private String checkItemId;
 
     private String checkItemTitle;
     private String checkItemDescription;

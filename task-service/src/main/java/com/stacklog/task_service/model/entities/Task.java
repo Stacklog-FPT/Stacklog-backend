@@ -23,7 +23,7 @@ import lombok.ToString;
 public class Task extends CoreEntity {
 
     @Id
-    private Long taskId;
+    private String taskId;
 
     private String taskTitle;
     private String taskDescription;

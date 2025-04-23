@@ -15,7 +15,7 @@ import lombok.Setter;
 public class TaskAssign extends CoreEntity {
 
     @Id
-    private Long id;
+    private String taskAssignId;
 
     @ManyToOne
     @JoinColumn(name = "taskId")

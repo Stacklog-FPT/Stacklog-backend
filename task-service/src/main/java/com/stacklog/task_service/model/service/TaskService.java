@@ -56,13 +56,15 @@ public class TaskService implements IService<Task> {
     }
 
     @Override
-    public Task getById(Long id) {
-        Task task = redisTaskService.getDataById(id.toString());
+    public Task getById(String id) {
+        Task task = redisTaskService.getDataById(id);
         if (task != null) {
             log.info("✅ Loaded task from Redis cache", task.toString());
         } else {
-            task = taskRepo.findById(id).orElse(new Task());
-            redisTaskService.saveToRedis(task, task.getTaskId().toString(), "PENDING_WRITE");
+            task = taskRepo.findById(id).orElse(null);
+            if (task != null) {
+                redisTaskService.saveToRedis(task, task.getTaskId().toString(), "PENDING_WRITE");
+            }
         }
         return task;
     }
@@ -72,8 +74,8 @@ public class TaskService implements IService<Task> {
         e.setUpdateAt(CURRENT_TIME);
         e.setUpdateBy(redisTaskService.getCurrentUserId());
         String topic = KAFKA_UPDATED_TASK;
-        if (e.getTaskId() == null || !taskRepo.findById(e.getTaskId()).isPresent()) {
-            Long eId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
+        if (e.getTaskId() == null || getById(e.getTaskId()) == null) {
+            String eId = UUID.randomUUID().toString();
             e.setTaskId(eId);
             e.setCreatedAt(CURRENT_TIME);
             e.setCreatedBy(redisTaskService.getCurrentUserId());
@@ -86,13 +88,16 @@ public class TaskService implements IService<Task> {
         // kafka
         taskProducer.sendMessage(e, topic);
 
+        // db
+        taskRepo.save(e);
+
         // redis
         return redisTaskService.saveToRedis(e, e.getTaskId().toString(), "PENDING_WRITE");
 
     }
 
     @Override
-    public Task remove(Long id) {
+    public Task remove(String id) {
         return null;
     }
 

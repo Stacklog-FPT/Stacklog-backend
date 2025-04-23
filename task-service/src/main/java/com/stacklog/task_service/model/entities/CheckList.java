@@ -20,7 +20,7 @@ import lombok.ToString;
 public class CheckList extends CoreEntity {
 
     @Id
-    private Long checkListId;
+    private String checkListId;
 
     private String checkListName;
 

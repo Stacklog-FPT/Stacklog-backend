@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.stacklog.task_service.model.entities.CheckItem;
 
 @Repository
-public interface CheckItemRepo extends JpaRepository<CheckItem, Long> {
+public interface CheckItemRepo extends JpaRepository<CheckItem, String> {
     
 }

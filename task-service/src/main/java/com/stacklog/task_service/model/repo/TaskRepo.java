@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.stacklog.task_service.model.entities.Task;
 
 @Repository
-public interface TaskRepo extends JpaRepository<Task, Long> {
+public interface TaskRepo extends JpaRepository<Task, String> {
     
     public List<Optional<Task>> getAllByGroupId(String groupId);
 

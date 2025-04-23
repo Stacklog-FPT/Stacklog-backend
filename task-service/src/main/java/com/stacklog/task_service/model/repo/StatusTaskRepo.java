@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.stacklog.task_service.model.entities.StatusTask;
 
 @Repository
-public interface StatusTaskRepo extends JpaRepository<StatusTask, Long> {
+public interface StatusTaskRepo extends JpaRepository<StatusTask, String> {
     
 }

@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.stacklog.task_service.model.entities.TaskAssign;
 
 @Repository
-public interface TaskAssignRepo extends JpaRepository<TaskAssign, Long> {
+public interface TaskAssignRepo extends JpaRepository<TaskAssign, String> {
     
 }

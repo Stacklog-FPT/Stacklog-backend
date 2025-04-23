@@ -20,7 +20,7 @@ public class CheckListService implements IService<CheckList> {
     }
 
     @Override
-    public CheckList getById(Long id) {
+    public CheckList getById(String id) {
         return checkListRepo.findById(id).orElseThrow();
     }
 
@@ -30,7 +30,7 @@ public class CheckListService implements IService<CheckList> {
     }
 
     @Override
-    public CheckList remove(Long id) {
+    public CheckList remove(String id) {
         CheckList checkList = getById(id);
         if (checkList == null) {
             return null;

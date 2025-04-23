@@ -30,7 +30,7 @@ public class TaskCoordinatorService {
         return taskService.save(task);
     }
 
-    public Task deleteTask(Long taskId) {
+    public Task deleteTask(String taskId) {
         return taskService.remove(taskId);
     }
 
@@ -43,7 +43,7 @@ public class TaskCoordinatorService {
         return statusTaskService.save(statusTask);
     }
 
-    public StatusTask deleteStatusTask(Long statusId) {
+    public StatusTask deleteStatusTask(String statusId) {
         return statusTaskService.remove(statusId);
     }
 
@@ -52,7 +52,7 @@ public class TaskCoordinatorService {
         return taskAssignService.save(assign);
     }
 
-    public TaskAssign deleteTaskAssign(Long assignId) {
+    public TaskAssign deleteTaskAssign(String assignId) {
         return taskAssignService.remove(assignId);
     }
 
@@ -61,7 +61,7 @@ public class TaskCoordinatorService {
         return checkListService.save(checkList);
     }
 
-    public CheckList deleteCheckList(Long checkListId) {
+    public CheckList deleteCheckList(String checkListId) {
         return checkListService.remove(checkListId);
     }
 
@@ -70,7 +70,7 @@ public class TaskCoordinatorService {
         return checkItemService.save(checkItem);
     }
 
-    public CheckItem deleteCheckItem(Long checkItemId) {
+    public CheckItem deleteCheckItem(String checkItemId) {
         return checkItemService.remove(checkItemId);
     }
 
