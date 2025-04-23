@@ -5,7 +5,6 @@ import io.jsonwebtoken.security.Keys;
 
 import java.security.Key;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +16,6 @@ public class JwtDecoder {
 
     private final JwtProperties jwtProperties;
 
-    @Autowired
     public JwtDecoder(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
     }

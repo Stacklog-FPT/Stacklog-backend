@@ -2,35 +2,41 @@ package com.stacklog.task_service.model.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.stacklog.task_service.model.entities.TaskAssign;
+import com.stacklog.task_service.model.repo.TaskAssignRepo;
+import com.stacklog.task_service.utils.redis.RedisService;
 
 @Service
 public class TaskAssignService implements IService<TaskAssign> {
 
+    RedisService<TaskAssign> redisTaskAssignService;
+
+    @Autowired
+    TaskAssignRepo taskAssignRepo;
+
     @Override
     public List<TaskAssign> getAll() {
-        // TODO Auto-generated method stub
-        return null;
+        return taskAssignRepo.findAll();
     }
 
     @Override
     public TaskAssign getById(Long id) {
-        // TODO Auto-generated method stub
-        return null;
+        return taskAssignRepo.findById(id).orElseThrow();
     }
 
     @Override
     public TaskAssign remove(Long id) {
-        // TODO Auto-generated method stub
-        return null;
+        TaskAssign taskAssign = getById(id);
+        taskAssignRepo.deleteById(id);
+        return taskAssign;
     }
 
     @Override
     public TaskAssign save(TaskAssign e) {
-        // TODO Auto-generated method stub
-        return null;
+        return taskAssignRepo.save(e);
     }
     
 }
