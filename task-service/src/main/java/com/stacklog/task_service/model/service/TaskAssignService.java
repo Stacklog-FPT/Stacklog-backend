@@ -38,5 +38,10 @@ public class TaskAssignService implements IService<TaskAssign> {
     public TaskAssign save(TaskAssign e) {
         return taskAssignRepo.save(e);
     }
-    
+
+    public List<TaskAssign> getByTaskId(String taskId) {
+        return getAll().stream().filter((TaskAssign taskAssign) -> taskAssign.getTask().getTaskId().equals(taskId))
+                .toList();
+    }
+
 }
