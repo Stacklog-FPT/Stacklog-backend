@@ -48,4 +48,8 @@ public class StatusTaskService implements IService<StatusTask> {
         return statusTask;
     }
 
+    public List<StatusTask> getByGroupId(String groupId) {
+        return getAll().stream().filter((StatusTask stt) -> stt.getGroupId().equals(groupId)).toList();
+    }
+
 }

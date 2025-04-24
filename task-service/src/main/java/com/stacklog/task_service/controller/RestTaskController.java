@@ -1,13 +1,12 @@
 package com.stacklog.task_service.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.stacklog.task_service.model.entities.CheckItem;
+import com.stacklog.task_service.dto.TaskRequest;
 import com.stacklog.task_service.model.entities.CheckList;
-import com.stacklog.task_service.model.entities.StatusTask;
 import com.stacklog.task_service.model.entities.Task;
-import com.stacklog.task_service.model.entities.TaskAssign;
 import com.stacklog.task_service.model.service.CheckItemService;
 import com.stacklog.task_service.model.service.CheckListService;
 import com.stacklog.task_service.model.service.StatusTaskService;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 
-
 @RestController
 @RequestMapping(path = { "" })
 public class RestTaskController {
@@ -36,21 +34,9 @@ public class RestTaskController {
     @Autowired
     TaskService taskService;
 
-    @Autowired
-    CheckListService checkListService;
-
-    @Autowired
-    TaskAssignService taskAssignService;
-
-    @Autowired
-    CheckItemService checkItemService;
-
-    @Autowired
-    StatusTaskService statusTaskService;
-
     @MessageMapping("/taskify")
     @SendTo("/topic/task")
-    public ResponseEntity<Task> sendMessage(Task task){
+    public ResponseEntity<Task> sendMessage(Task task) {
         return ResponseEntity.ok().body(task);
     }
 
@@ -80,7 +66,8 @@ public class RestTaskController {
     }
 
     @PutMapping("")
-    public ResponseEntity<Task> saveUpdateTask(@RequestBody Task task) {
+    public ResponseEntity<Task> saveUpdateTask(@RequestBody TaskRequest taskRequest) {
+
         try {
             System.out.println(task.toString());
             Task newTask = taskService.save(task);
@@ -102,36 +89,5 @@ public class RestTaskController {
         }
         return ResponseEntity.badRequest().build();
     }
-
-    // @PutMapping("/{taskId}/checklist")
-    // public ResponseEntity<Task> updateChecklist(@PathVariable(name = "taskId") String taskId, @RequestBody CheckList checkList) {
-    //     checkListService.save(checkList);
-    //     Task task = taskService.sendNotification(taskService.getById(Long.parseLong(taskId)), "checklist");
-    //     return ResponseEntity.ok().body(task);
-    // }
-
-    // @PutMapping("/{taskId}/checkItem")
-    // public ResponseEntity<Task> putMethodName(@PathVariable(name = "taskId") String taskId, @RequestBody CheckItem checkItem) {
-    //     checkItemService.save(checkItem);
-    //     Task task = taskService.sendNotification(taskService.getById(Long.parseLong(taskId)), "checkitem");
-    //     return ResponseEntity.ok().body(task);
-    // }
-
-    // @PutMapping("/{taskId}/taskAssign")
-    // public ResponseEntity<Task> updateAssign(@PathVariable(name = "taskId") String taskId, @RequestBody TaskAssign taskAssign) {
-    //     taskAssignService.save(taskAssign);
-    //     Task task = taskService.sendNotification(taskService.getById(Long.parseLong(taskId)), "taskassign");
-    //     return ResponseEntity.ok().body(task);
-    // }
-
-    // @PutMapping("/{taskId}/statusTask")
-    // public ResponseEntity<Task> updateStatusOfTask(@PathVariable(name = "taskId") String taskId, @RequestBody StatusTask statusTask) {
-    //     Task task = taskService.getById(Long.parseLong(taskId));
-    //     task.setStatusTask(statusTask);
-    //     taskService.sendNotification(taskService.getById(Long.parseLong(taskId)), "taskstatustask");
-    //     return ResponseEntity.ok().body(task);
-    // }
-
-    
 
 }

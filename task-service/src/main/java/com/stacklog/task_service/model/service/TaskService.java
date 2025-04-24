@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.stacklog.task_service.model.entities.Task;
+import com.stacklog.task_service.model.entities.TaskAssign;
 import com.stacklog.task_service.model.repo.TaskRepo;
 import com.stacklog.task_service.utils.kafka.TaskProducer;
 import com.stacklog.task_service.utils.redis.RedisService;
@@ -24,7 +25,6 @@ public class TaskService implements IService<Task> {
     private final String KAFKA_UPDATED_CHECKITEM = "task-service.checkitem.updated";
     private final String KAFKA_UPDATED_TASKASSIGN = "task-service.taskassign.updated";
     private final String KAFKA_UPDATED_TASKSTATUSTASK = "task-service.taksstatustask.updated";
-    
 
     RedisService<Task> redisTaskService;
 
@@ -48,11 +48,17 @@ public class TaskService implements IService<Task> {
         if (!tasks.isEmpty()) {
             log.info("✅ Loaded {} tasks from Redis cache", tasks.size());
         } else {
-            tasks = taskRepo.findAll();
+            tasks = getByUserId();
             redisTaskService.saveListToRedis(tasks);
 
         }
         return tasks;
+    }
+
+    private List<Task> getByUserId() {
+        String currentUserId = redisTaskService.getCurrentUserId();
+        return taskRepo.findAll().stream().filter((Task task) -> task.getAssigns().stream()
+                .allMatch((TaskAssign taskAssign) -> taskAssign.getAssignTo().equals(currentUserId))).toList();
     }
 
     @Override
