@@ -1,4 +1,4 @@
-package com.stacklog.task_service.utils.mapper;
+package com.stacklog.task_service.mapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.stacklog.task_service.dto.TaskRequest;
+import com.stacklog.task_service.model.entities.CheckList;
 import com.stacklog.task_service.model.entities.Task;
-import com.stacklog.task_service.model.entities.TaskAssign;
 import com.stacklog.task_service.model.service.CheckItemService;
 import com.stacklog.task_service.model.service.CheckListService;
 import com.stacklog.task_service.model.service.StatusTaskService;
@@ -36,9 +36,11 @@ public class TaskMapper {
 
     @Autowired TaskService taskService;
 
+    @Autowired
+    TaskAssignMapper taskAssignMapper;
+
     public Task toEntity(TaskRequest taskRequest) {
         Task task = new Task();
-
         task.setTaskTitle(taskRequest.getTaskTitle());
         task.setTaskDescription(taskRequest.getTaskDescription());
         task.setGroupId(taskRequest.getGroupId());
@@ -48,22 +50,12 @@ public class TaskMapper {
 
         task.setPriority(taskRequest.getPriority() != null ? taskRequest.getPriority() : Task.Priority.LOW);
 
+        task.setAssigns(taskAssignMapper.generateAssigns(taskRequest.getTaskId(), taskRequest.getAssignIds()));
+        
+        return task;
+
     }
 
-    public List<TaskAssign> generateAssigns(String[] assignIds, String taskId) {
-        List<TaskAssign> taskAssigns = new ArrayList<>();
-        taskAssignService.getByTaskId(taskId).stream().forEach(ts -> {
-            if (Arrays.stream(assignIds).anyMatch(s -> s.equals(ts.getAssignTo()))) {
-                taskAssigns.add(ts);
-            } else {
-                taskAssignService.remove(ts.getTaskAssignId());
-                TaskAssign taskAssign = new TaskAssign();
-                taskAssign.setCreatedAt(LocalDateTime.now());
-                taskAssign.setUpdateAt(LocalDateTime.now());
-                
-                taskAssignService.save(new TaskAssign(null, null, null, null, task, taskId));
-            } 
-        });
-    }
+    
 
 }
