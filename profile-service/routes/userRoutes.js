@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, updateUser, deleteUser, findById } = require('../controller/userController');
+const { createUser, updateUser, deleteUser, findById, findByGroupId } = require('../controller/userController');
 const { validateUser } = require('../middleware/validateUserMiddleware');
 
 const router = express.Router();
@@ -15,5 +15,8 @@ router.delete('/:id', deleteUser);
 
 // find by id
 router.get('/:id', findById)
+
+// find by groupId
+router.get("/group/:groupId", findByGroupId);
 
 module.exports = router;
