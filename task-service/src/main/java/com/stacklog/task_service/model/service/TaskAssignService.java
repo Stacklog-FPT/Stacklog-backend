@@ -17,6 +17,10 @@ public class TaskAssignService implements IService<TaskAssign> {
     @Autowired
     TaskAssignRepo taskAssignRepo;
 
+    public TaskAssignService(RedisService<TaskAssign> redisTaskAssignService) {
+        this.redisTaskAssignService =redisTaskAssignService;
+    }
+
     @Override
     public List<TaskAssign> getAll() {
         return taskAssignRepo.findAll();
@@ -36,7 +40,15 @@ public class TaskAssignService implements IService<TaskAssign> {
 
     @Override
     public TaskAssign save(TaskAssign e) {
+        e.setCreatedBy(redisTaskAssignService.getCurrentUserId());
+        e.setCreatedAt(CURRENT_TIME);
+        e.setUpdateAt(CURRENT_TIME);
         return taskAssignRepo.save(e);
     }
-    
+
+    public List<TaskAssign> getByTaskId(String taskId) {
+        return getAll().stream().filter((TaskAssign taskAssign) -> taskAssign.getTask().getTaskId().equals(taskId))
+                .toList();
+    }
+
 }
