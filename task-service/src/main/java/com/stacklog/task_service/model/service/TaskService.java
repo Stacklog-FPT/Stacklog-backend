@@ -98,6 +98,7 @@ public class TaskService implements IService<Task> {
         taskRepo.save(e);
 
         // redis
+        
         return redisTaskService.saveToRedis(e, e.getTaskId().toString(), "PENDING_WRITE");
 
     }

@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stacklog.task_service.dto.TaskRequest;
+import com.stacklog.task_service.mapper.TaskMapper;
 import com.stacklog.task_service.model.entities.CheckList;
 import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.service.CheckItemService;
@@ -33,6 +34,9 @@ public class RestTaskController {
 
     @Autowired
     TaskService taskService;
+
+    @Autowired
+    TaskMapper taskMapper;
 
     @MessageMapping("/taskify")
     @SendTo("/topic/task")
@@ -67,6 +71,8 @@ public class RestTaskController {
 
     @PutMapping("")
     public ResponseEntity<Task> saveUpdateTask(@RequestBody TaskRequest taskRequest) {
+
+        Task task = taskMapper.toEntity(taskRequest);
 
         try {
             System.out.println(task.toString());
