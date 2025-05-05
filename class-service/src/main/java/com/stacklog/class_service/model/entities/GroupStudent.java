@@ -1,0 +1,33 @@
+package com.stacklog.class_service.model.entities;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
+@Entity
+public class GroupStudent extends CoreEntity {
+    
+    @Id
+    private String groupStudentId;
+
+    private String userId;
+
+    @ManyToOne
+    @JoinColumn(name = "groupsId")
+    @JsonIgnore
+    private Groupss groups;
+
+}
