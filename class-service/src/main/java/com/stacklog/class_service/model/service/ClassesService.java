@@ -1,6 +1,7 @@
 package com.stacklog.class_service.model.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,7 +11,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.stacklog.class_service.model.entities.Classes;
+import com.stacklog.class_service.model.entities.GroupStudent;
 import com.stacklog.class_service.model.repo.ClassesRepo;
+import com.stacklog.class_service.model.repo.GroupsStudentRepo;
 import com.stacklog.class_service.utils.kafka.ClassesKafkaService;
 import com.stacklog.class_service.utils.redis.RedisService;
 
@@ -24,11 +27,15 @@ public class ClassesService {
     @Autowired
     ClassesRepo classesRepo;
 
+    @Autowired
+    GroupsStudentRepo groupsStudentRepo;
+
     RedisService<Classes> redisService;
 
     ClassesKafkaService classesKafkaService;
 
-    @Autowired private SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     public ClassesService(RedisService<Classes> redisService, ClassesKafkaService classesKafkaService) {
         this.redisService = redisService;
@@ -55,24 +62,25 @@ public class ClassesService {
     }
 
     public List<Classes> getAllByUserId(String userId) {
-        
+
+        List<Classes> classes = new ArrayList<>();
+
+        GroupStudent groupStudent = new GroupStudent();
+        groupStudent.setUserId(userId);
+        Example<GroupStudent> example = Example.of(groupStudent);
+        groupsStudentRepo.findAll(example).stream().forEach((GroupStudent gs) -> {
+            Example<Classes> example2 = Example.of(gs.getGroups().getClasses());
+            classes.addAll(classesRepo.findAll(example2));
+        });
+
+        return classes;
     }
 
-    public Classes save(Classes classes, String typeAction) {
+    public Classes save(Classes classes) {
         String topic = KAFKA_TOPIC_UPDATE_CLASS;
-        switch (typeAction) {
-            case "create":
-                classes.setClassesId(UUID.randomUUID().toString());
-                classes.setCreatedAt(LocalDateTime.now());
-                classes.setCreatedBy(redisService.getCurrentUserId());
-                topic = KAFKA_TOPIC_CREATE_CLASS;
-            case "update":
-                classes.setUpdateAt(LocalDateTime.now());
-                classes.setUpdateBy(redisService.getCurrentUserId());
-                break;
-            default:
-                break;
-        }
+        classes.setUpdateAt(LocalDateTime.now());
+        classes.setUpdateBy(redisService.getCurrentUserId());
+        
 
         Classes newClasses = classesRepo.save(classes);
         classesKafkaService.sendMessage(newClasses, topic);
@@ -88,6 +96,5 @@ public class ClassesService {
     public Classes delete(String classId) {
         return null;
     }
-
 
 }
