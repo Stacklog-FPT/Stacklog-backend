@@ -9,4 +9,6 @@ public class KafkaConsumer<E> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaConsumer.class);
 
+    
+
 }
