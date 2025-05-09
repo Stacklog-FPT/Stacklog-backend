@@ -6,7 +6,7 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+// import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.stacklog.class_service.model.entities.Classes;
@@ -32,8 +32,7 @@ public class ClassService implements IService<Classes> {
     @Autowired
     private KafkaProducer<Classes> kafkaClassProducer;
 
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
+    // @Autowired private SimpMessagingTemplate messagingTemplate;
 
     private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
 
@@ -63,6 +62,7 @@ public class ClassService implements IService<Classes> {
         Classes classes = redisClassService.getById(id, token, NAME_SERVICE);
         if (classes == null) {
             classes = classesRepo.findById(id).orElseThrow();
+            redisClassService.saveToRedis(classes, token, NAME_SERVICE);
         }
         return classes;
     }
@@ -85,7 +85,7 @@ public class ClassService implements IService<Classes> {
 
         redisClassService.saveToRedis(newClasses, token, NAME_SERVICE);
 
-        messagingTemplate.convertAndSend("/topic/class-service", e);
+        // messagingTemplate.convertAndSend("/topic/class-service", e);
 
         return newClasses;
     }
