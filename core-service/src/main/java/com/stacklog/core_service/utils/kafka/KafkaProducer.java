@@ -19,7 +19,7 @@ public class KafkaProducer<E> {
     }
 
     public void sendMessage(E e, String topic) {
-        LOGGER.info(String.format("%s => %s", e.getClass(), e));
+        LOGGER.info(String.format("Sending Kafka message: {} => {}", e.getClass().getSimpleName(), e));
 
         // create message
         Message<E> message = MessageBuilder
