@@ -1,6 +1,5 @@
 package com.stacklog.class_service.model.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -29,7 +28,6 @@ public class GroupStudent extends CoreEntity {
 
     @ManyToOne
     @JoinColumn(name = "groupsId")
-    @JsonIgnore
     private Groupss groups;
 
 }

@@ -8,6 +8,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stacklog.class_service.model.entities.Classes;
+import com.stacklog.class_service.model.entities.GroupStudent;
+import com.stacklog.class_service.model.entities.Groupss;
 import com.stacklog.core_service.utils.jwt.JwtDecoder;
 import com.stacklog.core_service.utils.redis.RedisService;
 
@@ -27,6 +29,24 @@ public class RedisClassConfig {
             JwtDecoder jwtDecoder
     ) {
         return new RedisService<>(Classes.class, jwtDecoder);
+    }
+
+    @Bean
+    public RedisService<Groupss> redisGroupService(
+            RedisTemplate<String, String> redisTemplate,
+            ObjectMapper objectMapper,
+            JwtDecoder jwtDecoder
+    ) {
+        return new RedisService<>(Groupss.class, jwtDecoder);
+    }
+
+    @Bean
+    public RedisService<GroupStudent> redisGroupStudentService(
+            RedisTemplate<String, String> redisTemplate,
+            ObjectMapper objectMapper,
+            JwtDecoder jwtDecoder
+    ) {
+        return new RedisService<>(GroupStudent.class, jwtDecoder);
     }
 
 }
