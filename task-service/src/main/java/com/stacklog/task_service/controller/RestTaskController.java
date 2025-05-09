@@ -1,17 +1,11 @@
 package com.stacklog.task_service.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stacklog.task_service.dto.TaskRequest;
 import com.stacklog.task_service.mapper.TaskMapper;
-import com.stacklog.task_service.model.entities.CheckList;
 import com.stacklog.task_service.model.entities.Task;
-import com.stacklog.task_service.model.service.CheckItemService;
-import com.stacklog.task_service.model.service.CheckListService;
-import com.stacklog.task_service.model.service.StatusTaskService;
-import com.stacklog.task_service.model.service.TaskAssignService;
 import com.stacklog.task_service.model.service.TaskService;
 
 import java.util.List;

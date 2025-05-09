@@ -8,13 +8,12 @@ import java.security.Key;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import com.stacklog.core_service.config.JwtProperties;
-
 @Component
-@EnableConfigurationProperties
+@EnableConfigurationProperties(JwtProperties.class)
 public class JwtDecoder {
 
     private final JwtProperties jwtProperties;
+
 
     public JwtDecoder(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;

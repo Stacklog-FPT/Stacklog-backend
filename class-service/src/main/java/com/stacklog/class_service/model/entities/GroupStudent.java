@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import com.stacklog.core_service.model.entities.CoreEntity;
+
 @Getter
 @Setter
 @NoArgsConstructor
