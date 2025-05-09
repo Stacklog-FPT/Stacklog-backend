@@ -7,7 +7,7 @@ public interface IService<E> {
     
     public List<E> getAllByUserId(String token);
 
-    public List<E> searchByFields(Predicate<E> p);
+    public List<E> searchByFields(Predicate<E> p, String token);
 
     public E getById(String id, String token);
 

@@ -3,13 +3,18 @@ package com.stacklog.core_service.model.entities;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
 
 @Data
 @MappedSuperclass
-public abstract class CoreEntity {
+public class CoreEntity {
+
+    static final Logger logger = LoggerFactory.getLogger(CoreEntity.class);
 
     @Column(name = "created_by", updatable = false)
     private String createdBy;
@@ -30,7 +35,7 @@ public abstract class CoreEntity {
             this.createdAt = convertTime(createdAt);
             this.updateAt = convertTime(updateAt);
         } catch (Exception e) {
-            System.out.println(e);
+            logger.error("Failed to parse date", e);
             this.createdAt = null;
             this.updateAt = null;
         }
