@@ -1,55 +1,72 @@
 package com.stacklog.task_service.model.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import com.stacklog.core_service.model.service.IService;
+import com.stacklog.core_service.utils.CommonFunction;
+import com.stacklog.core_service.utils.kafka.KafkaProducer;
+import com.stacklog.core_service.utils.redis.RedisService;
 import com.stacklog.task_service.model.entities.StatusTask;
 import com.stacklog.task_service.model.repo.StatusTaskRepo;
 
 @Service
 public class StatusTaskService implements IService<StatusTask> {
 
-    private final String KAFKA_UPDATED_STATUSTASK = "task-service.statustask.updated";
+    private static final String NAME_SERVICE = "task-service";
+
+    private static final String KAFKA_TOPIC_UPDATE = "task-service.statustask.updated";
+    private static final String KAFKA_TOPIC_CREATE = "task-service.statustask.created";
+
+    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
+
+    @Autowired StatusTaskRepo statusTaskRepo;
 
     @Autowired
-    StatusTaskRepo statusTaskRepo;
+    KafkaProducer<StatusTask> statusTaskProducer;
 
     @Autowired
-    TaskService taskService;
+    private SimpMessagingTemplate messagingTemplate;
 
-    @Override
-    public List<StatusTask> getAll() {
-        return statusTaskRepo.findAll();
+    RedisService<StatusTask> redisStatusTaskService;
+
+    public StatusTaskService(RedisService<StatusTask> redisStatusTaskService) {
+        this.redisStatusTaskService = redisStatusTaskService;
     }
 
     @Override
-    public StatusTask getById(String id) {
-        return statusTaskRepo.findById(id).orElseThrow();
+    public StatusTask delete(String id, String token) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
 
     @Override
-    public StatusTask remove(String id) {
-        StatusTask statusTask = getById(id);
-        statusTaskRepo.deleteById(id);
-        return statusTask;
+    public List<StatusTask> getAllByUserId(String token) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllByUserId'");
     }
 
     @Override
-    public StatusTask save(StatusTask e) {
-        return statusTaskRepo.save(e);
+    public StatusTask getById(String id, String token) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getById'");
     }
 
-    public StatusTask sendNotification(StatusTask statusTask, String topic) {
-        statusTask.setUpdateAt(CURRENT_TIME);
-        statusTask.setUpdateBy(taskService.redisTaskService.getCurrentUserId());
-        taskService.taskProducer.sendMessage(statusTask, KAFKA_UPDATED_STATUSTASK);
-        return statusTask;
+    @Override
+    public StatusTask save(StatusTask e, String token) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'save'");
     }
 
-    public List<StatusTask> getByGroupId(String groupId) {
-        return getAll().stream().filter((StatusTask stt) -> stt.getGroupId().equals(groupId)).toList();
+    @Override
+    public List<StatusTask> searchByFields(Predicate<StatusTask> p, String token) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'searchByFields'");
     }
-
+    
 }

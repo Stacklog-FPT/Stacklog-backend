@@ -2,9 +2,10 @@ package com.stacklog.task_service.model.entities;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.stacklog.core_service.model.entities.CoreEntity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -27,9 +28,8 @@ public class CheckList extends CoreEntity {
     @OneToMany(mappedBy = "checkItemId")
     private List<CheckItem> listItems;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "taskId")
-    @JsonIgnore
     private Task task;
 
     public CheckList(String createdBy, String createdAt, String updateBy, String updateAt,
@@ -42,8 +42,5 @@ public class CheckList extends CoreEntity {
 
     public CheckList() {
     }
-
-    
-    
 
 }
