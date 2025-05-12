@@ -1,8 +1,9 @@
 package com.stacklog.task_service.model.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.stacklog.core_service.model.entities.CoreEntity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -17,9 +18,8 @@ public class TaskAssign extends CoreEntity {
     @Id
     private String taskAssignId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "taskId")
-    @JsonIgnore
     private Task task;
 
     private String assignTo;

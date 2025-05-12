@@ -1,5 +1,7 @@
 package com.stacklog.task_service.model.entities;
 
+import com.stacklog.core_service.model.entities.CoreEntity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Getter;
@@ -28,7 +30,5 @@ public class StatusTask extends CoreEntity {
 
     public StatusTask() {
     }
-
-    
 
 }

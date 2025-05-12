@@ -2,6 +2,8 @@ package com.stacklog.task_service.model.entities;
 
 import java.time.LocalDateTime;
 
+import com.stacklog.core_service.model.entities.CoreEntity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -12,8 +14,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-public class CheckItem extends CoreEntity{
-    
+public class CheckItem extends CoreEntity {
+
     @Id
     private String checkItemId;
 
@@ -42,6 +44,5 @@ public class CheckItem extends CoreEntity{
 
     public CheckItem() {
     }
-    
 
 }
