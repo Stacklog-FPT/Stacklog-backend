@@ -51,7 +51,7 @@ public class ClassService implements IService<Classes> {
     public List<Classes> getAllByUserId(String token) {
         List<Classes> classes = redisClassService.getAll(token, NAME_SERVICE);
         if (classes.isEmpty()) {
-            classes = classesRepo.findAll();
+            classes = classesRepo.findByUserId(redisClassService.getCurrentUserId(token));
             redisClassService.saveListToRedis(classes, token, NAME_SERVICE);
         }
         return classes;
