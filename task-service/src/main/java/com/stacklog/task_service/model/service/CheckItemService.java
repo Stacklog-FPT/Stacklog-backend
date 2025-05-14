@@ -2,11 +2,13 @@ package com.stacklog.task_service.model.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.stacklog.core_service.model.service.IService;
 import com.stacklog.core_service.utils.CommonFunction;
@@ -47,20 +49,46 @@ public class CheckItemService implements IService<CheckItem> {
 
     @Override
     public List<CheckItem> getAllByUserId(String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllByUserId'");
+        List<CheckItem> checkItems = redisCheckItemService.getAll(token, NAME_SERVICE);
+        if (checkItems.isEmpty() || checkItems == null) {
+            checkItems = checkItemRepo.findAllByUserId(redisCheckItemService.getCurrentUserId(token));
+            redisCheckItemService.saveListToRedis(checkItems, token, NAME_SERVICE);
+        }
+        return checkItems;
     }
 
     @Override
     public CheckItem getById(String id, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getById'");
+        CheckItem checkItem = redisCheckItemService.getById(id, token, NAME_SERVICE);
+        if (checkItem == null) {
+            checkItem = checkItemRepo.findById(id).orElseThrow();
+            redisCheckItemService.saveToRedis(checkItem, token, NAME_SERVICE);
+        }
+        return checkItem;
     }
 
     @Override
+    @Transactional
     public CheckItem save(CheckItem e, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
+        boolean isCreate = (e.getCheckItemId() == null || !checkItemRepo.existsById(e.getCheckItemId()));
+        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateBy(redisCheckItemService.getCurrentUserId(token));
+        if (e.getCheckItemId() == null) {
+            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedBy(redisCheckItemService.getCurrentUserId(token));
+            e.setCheckItemId(UUID.randomUUID().toString());
+        }
+        if (isCreate) {
+            checkItemProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
+        } else {
+            checkItemProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
+        }
+
+        redisCheckItemService.saveToRedis(e, token, NAME_SERVICE);
+
+        messagingTemplate.convertAndSend("/topic/task-service", e);
+
+        return e;
     }
 
     @Override

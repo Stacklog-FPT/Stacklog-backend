@@ -2,11 +2,13 @@ package com.stacklog.task_service.model.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.stacklog.core_service.model.service.IService;
 import com.stacklog.core_service.utils.CommonFunction;
@@ -47,20 +49,50 @@ public class StatusTaskService implements IService<StatusTask> {
 
     @Override
     public List<StatusTask> getAllByUserId(String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllByUserId'");
+        return null;
+    }
+
+    public List<StatusTask> getAllByGroupId(String token, String groupId) {
+        List<StatusTask> statusTasks = redisStatusTaskService.getAll(token, NAME_SERVICE);
+        if (statusTasks.isEmpty() || statusTasks == null) {
+            statusTasks = statusTaskRepo.findAllByGroupId(groupId);
+            redisStatusTaskService.saveListToRedis(statusTasks, token, NAME_SERVICE);
+        }
+        return statusTasks.stream().filter(t -> t.getGroupId().equals(groupId)).toList();
     }
 
     @Override
     public StatusTask getById(String id, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getById'");
+        StatusTask statusTask = redisStatusTaskService.getById(id, token, NAME_SERVICE);
+        if (statusTask == null) {
+            statusTask = statusTaskRepo.findById(id).orElseThrow();
+            redisStatusTaskService.saveToRedis(statusTask, token, NAME_SERVICE);
+        }
+        return statusTask;
     }
 
     @Override
+    @Transactional
     public StatusTask save(StatusTask e, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
+        boolean isCreate = (e.getStatusTaskId() == null || !statusTaskRepo.existsById(e.getStatusTaskId()));
+        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateBy(redisStatusTaskService.getCurrentUserId(token));
+        if (e.getStatusTaskId() == null) {
+            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedBy(redisStatusTaskService.getCurrentUserId(token));
+            e.setStatusTaskId(UUID.randomUUID().toString());
+        }
+        if (isCreate) {
+            statusTaskProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
+        } else {
+            statusTaskProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
+        }
+
+        redisStatusTaskService.saveToRedis(e, token, NAME_SERVICE);
+
+        messagingTemplate.convertAndSend("/topic/task-service", e);
+
+        return e;
     }
 
     @Override
