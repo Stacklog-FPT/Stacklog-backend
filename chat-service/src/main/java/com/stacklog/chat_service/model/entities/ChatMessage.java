@@ -23,7 +23,7 @@ public class ChatMessage extends CoreEntity {
     private String chatMessageSendTo;
 
     @ManyToOne
-    @JoinColumn(name = "boxChatId")
+    @JoinColumn(name = "box_chat_id")
     private BoxChat boxChat;
 
 }
