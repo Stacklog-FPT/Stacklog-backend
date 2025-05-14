@@ -15,7 +15,6 @@ public class WebSocketController {
     @MessageMapping("/notify")
     @SendTo("/topic/notification")
     public ResponseEntity<Map<String, String>> sendMessage(Map<String, String> message){
-        System.out.println("oke");
         return ResponseEntity.ok().body(message);
     }
 
