@@ -44,6 +44,12 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.stacklog</groupId>
+			<artifactId>core-service</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
 		<!-- kafka -->
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
