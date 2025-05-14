@@ -2,11 +2,13 @@ package com.stacklog.task_service.model.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.stacklog.core_service.model.service.IService;
 import com.stacklog.core_service.utils.CommonFunction;
@@ -42,26 +44,52 @@ public class TaskAssignService implements IService<TaskAssign> {
 
     @Override
     public TaskAssign delete(String id, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        return null;
     }
 
     @Override
     public List<TaskAssign> getAllByUserId(String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllByUserId'");
+        List<TaskAssign> taskAssigns = redisTaskAssignService.getAll(token, NAME_SERVICE);
+        if (taskAssigns.isEmpty()) {
+            taskAssigns = taskAssignRepo.findByAssignTo(redisTaskAssignService.getCurrentUserId(token));
+            redisTaskAssignService.saveListToRedis(taskAssigns, token, NAME_SERVICE);
+        }
+        return taskAssigns;
     }
 
+    
     @Override
     public TaskAssign getById(String id, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getById'");
+        TaskAssign taskAssign = redisTaskAssignService.getById(id, token, NAME_SERVICE);
+        if (taskAssign == null) {
+            taskAssign = taskAssignRepo.findById(id).orElseThrow();
+            redisTaskAssignService.saveToRedis(taskAssign, token, NAME_SERVICE);
+        }
+        return taskAssign;
     }
 
     @Override
+    @Transactional
     public TaskAssign save(TaskAssign e, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
+        boolean isCreate = (e.getTaskAssignId() == null || !taskAssignRepo.existsById(e.getTaskAssignId()));
+        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateBy(redisTaskAssignService.getCurrentUserId(token));
+        if (e.getTaskAssignId() == null) {
+            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedBy(redisTaskAssignService.getCurrentUserId(token));
+            e.setTaskAssignId(UUID.randomUUID().toString());
+        }
+        if (isCreate) {
+            taskAssignProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
+        } else {
+            taskAssignProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
+        }
+
+        redisTaskAssignService.saveToRedis(e, token, NAME_SERVICE);
+
+        messagingTemplate.convertAndSend("/topic/task-service", e);
+
+        return e;
     }
 
     @Override

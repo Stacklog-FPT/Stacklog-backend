@@ -2,11 +2,13 @@ package com.stacklog.task_service.model.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.stacklog.core_service.model.service.IService;
 import com.stacklog.core_service.utils.CommonFunction;
@@ -47,20 +49,51 @@ public class CheckListService implements IService<CheckList> {
 
     @Override
     public List<CheckList> getAllByUserId(String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllByUserId'");
+        List<CheckList> checkLists = redisCheckListService.getAll(token, NAME_SERVICE);
+        if (checkLists.isEmpty() || checkLists == null) {
+            checkLists = checkListRepo.findAllByUserId(redisCheckListService.getCurrentUserId(token));
+            redisCheckListService.saveListToRedis(checkLists, token, NAME_SERVICE);
+        }
+        return checkLists;
+    }
+
+    public List<CheckList> getAllByTaskId(String taskId, String token) {
+        List<CheckList> checkLists = getAllByUserId(token);
+        return checkLists.stream().filter(cl -> cl.getTask().getTaskId().equals(taskId)).toList();
     }
 
     @Override
+    @Transactional
     public CheckList getById(String id, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getById'");
+        CheckList checkList = redisCheckListService.getById(id, token, NAME_SERVICE);
+        if (checkList == null) {
+            checkList = checkListRepo.findById(id).orElseThrow();
+            redisCheckListService.saveToRedis(checkList, token, NAME_SERVICE);
+        }
+        return checkList;
     }
 
     @Override
     public CheckList save(CheckList e, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
+        boolean isCreate = (e.getCheckListId() == null || !checkListRepo.existsById(e.getCheckListId()));
+        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateBy(redisCheckListService.getCurrentUserId(token));
+        if (e.getCheckListId() == null) {
+            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedBy(redisCheckListService.getCurrentUserId(token));
+            e.setCheckListId(UUID.randomUUID().toString());
+        }
+        if (isCreate) {
+            checkListProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
+        } else {
+            checkListProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
+        }
+
+        redisCheckListService.saveToRedis(e, token, NAME_SERVICE);
+
+        messagingTemplate.convertAndSend("/topic/task-service", e);
+
+        return e;
     }
 
     @Override

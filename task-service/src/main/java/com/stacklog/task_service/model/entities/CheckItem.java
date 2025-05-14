@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -24,7 +25,7 @@ public class CheckItem extends CoreEntity {
     private LocalDateTime checkItemDueDate;
     private Boolean isChecked;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "checkListId")
     private CheckList checkList;
 
