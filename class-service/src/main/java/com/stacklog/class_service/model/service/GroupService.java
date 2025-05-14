@@ -51,9 +51,9 @@ public class GroupService implements IService<Groupss> {
     public List<Groupss> getAllByUserId(String token) {
         List<Groupss> groupsses = redisGroupsService.getAll(token, NAME_SERVICE);
         if (groupsses.isEmpty()) {
-            groupsses = groupsRepo.findAll();
+            groupsses = groupsRepo.findByUserId(redisGroupsService.getCurrentUserId(token));
             redisGroupsService.saveListToRedis(groupsses, token, NAME_SERVICE);
-        }
+        } 
         return groupsses;
     }
 

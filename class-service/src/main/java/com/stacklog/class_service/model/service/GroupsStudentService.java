@@ -49,7 +49,7 @@ public class GroupsStudentService implements IService<GroupStudent> {
     public List<GroupStudent> getAllByUserId(String token) {
         List<GroupStudent> groupStudents = redisGroupStudentService.getAll(token, NAME_SERVICE);
         if (groupStudents.isEmpty()) {
-            groupStudents = groupsStudentRepo.findAll();
+            groupStudents = groupsStudentRepo.findByUserId(redisGroupStudentService.getCurrentUserId(token));
             redisGroupStudentService.saveListToRedis(groupStudents, token, NAME_SERVICE);
         }
 

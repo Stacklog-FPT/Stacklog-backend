@@ -38,7 +38,7 @@ public class Groupss extends CoreEntity {
     @JoinColumn(name = "classesId")
     private Classes classes;
 
-    @OneToMany(mappedBy = "groups", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "groups")
     private List<GroupStudent> groupStudents;
 
 }
