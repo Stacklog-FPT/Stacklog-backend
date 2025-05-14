@@ -23,7 +23,7 @@ public class BoxChatUser extends CoreEntity {
     private boolean isAdmin;
 
     @ManyToOne
-    @JoinColumn(name = "boxChatId")
+    @JoinColumn(name = "box_chat_id")
     @JsonIgnore
     private BoxChat boxChat;
 
