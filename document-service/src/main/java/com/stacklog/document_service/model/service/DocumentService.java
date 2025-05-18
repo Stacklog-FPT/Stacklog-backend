@@ -1,5 +1,6 @@
 package com.stacklog.document_service.model.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
@@ -11,6 +12,7 @@ import java.util.function.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.stacklog.core_service.model.service.IService;
@@ -27,6 +29,8 @@ public class DocumentService implements IService<Document> {
 
     private static final String KAFKA_TOPIC_UPDATE = "document-service.document.updated";
     private static final String KAFKA_TOPIC_CREATE = "document-service.document.created";
+
+    private static final String LOCATION_DIRECTORY = "Storage-Files";
 
     private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
     
@@ -58,11 +62,12 @@ public class DocumentService implements IService<Document> {
 
     @Override
     public Document getById(String id, String token) {
-        Document document = redisDocumentService.getById(id, token, NAME_SERVICE);
-        if (document == null) {
-            document = documentRepo.findById(id).orElseThrow();
-            redisDocumentService.saveToRedis(document, token, NAME_SERVICE);
-        }
+        // Document document = redisDocumentService.getById(id, token, NAME_SERVICE);
+        // if (document == null) {
+        //     document = documentRepo.findById(id).orElseThrow();
+        //     redisDocumentService.saveToRedis(document, token, NAME_SERVICE);
+        // }
+        Document document = documentRepo.findById(id).orElseThrow();
         return document;
     }
 
@@ -88,16 +93,34 @@ public class DocumentService implements IService<Document> {
         return e;
     }
 
-    public void saveFile(String filename, MultipartFile multipartFile) {
-        Path uploadDirectory = Paths.get("Files-Upload");
+    // @Transactional
+    // public Document saveFile(MultipartFile multipartFile) {
+    //     String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+    //     try {
+    //         if (fileName.contains("..")) {
+    //             throw new Exception("File name contain invalid sequence" + fileName);
+    //         }
+    //         String documentId = UUID.randomUUID().toString();
+    //         Document document = new Document(documentId, fileName, "/document-service/downloadFile/" + documentId, multipartFile.getContentType(), multipartFile.getBytes());
+    //         return documentRepo.save(document);
+    //     } catch (Exception e) {
+    //         System.out.println(e);
+    //     }
+    //     return null;
+    // }
 
-        try (InputStream inputStream = multipartFile.getInputStream();) {
-            Path filePath = uploadDirectory.resolve(filename);
-            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+    @Transactional
+    public Document saveFile(MultipartFile file) {
+        File newFile = new File(LOCATION_DIRECTORY + File.separator + file.getOriginalFilename());
+        try {
+            Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            String documentId = UUID.randomUUID().toString();
+            Document document = new Document(documentId, file.getOriginalFilename(), "/document-service/downloadFile/"+documentId, file.getContentType(), newFile.getPath());
+            return documentRepo.save(document);
         } catch (IOException e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
-
+        return null;
     }
 
     @Override
