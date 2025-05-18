@@ -1,6 +1,19 @@
 package com.stacklog.document_service.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.util.UUID;
+
+import javax.print.attribute.standard.Media;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,28 +24,38 @@ import org.springframework.web.multipart.MultipartFile;
 import com.stacklog.document_service.model.entities.Document;
 import com.stacklog.document_service.model.service.DocumentService;
 import org.springframework.web.bind.annotation.PostMapping;
-
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/document-service")
 public class DocumentRestController {
-    
-    @Autowired DocumentService documentService;
+
+    @Autowired
+    DocumentService documentService;
 
     @PostMapping("/upload")
     public ResponseEntity<Document> uploadFile(@RequestParam(name = "file") MultipartFile multipartFile) {
-        String filename = StringUtils.cleanPath(multipartFile.getOriginalFilename());
-        long size = multipartFile.getSize();
-
-        documentService.saveFile(filename, multipartFile);
-
-        Document document = new Document();
-        document.setDocumentTitle(filename);
-        document.setDownloadUri("/downloadFile");
-        document.setSize(size);
-        
+        Document document = documentService.saveFile(multipartFile);
         return ResponseEntity.ok().body(document);
     }
-    
+
+    @GetMapping("/downloadFile/{documentId}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable(name = "documentId") String documentId
+                                                //  ,@RequestHeader("Authorization") String token
+                                                ) {
+        Document document = documentService.getById(documentId, "hello");
+        File fileDownload = new File(document.getDocumentPath());
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(document.getDocumentContentType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "document; filename=\"" + document.getDocumentTitle() + "\"")
+                    .body(new InputStreamResource(Files.newInputStream(fileDownload.toPath())));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.badRequest().build();
+    }
 
 }
