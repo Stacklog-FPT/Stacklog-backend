@@ -2,7 +2,6 @@ package com.stacklog.document_service.model.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.function.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.stacklog.core_service.model.service.IService;
@@ -33,14 +31,17 @@ public class DocumentService implements IService<Document> {
     private static final String LOCATION_DIRECTORY = "Storage-Files";
 
     private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-    
-    @Autowired DocumentRepo documentRepo;
 
-    @Autowired KafkaProducer<Document> kafkaDocumentProducer;
+    @Autowired
+    DocumentRepo documentRepo;
 
-    @Autowired RedisService<Document> redisDocumentService;
+    @Autowired
+    KafkaProducer<Document> kafkaDocumentProducer;
 
-    public DocumentService (RedisService<Document> redisDocumentService) {
+    @Autowired
+    RedisService<Document> redisDocumentService;
+
+    public DocumentService(RedisService<Document> redisDocumentService) {
         this.redisDocumentService = redisDocumentService;
     }
 
@@ -62,13 +63,12 @@ public class DocumentService implements IService<Document> {
 
     @Override
     public Document getById(String id, String token) {
-        // Document document = redisDocumentService.getById(id, token, NAME_SERVICE);
-        // if (document == null) {
-        //     document = documentRepo.findById(id).orElseThrow();
-        //     redisDocumentService.saveToRedis(document, token, NAME_SERVICE);
-        // }
-        Document document = documentRepo.findById(id).orElseThrow();
-        return document;
+        Document document = redisDocumentService.getById(id, token, NAME_SERVICE);
+        if (document == null) {
+            document = documentRepo.findById(id).orElseThrow();
+            redisDocumentService.saveToRedis(document, token, NAME_SERVICE);
+        }
+        return null;
     }
 
     @Override
@@ -93,30 +93,18 @@ public class DocumentService implements IService<Document> {
         return e;
     }
 
-    // @Transactional
-    // public Document saveFile(MultipartFile multipartFile) {
-    //     String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
-    //     try {
-    //         if (fileName.contains("..")) {
-    //             throw new Exception("File name contain invalid sequence" + fileName);
-    //         }
-    //         String documentId = UUID.randomUUID().toString();
-    //         Document document = new Document(documentId, fileName, "/document-service/downloadFile/" + documentId, multipartFile.getContentType(), multipartFile.getBytes());
-    //         return documentRepo.save(document);
-    //     } catch (Exception e) {
-    //         System.out.println(e);
-    //     }
-    //     return null;
-    // }
-
     @Transactional
-    public Document saveFile(MultipartFile file) {
+    public Document saveFile(MultipartFile file, Document d, String token) {
         File newFile = new File(LOCATION_DIRECTORY + File.separator + file.getOriginalFilename());
         try {
             Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            String documentId = UUID.randomUUID().toString();
-            Document document = new Document(documentId, file.getOriginalFilename(), "/document-service/downloadFile/"+documentId, file.getContentType(), newFile.getPath());
-            return documentRepo.save(document);
+
+            String documentId = d.getDocumentId() == null ? d.getDocumentId() : null;
+
+            Document document = new Document(documentId, file.getOriginalFilename(),
+                    "/document-service/downloadFile/" + documentId, file.getContentType(), newFile.getPath(),
+                    d.getDocumentLocations());
+            return save(document, token);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -128,7 +116,5 @@ public class DocumentService implements IService<Document> {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'searchByFields'");
     }
-
-
 
 }
