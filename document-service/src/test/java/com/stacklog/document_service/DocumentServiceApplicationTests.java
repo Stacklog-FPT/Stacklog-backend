@@ -10,4 +10,7 @@ class DocumentServiceApplicationTests {
 	void contextLoads() {
 	}
 
+	// viết kịch bản cho unit test
+	// ví dụ như có dữ liệu với không có dữ liệu
+	// unit test integration test (QUAN TRỌNG)
 }
