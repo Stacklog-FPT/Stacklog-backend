@@ -11,9 +11,9 @@ const protect = async (req, res, next) => {
     try {
         token = token.split(" ")[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
+        
         // Kiểm tra token trong Redis
-        const sessionToken = await redisClient.get(`session:${decoded.id}`);
+        const sessionToken = await redisClient.get(`auth:session:${decoded.id}:web`);
         if (!sessionToken || sessionToken !== token) {
             return res.status(401).json({ message: "Session expired or invalid" });
         }

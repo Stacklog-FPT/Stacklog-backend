@@ -27,7 +27,7 @@ const login = async (req, res) => {
         const token = generateToken(user);
 
         // Lưu token vào Redis với TTL 1 ngày
-        await redisClient.setEx(`currentuser`, process.env.SESSION_EXPIRY, token);
+        await redisClient.setEx(`auth:session:${user._id}:web`, process.env.SESSION_EXPIRY, token);
         console.log(JSON.stringify(user));
 
         // Gửi event người dùng đăng nhập vào kafka
@@ -45,7 +45,12 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
     try {
-        await redisClient.del(`session:${req.user.id}`);
+
+        const token = req.headers["authorization"]?.split(" ")[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const id = decoded.id;
+        console.log(id)
+        await redisClient.del(`auth:session:${id}:web`);
 
         sendKafkaEvent("UserLoggedOut", { email: decoded.email, timestamp: Date.now() });
 
@@ -57,9 +62,9 @@ const logout = async (req, res) => {
 
 // validate token
 const validate = async (req, res) => {
-    console.log(req.headers["authorization"]?.split(" ")[1]);
-    const token = req.headers["authorization"]?.split(" ")[1];
-
+    console.log(req.headers["Authorization"]?.split(" ")[1]);
+    const token = req.headers["Authorization"]?.split(" ")[1];
+    console.log(token)
     if (!token) {
         return res.status(401).json({ message: "Unauthorized" });
     }

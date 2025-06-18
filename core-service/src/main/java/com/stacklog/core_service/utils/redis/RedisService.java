@@ -113,9 +113,13 @@ public class RedisService<E> {
     public String getCurrentUserId(String token) {
         String userId = jwtDecoder.getIdFromToken(token);
         String device = "web"; // nếu bạn hỗ trợ nhiều thiết bị
-
+        
         String key = "auth:session:" + userId + ":" + device;
+
         String storedToken = redisTemplate.opsForValue().get(key);
+
+        token = token.split(" ")[1];
+
         if (!token.equals(storedToken)) {
             throw new RuntimeException("Token invalid or expired");
         }
