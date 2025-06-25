@@ -4,6 +4,7 @@ import java.util.function.Function;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,13 +16,17 @@ import com.stacklog.task_service.model.entities.StatusTask;
 import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.entities.TaskAssign;
 
-
 @Configuration
 public class RedisTaskConfig {
 
     @Bean
     public Function<Task, String> classIdExtractor() {
         return Task::getTaskId;
+    }
+
+    @Bean
+    public LettuceConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory("redis", 6379);
     }
 
     @Bean
@@ -63,6 +68,5 @@ public class RedisTaskConfig {
             JwtDecoder jwtDecoder) {
         return new RedisService<>(StatusTask.class, jwtDecoder);
     }
-    
 
 }
