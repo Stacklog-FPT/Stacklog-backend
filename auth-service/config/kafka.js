@@ -1,5 +1,6 @@
 const { Kafka } = require("kafkajs");
 const User = require("../models/User");
+require("dotenv").config();
 
 const KAFKA_BROKER = process.env.KAFKA_BROKER || "localhost:9092";
 const CLIENT_ID = process.env.KAFKA_CLIENT_ID || "auth-service";
