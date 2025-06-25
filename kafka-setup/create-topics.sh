@@ -5,7 +5,7 @@ REPLICATION_FACTOR=1
 PARTITIONS=1
 
 create_topic() {
-  docker exec -i kafka bash -c "kafka-topics --bootstrap-server $BROKER --create --if-not-exists --replication-factor $REPLICATION_FACTOR --partitions $PARTITIONS --topic $1"
+  docker exec -i kafka-1 bash -c "kafka-topics --bootstrap-server $BROKER --create --if-not-exists --replication-factor $REPLICATION_FACTOR --partitions $PARTITIONS --topic $1"
 
 }
 

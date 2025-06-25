@@ -9,28 +9,36 @@ services:
     ports:
       - "8080:80"
       - "443:443"
+    restart: always
     volumes:
       - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - app-network
-    # depends_on:
-    #   - authservice
-    #   - profileservice
-    #   - taskservice
-
+    depends_on:
+      - authservice
+      # - profileservice
+      - taskservice
+      - classservice
+      - chatservice
+      - documentservice
+      # - scheduleservice
+      - notificationservice
+      - scoreservice
+      # - searchservice
 
   # --- Prometheus ---
-  prometheus:
-    image: prom/prometheus:v2.52.0
-    container_name: prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-    networks:
-      - app-network    
+  # prometheus:
+  #   image: prom/prometheus:v2.52.0
+  #   container_name: prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   restart: always
+  #   volumes:
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #   networks:
+  #     - app-network    
 
   # --- Zookeeper ---
   zookeeper:
@@ -41,7 +49,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
-    restart: on-failure
+    restart: always
     networks:
       - app-network
 
@@ -53,7 +61,7 @@ services:
       - zookeeper
     ports:
       - "9092:9092"
-    restart: on-failure
+    restart: always
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -65,51 +73,52 @@ services:
     networks:
       - app-network
 
-  kafka-2:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: kafka-2
-    depends_on:
-      - zookeeper
-    ports:
-      - "9093:9093"
-    restart: on-failure
-    environment:
-      KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    networks:
-      - app-network
+  # kafka-2:
+  #   image: confluentinc/cp-kafka:7.5.0
+  #   container_name: kafka-2
+  #   depends_on:
+  #     - zookeeper
+  #   ports:
+  #     - "9093:9093"
+  #   restart: always
+  #   environment:
+  #     KAFKA_BROKER_ID: 2
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:9093
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #   networks:
+  #     - app-network
 
-  kafka-3:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: kafka-3
-    depends_on:
-      - zookeeper
-    ports:
-      - "9094:9094"
-    restart: on-failure
-    environment:
-      KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:9094
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    networks:
-      - app-network
+  # kafka-3:
+  #   image: confluentinc/cp-kafka:7.5.0
+  #   container_name: kafka-3
+  #   depends_on:
+  #     - zookeeper
+  #   ports:
+  #     - "9094:9094"
+  #   restart: always
+  #   environment:
+  #     KAFKA_BROKER_ID: 3
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:9094
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #   networks:
+  #     - app-network
 
   # --- Redis ---
   redis:
     image: redis:7.2.4
     container_name: redis
-    command: redis-server /usr/local/etc/redis/redis.conf
-    volumes:
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    # command: redis-server /usr/local/etc/redis/redis.conf
+    # volumes:
+    #   - ./redis.conf:/usr/local/etc/redis/redis.conf
     ports:
       - "6379:6379"
+    restart: always
     networks:
       - app-network
 
@@ -118,45 +127,146 @@ services:
     build:
       context: ./auth-service
       dockerfile: Dockerfile
-    image: auth-service
     container_name: authservice
-    ports:
-      - "2000:2000"
-    restart: on-failure
     networks:
       - app-network
-    # env_file:
-    #   - ./authservice/local.env
+    depends_on:
+      - kafka-1
+      # - kafka-2
+      # - kafka-3
+      - redis
+    restart: on-failure
 
   # # --- Profile Service ---
-  profileservice:
-    build:
-      context: ./profile-service
-      dockerfile: Dockerfile
-    image: profile-service
-    container_name: profileservice
-    ports:
-      - "2001:2001"
-    restart: on-failure
-    networks:
-      - app-network
-    # env_file:
-    #   - ./profileservice/local.env
+  # profileservice:
+  #   build:
+  #     context: ./profile-service
+  #     dockerfile: Dockerfile
+  #   image: profile-service
+  #   container_name: profileservice
+  #   # ports:
+  #   #   - "2001:2001"
+  #   restart: on-failure
+  #   networks:
+  #     - app-network
+  #   depends_on:
+  #     - kafka-1
+  #     - kafka-2
+  #     - kafka-3
+  #     - redis
 
   # # --- Task Service ---
   taskservice:
     build:
-      context: ./task-service
-      dockerfile: Dockerfile
-    image: task-service
+      context: .
+      dockerfile: task-service/Dockerfile
+    volumes:
+      - ~/.m2:/root/.m2
     container_name: taskservice
     ports:
       - "2002:2002"
+    restart: always
+    networks:
+      - app-network
+    depends_on:
+      - kafka-1
+      # - kafka-2
+      # - kafka-3
+      - redis
+
+      # --- Class Service ---
+  classservice:
+    build:
+      context: .
+      dockerfile: class-service/Dockerfile
+    volumes:
+      - ~/.m2:/root/.m2
+    container_name: classservice
+    ports:
+      - "2003:2003"
     restart: on-failure
     networks:
       - app-network
-    # env_file:
-    #   - ./taskservice/local.env
+    depends_on:
+      - kafka-1
+      # - kafka-2
+      # - kafka-3
+      - redis
+
+          # # --- Chat Service ---
+  chatservice:
+    build:
+      context: .
+      dockerfile: chat-service/Dockerfile
+    volumes:
+      - ~/.m2:/root/.m2
+    container_name: chatservice
+    ports:
+      - "2004:2004"
+    restart: on-failure
+    networks:
+      - app-network
+    depends_on:
+      - kafka-1
+      # - kafka-2
+      # - kafka-3
+      - redis
+            # # --- Document Service ---
+  documentservice:
+    build:
+      context: .
+      dockerfile: document-service/Dockerfile
+    volumes:
+      - ~/.m2:/root/.m2
+    container_name: documentservice
+    ports:
+      - "2005:2005"
+    restart: on-failure
+    networks:
+      - app-network
+    depends_on:
+      - kafka-1
+      # - kafka-2
+      # - kafka-3
+      - redis
+
+                # # --- Notification Service ---
+  notificationservice:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    volumes:
+      - ~/.m2:/root/.m2
+    container_name: notificationservice
+    ports:
+      - "2007:2007"
+    restart: on-failure
+    networks:
+      - app-network
+    depends_on:
+      - kafka-1
+      # - kafka-2
+      # - kafka-3
+      - redis
+
+                # # --- Score Service ---
+  scoreservice:
+    build:
+      context: .
+      dockerfile: score-service/Dockerfile
+    volumes:
+      - ~/.m2:/root/.m2
+    container_name: scoreservice
+    ports:
+      - "2008:2008"
+    restart: on-failure
+    networks:
+      - app-network
+    depends_on:
+      - kafka-1
+      # - kafka-2
+      # - kafka-3
+      - redis
 
 networks:
   app-network:

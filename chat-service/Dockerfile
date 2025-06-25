@@ -6,10 +6,10 @@ WORKDIR /build
 COPY ../core-service ./core-service
 RUN cd core-service && mvn clean install -DskipTests
 
-# Copy class-service source code và build
-COPY ./class-service ./class-service
-# Build class-service
-WORKDIR /build/class-service
+# Copy chat-service source code và build
+COPY ./chat-service ./chat-service
+# Build chat-service
+WORKDIR /build/chat-service
 RUN mvn clean package -DskipTests
 
 # --- Runtime Stage ---
@@ -17,7 +17,7 @@ FROM eclipse-temurin:17-jdk
 WORKDIR /app
 
 # Copy jar đã build từ stage trước
-COPY --from=builder /build/class-service/target/*.jar app.jar
+COPY --from=builder /build/chat-service/target/*.jar app.jar
 
 # Chạy app
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -1,22 +1,23 @@
-# Stage 1: Build
-FROM maven:3.8.6-eclipse-temurin-17 AS build
+# --- Build Stage ---
+FROM maven:3.8.6-eclipse-temurin-17 AS builder
+WORKDIR /build
 
+# Copy core-service (để install vào local Maven repo)
+COPY ../core-service ./core-service
+RUN cd core-service && mvn clean install -DskipTests
+
+# Copy task-service source code và build
+COPY ./task-service ./task-service
+# Build task-service
+WORKDIR /build/task-service
+RUN mvn clean package -DskipTests
+
+# --- Runtime Stage ---
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
+# Copy jar đã build từ stage trước
+COPY --from=builder /build/task-service/target/*.jar app.jar
 
-COPY src ./src
-RUN mvn package -DskipTests
-
-# Stage 2: Run
-FROM openjdk:17-slim
-
-WORKDIR /app
-
-COPY --from=build /app/target/*.jar app.jar
-
-ENV JAVA_OPTS="-Xmx512m -Xms256m"
-
-EXPOSE 2002
-ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar app.jar"]
+# Chạy app
+ENTRYPOINT ["java", "-jar", "app.jar"]
