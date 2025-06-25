@@ -3,7 +3,7 @@ FROM maven:3.8.6-eclipse-temurin-17 AS builder
 WORKDIR /build
 
 # Copy core-service (để install vào local Maven repo)
-COPY ../core-service ./core-service
+COPY ./core-service ./core-service
 RUN cd core-service && mvn clean install -DskipTests
 
 # Copy task-service source code và build
