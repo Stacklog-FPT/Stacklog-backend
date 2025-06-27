@@ -18,7 +18,8 @@ public class JwtDecoder {
     }
 
     public String getIdFromToken(String token) {
-
+        // System.out.println(token);
+        
         token = token.split(" ")[1];
 
         try {

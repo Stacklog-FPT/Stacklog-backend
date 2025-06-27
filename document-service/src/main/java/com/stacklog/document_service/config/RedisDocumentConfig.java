@@ -14,17 +14,13 @@ import com.stacklog.document_service.model.entities.Document;
 @Configuration
 public class RedisDocumentConfig {
     
-    @Bean
-    public Function<Document, String> classIdExtractor() {
-        return Document::getDocumentId;
-    }
 
     @Bean
     public RedisService<Document> redisDocumentService(
             RedisTemplate<String, String> redisTemplate,
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder) {
-        return new RedisService<>(Document.class, jwtDecoder);
+        return new RedisService<>(Document.class, jwtDecoder, Document::getDocumentId);
     }
 
 }

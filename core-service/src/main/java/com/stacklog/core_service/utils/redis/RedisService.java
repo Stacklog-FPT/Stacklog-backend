@@ -29,14 +29,14 @@ public class RedisService<E> {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
-    @Autowired
     private Function<E, String> idExtractor;
 
     private final Class<E> clazz;
 
-    public RedisService(Class<E> clazz, JwtDecoder jwtDecoder) {
+    public RedisService(Class<E> clazz, JwtDecoder jwtDecoder, Function<E, String> idExtractor) {
         this.clazz = clazz;
         this.jwtDecoder = jwtDecoder;
+        this.idExtractor = idExtractor;
     }
 
     // ===== Create a key for E
@@ -113,7 +113,7 @@ public class RedisService<E> {
     public String getCurrentUserId(String token) {
         String userId = jwtDecoder.getIdFromToken(token);
         String device = "web"; // nếu bạn hỗ trợ nhiều thiết bị
-        
+
         String key = "auth:session:" + userId + ":" + device;
 
         String storedToken = redisTemplate.opsForValue().get(key);

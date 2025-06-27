@@ -19,10 +19,10 @@ import com.stacklog.task_service.model.entities.TaskAssign;
 @Configuration
 public class RedisTaskConfig {
 
-    @Bean
-    public Function<Task, String> classIdExtractor() {
-        return Task::getTaskId;
-    }
+    // @Bean
+    // public Function<Task, String> classIdExtractor() {
+    // return Task::getTaskId;
+    // }
 
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
@@ -34,7 +34,7 @@ public class RedisTaskConfig {
             RedisTemplate<String, String> redisTemplate,
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder) {
-        return new RedisService<>(Task.class, jwtDecoder);
+        return new RedisService<>(Task.class, jwtDecoder, Task::getTaskId);
     }
 
     @Bean
@@ -42,7 +42,7 @@ public class RedisTaskConfig {
             RedisTemplate<String, String> redisTemplate,
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder) {
-        return new RedisService<>(TaskAssign.class, jwtDecoder);
+        return new RedisService<>(TaskAssign.class, jwtDecoder, TaskAssign::getTaskAssignId);
     }
 
     @Bean
@@ -50,7 +50,7 @@ public class RedisTaskConfig {
             RedisTemplate<String, String> redisTemplate,
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder) {
-        return new RedisService<>(CheckItem.class, jwtDecoder);
+        return new RedisService<>(CheckItem.class, jwtDecoder, CheckItem::getCheckItemId);
     }
 
     @Bean
@@ -58,7 +58,7 @@ public class RedisTaskConfig {
             RedisTemplate<String, String> redisTemplate,
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder) {
-        return new RedisService<>(CheckList.class, jwtDecoder);
+        return new RedisService<>(CheckList.class, jwtDecoder, CheckList::getCheckListId);
     }
 
     @Bean
@@ -66,7 +66,7 @@ public class RedisTaskConfig {
             RedisTemplate<String, String> redisTemplate,
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder) {
-        return new RedisService<>(StatusTask.class, jwtDecoder);
+        return new RedisService<>(StatusTask.class, jwtDecoder, StatusTask::getStatusTaskId);
     }
 
 }
