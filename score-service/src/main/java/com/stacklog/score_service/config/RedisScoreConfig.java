@@ -15,16 +15,11 @@ import com.stacklog.score_service.model.entities.Score;
 public class RedisScoreConfig {
 
     @Bean
-    public Function<Score, String> classIdExtractor() {
-        return Score::getScoreId;
-    }
-
-    @Bean
     public RedisService<Score> redisScoreService(
             RedisTemplate<String, String> redisTemplate,
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder) {
-        return new RedisService<>(Score.class, jwtDecoder);
+        return new RedisService<>(Score.class, jwtDecoder, Score::getScoreId);
     }
     
 }

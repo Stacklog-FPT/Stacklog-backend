@@ -15,18 +15,13 @@ import com.stacklog.core_service.utils.redis.RedisService;
 
 @Configuration
 public class RedisChatServiceConfig {
-
-    @Bean
-    public Function<ChatMessage, String> classIdExtractor() {
-        return ChatMessage::getChatMessageId;
-    }
     
     @Bean
     public RedisService<ChatMessage> redisChatMessageService(
             RedisTemplate<String, String> redisTemplate,
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder) {
-        return new RedisService<>(ChatMessage.class, jwtDecoder);
+        return new RedisService<>(ChatMessage.class, jwtDecoder, ChatMessage::getChatMessageId);
     }
 
     @Bean
@@ -34,7 +29,7 @@ public class RedisChatServiceConfig {
             RedisTemplate<String, String> redisTemplate,
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder) {
-        return new RedisService<>(BoxChat.class, jwtDecoder);
+        return new RedisService<>(BoxChat.class, jwtDecoder, BoxChat::getBoxChatId);
     }
 
     @Bean
@@ -42,7 +37,7 @@ public class RedisChatServiceConfig {
             RedisTemplate<String, String> redisTemplate,
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder) {
-        return new RedisService<>(BoxChatUser.class, jwtDecoder);
+        return new RedisService<>(BoxChatUser.class, jwtDecoder, BoxChatUser::getBoxChatUserId);
     }
 
 }

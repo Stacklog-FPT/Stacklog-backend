@@ -15,11 +15,6 @@ import com.stacklog.core_service.utils.redis.RedisService;
 
 @Configuration
 public class RedisClassConfig {
-
-    @Bean
-    public Function<Classes, String> classIdExtractor() {
-        return Classes::getClassesId;
-    }
     
 
     @Bean
@@ -28,7 +23,7 @@ public class RedisClassConfig {
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder
     ) {
-        return new RedisService<>(Classes.class, jwtDecoder);
+        return new RedisService<>(Classes.class, jwtDecoder, Classes::getClassesId);
     }
 
     @Bean
@@ -37,7 +32,7 @@ public class RedisClassConfig {
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder
     ) {
-        return new RedisService<>(Groupss.class, jwtDecoder);
+        return new RedisService<>(Groupss.class, jwtDecoder, Groupss::getGroupsId);
     }
 
     @Bean
@@ -46,7 +41,7 @@ public class RedisClassConfig {
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder
     ) {
-        return new RedisService<>(GroupStudent.class, jwtDecoder);
+        return new RedisService<>(GroupStudent.class, jwtDecoder, GroupStudent::getGroupStudentId);
     }
 
 }

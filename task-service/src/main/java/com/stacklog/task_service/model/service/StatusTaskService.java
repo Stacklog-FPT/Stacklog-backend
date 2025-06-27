@@ -58,7 +58,7 @@ public class StatusTaskService implements IService<StatusTask> {
             statusTasks = statusTaskRepo.findAllByGroupId(groupId);
             redisStatusTaskService.saveListToRedis(statusTasks, token, NAME_SERVICE);
         }
-        return statusTasks.stream().filter(t -> t.getGroupId().equals(groupId)).toList();
+        return statusTasks;
     }
 
     @Override

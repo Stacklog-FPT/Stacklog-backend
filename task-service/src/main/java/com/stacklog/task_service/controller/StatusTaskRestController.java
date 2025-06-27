@@ -37,7 +37,7 @@ public class StatusTaskRestController {
     @GetMapping("/{groupId}")
     public ResponseEntity<List<StatusTask>> getStatusTaskByGroupId(@RequestHeader("Authorization") String token,
             @PathVariable(name = "groupId") String groupId) {
-        List<StatusTask> statusTasks = statusTaskService.getAllByGroupId(groupId, token);
+        List<StatusTask> statusTasks = statusTaskService.getAllByGroupId(token, groupId);
         if (statusTasks.isEmpty() || statusTasks == null) {
             return ResponseEntity.badRequest().build();
         }
