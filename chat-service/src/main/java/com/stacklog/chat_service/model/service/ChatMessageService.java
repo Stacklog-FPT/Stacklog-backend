@@ -94,6 +94,8 @@ public class ChatMessageService implements IService<ChatMessage> {
 
         messagingTemplate.convertAndSend("/topic/chat-service", e);
 
+        e = chatMessageRepo.save(e);
+
         return e;
     }
 

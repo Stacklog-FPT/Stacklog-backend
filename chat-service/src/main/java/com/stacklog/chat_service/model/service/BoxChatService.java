@@ -89,6 +89,8 @@ public class BoxChatService implements IService<BoxChat> {
 
         messagingTemplate.convertAndSend("/topic/chat-service", e);
 
+        e = boxChatRepo.save(e);
+
         return e;
     }
 
