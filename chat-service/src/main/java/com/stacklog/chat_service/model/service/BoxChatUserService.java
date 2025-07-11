@@ -1,6 +1,7 @@
 package com.stacklog.chat_service.model.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -59,8 +60,17 @@ public class BoxChatUserService implements IService<BoxChatUser> {
     }
 
     public List<BoxChatUser> getAllByBoxChatId(String boxChatId, String token) {
-        List<BoxChatUser> boxChatUsers = redisBoxChatUserService.getAll(token, NAME_SERVICE).stream()
-                .filter(bcu -> bcu.getBoxChat().getBoxChatId().equals(boxChatId)).toList();
+        List<BoxChatUser> boxChatUsers = new ArrayList<>();
+        try {
+            List<BoxChatUser> allUsers = redisBoxChatUserService.getAll(token, NAME_SERVICE);
+            if (allUsers != null && !allUsers.isEmpty()) {
+                boxChatUsers = allUsers.stream()
+                        .filter(bcu -> bcu.getBoxChat().getBoxChatId().equals(boxChatId))
+                        .toList();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (boxChatUsers.isEmpty() || boxChatUsers == null) {
             boxChatUsers = boxChatUserRepo.findAllByBoxChatId(boxChatId);
             redisBoxChatUserService.saveListToRedis(boxChatUsers, token, NAME_SERVICE);
