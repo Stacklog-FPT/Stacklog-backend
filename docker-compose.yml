@@ -61,6 +61,7 @@ services:
       - zookeeper
     ports:
       - "9092:9092"
+      - "19092:19092"
     restart: always
     environment:
       KAFKA_BROKER_ID: 1
