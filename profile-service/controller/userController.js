@@ -46,3 +46,7 @@ exports.findById = async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 }
+
+exports.findByGroupId = async (req, res) => {
+    res.status(212).json({ error: "Chưa có code nghe ní :)" });
+}
