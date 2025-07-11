@@ -16,7 +16,7 @@ services:
       - app-network
     depends_on:
       - authservice
-      # - profileservice
+      - profileservice
       - taskservice
       - classservice
       - chatservice
@@ -138,22 +138,19 @@ services:
     restart: on-failure
 
   # # --- Profile Service ---
-  # profileservice:
-  #   build:
-  #     context: ./profile-service
-  #     dockerfile: Dockerfile
-  #   image: profile-service
-  #   container_name: profileservice
-  #   # ports:
-  #   #   - "2001:2001"
-  #   restart: on-failure
-  #   networks:
-  #     - app-network
-  #   depends_on:
-  #     - kafka-1
-  #     - kafka-2
-  #     - kafka-3
-  #     - redis
+  profileservice:
+    build:
+      context: ./profile-service
+      dockerfile: Dockerfile
+    container_name: profileservice
+    networks:
+      - app-network
+    depends_on:
+      - kafka-1
+      # - kafka-2
+      # - kafka-3
+      - redis
+    restart: on-failure
 
   # # --- Task Service ---
   taskservice:
