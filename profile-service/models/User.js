@@ -15,7 +15,16 @@ const UserSchema = new mongoose.Schema({
     last_login: { type: Date, default: Date.now },
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
-    personal_score: { type: Number, default: 0 }
+    personal_score: { type: Number, default: 0 },
+    role: {type: String, required: true}
 }, { timestamps: true });
+
+UserSchema.statics.findLecturers = function () {
+    return this.find({ role: 'LECTURER', isDeleted: false });
+};
+
+UserSchema.statics.findStudents = function () {
+    return this.find({ role: 'STUDENT', isDeleted: false });
+};
 
 module.exports = mongoose.model('User', UserSchema);
