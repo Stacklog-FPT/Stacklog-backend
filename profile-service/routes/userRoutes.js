@@ -16,11 +16,8 @@ router.delete('/:id', deleteUser);
 // find by email
 router.get('/:email', findByEmail);
 
-// list lecture
-router.get('/lecturer', findByRole);
-
-// list student
-router.get('/student', findByRole);
+// list by role
+router.get('/:role', findByRole);
 
 // find by groupId
 router.get("/group/:groupId", findByGroupId);
