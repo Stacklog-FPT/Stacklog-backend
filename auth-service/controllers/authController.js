@@ -34,7 +34,7 @@ const login = async (req, res) => {
         await sendKafkaEvent("auth-service.user.loginned", { email: user.email, role: user.role, timestamp: Date.now() });
 
         return res.json({
-            _id: user._id, username: user.username, email: user.email, token
+            _id: user._id, username: user.username, email: user.email, role:user.role, token
         });
 
     } catch (error) {
