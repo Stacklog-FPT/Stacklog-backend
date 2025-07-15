@@ -41,7 +41,7 @@ const initConsumer = async () => {
                         username: data.work_id,
                         email: data.email,
                         password: "abcd1234",
-                        role: "STUDENT"
+                        role: data.role
                     }
                     // Chờ add hoàn tất
                     try {

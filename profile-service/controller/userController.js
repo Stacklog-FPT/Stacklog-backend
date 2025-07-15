@@ -47,6 +47,28 @@ exports.findById = async (req, res) => {
     }
 }
 
+// find lecture
+exports.findLecture = async (req, res) => {
+    try {
+        const lecturers = await User.findLecturers();
+        if (!lecturers) return res.status(404).json({ error: 'User not found' });
+        res.status(200).json({ lecturers });
+    } catch (error) {
+        res.status(400).json({ error: err.message });
+    }
+}
+
+// find student
+exports.findStudent = async (req, res) => {
+    try {
+        const students = await User.findStudents();
+        if (!students) return res.status(404).json({ error: 'User not found' });
+        res.status(200).json({ students });
+    } catch (error) {
+        res.status(400).json({ error: err.message });
+    }
+}
+
 exports.findByGroupId = async (req, res) => {
     res.status(212).json({ error: "Chưa có code nghe ní :)" });
 }

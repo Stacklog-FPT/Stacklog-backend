@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, updateUser, deleteUser, findById, findByGroupId } = require('../controller/userController');
+const { createUser, updateUser, deleteUser, findById, findByGroupId, findLecture, findStudent } = require('../controller/userController');
 const { validateUser } = require('../middleware/validateUserMiddleware');
 
 const router = express.Router();
@@ -14,7 +14,13 @@ router.put('/:id', updateUser);
 router.delete('/:id', deleteUser);
 
 // find by id
-router.get('/:id', findById)
+router.get('/:id', findById);
+
+// list lecture
+router.get('/lecture', findLecture);
+
+// list student
+router.get('/student', findStudent);
 
 // find by groupId
 router.get("/group/:groupId", findByGroupId);
