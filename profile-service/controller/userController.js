@@ -5,7 +5,7 @@ const { produceMessage } = require('../config/kafka');
 exports.createUser = async (req, res) => {
     try {
         const user = await User.create(req.body);
-        await produceMessage('UserCreated', user);
+        await produceMessage('user.created', user);
         res.status(201).json(user);
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -17,7 +17,7 @@ exports.updateUser = async (req, res) => {
     try {
         const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!user) return res.status(404).json({ error: 'User not found' });
-        await produceMessage('UserUpdated', user);
+        await produceMessage('user.updated', user);
         res.json(user);
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -29,7 +29,7 @@ exports.deleteUser = async (req, res) => {
     try {
         const user = await User.findByIdAndUpdate(req.params.id, { isDeleted: true }, { new: true });
         if (!user) return res.status(404).json({ error: 'User not found' });
-        await produceMessage('UserDeleted', user);
+        await produceMessage('user.deleted', user);
         res.json({ message: 'User deleted successfully' });
     } catch (err) {
         res.status(400).json({ error: err.message });

@@ -28,7 +28,7 @@ const initConsumer = async () => {
     console.log("Kafka Consumer is ready");
 
     // Đăng ký Consumer lắng nghe các sự kiện
-    await consumer.subscribe({ topics: ["profile-service.user.created", "profile-service.user.updated", "profile-service.user.deleted"] });
+    await consumer.subscribe({ topics: ["user.created", "user.updated", "user.deleted"] });
 
     await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
@@ -36,7 +36,7 @@ const initConsumer = async () => {
             console.log(`Received Kafka Event: ${topic} - ${JSON.stringify(data)}`);
 
             switch (topic) {
-                case "profile-service.user.created":
+                case "user.created":
                     userData = {
                         username: data.work_id,
                         email: data.email,
@@ -52,10 +52,10 @@ const initConsumer = async () => {
                         console.log(error.message);
                     }
                     break;
-                case "profile-service.user.updated":
+                case "user.updated":
                     console.log(`User Updated: ${data.email}`);
                     break;
-                case "profile-service.user.deleted":
+                case "user.deleted":
                     console.log(`User Deleted: ${data.email}`);
                     break;
                 default:
