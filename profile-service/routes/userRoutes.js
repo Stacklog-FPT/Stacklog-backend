@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, updateUser, deleteUser, findById, findByGroupId, findLecture, findStudent } = require('../controller/userController');
+const { createUser, updateUser, deleteUser, findByEmail, findByGroupId, findLecture, findStudent } = require('../controller/userController');
 const { validateUser } = require('../middleware/validateUserMiddleware');
 
 const router = express.Router();
@@ -13,8 +13,8 @@ router.put('/:id', updateUser);
 // Soft Delete User
 router.delete('/:id', deleteUser);
 
-// find by id
-router.get('/:id', findById);
+// find by email
+router.get('/:email', findByEmail);
 
 // list lecture
 router.get('/lecture', findLecture);
