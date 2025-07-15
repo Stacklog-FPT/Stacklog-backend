@@ -19,6 +19,10 @@ const UserSchema = new mongoose.Schema({
     role: {type: String, required: true}
 }, { timestamps: true });
 
+UserSchema.statics.findByEmail = function (email) {
+    return this.findOne({ email, isDeleted: false });
+};
+
 UserSchema.statics.findLecturers = function () {
     return this.find({ role: 'LECTURER', isDeleted: false });
 };

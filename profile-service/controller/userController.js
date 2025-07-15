@@ -37,9 +37,9 @@ exports.deleteUser = async (req, res) => {
 };
 
 // find user
-exports.findById = async (req, res) => {
+exports.findByEmail = async (req, res) => {
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, { isDeleted: true }, { new: true });
+        const user = await User.findByEmail(req.params.email);
         if (!user) return res.status(404).json({ error: 'User not found' });
         res.status(200).json({ user });
     } catch (error) {
