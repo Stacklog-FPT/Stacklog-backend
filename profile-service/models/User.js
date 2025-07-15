@@ -23,12 +23,4 @@ UserSchema.statics.findByEmail = function (email) {
     return this.findOne({ email, isDeleted: false });
 };
 
-UserSchema.statics.findLecturers = function () {
-    return this.find({ role: 'LECTURER', isDeleted: false });
-};
-
-UserSchema.statics.findStudents = function () {
-    return this.find({ role: 'STUDENT', isDeleted: false });
-};
-
 module.exports = mongoose.model('User', UserSchema);
