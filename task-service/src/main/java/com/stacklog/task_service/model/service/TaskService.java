@@ -82,7 +82,7 @@ public class TaskService implements IService<Task> {
         boolean isCreate = (e.getTaskId() == null || !taskRepo.existsById(e.getTaskId()));
         e.setUpdateAt(CURRENT_TIME);
         e.setUpdateBy(redisTaskService.getCurrentUserId(token));
-        if (e.getTaskId() == null) {
+        if (e.getTaskId() == null || e.getTaskId().isBlank()) {
             e.setCreatedAt(CURRENT_TIME);
             e.setCreatedBy(redisTaskService.getCurrentUserId(token));
             e.setTaskId(UUID.randomUUID().toString());
