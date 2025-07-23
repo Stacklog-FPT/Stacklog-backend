@@ -97,6 +97,8 @@ public class TaskService implements IService<Task> {
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
+        taskRepo.save(e);
+
         return e;
 
     }
