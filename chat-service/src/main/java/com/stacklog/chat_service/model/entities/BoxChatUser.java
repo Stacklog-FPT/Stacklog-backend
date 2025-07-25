@@ -24,7 +24,6 @@ public class BoxChatUser extends CoreEntity {
 
     @ManyToOne
     @JoinColumn(name = "box_chat_id")
-    @JsonIgnore
     private BoxChat boxChat;
 
 }
