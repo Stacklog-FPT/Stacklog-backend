@@ -88,6 +88,8 @@ public class CheckItemService implements IService<CheckItem> {
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
+        e = checkItemRepo.save(e);
+
         return e;
     }
 

@@ -93,6 +93,8 @@ public class CheckListService implements IService<CheckList> {
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
+        e = checkListRepo.save(e);
+
         return e;
     }
 
