@@ -34,15 +34,6 @@ public class ChatMessageRestController {
 
     @Autowired ChatMessageService chatMessageService;
 
-    @GetMapping("")
-    public ResponseEntity<List<ChatMessage>> getChatMessageByUserId(@RequestHeader("Authorization") String token) {
-        List<ChatMessage> lists = chatMessageService.getAllByUserId(token);
-        if (lists.isEmpty() || lists == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok().body(lists);
-    }
-
     @GetMapping("/{boxChatId}")
     public ResponseEntity<List<ChatMessage>> getChatMessageByBoxChatId(@RequestHeader("Authorization") String token, @PathVariable(name = "boxChatId") String boxChatId) {
         List<ChatMessage> lists = chatMessageService.getAllByBoxChatId(token, boxChatId);
