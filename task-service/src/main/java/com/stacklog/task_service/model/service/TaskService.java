@@ -50,7 +50,7 @@ public class TaskService implements IService<Task> {
     @Override
     public List<Task> getAllByUserId(String token) {
         List<Task> tasks = redisTaskService.getAll(token, NAME_SERVICE);
-        if (tasks.isEmpty() || tasks == null) {
+        if (tasks.isEmpty()) {
             tasks = taskRepo.findByUserId(redisTaskService.getCurrentUserId(token));
             redisTaskService.saveListToRedis(tasks, token, NAME_SERVICE);
         }
