@@ -51,12 +51,15 @@ public class Task extends CoreEntity {
     @OneToMany(mappedBy = "parentTask", fetch = FetchType.LAZY)
     private List<Task> subtasks;
 
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    private List<Review> reviews;
+
     @OneToMany(mappedBy = "task")
     private List<TaskAssign> assigns;
 
     public Task(String createdBy, String createdAt, String updateBy, String updateAt, String taskTitle,
             String taskDescription, String groupId, String documentId, Integer taskPoint, String taskDueDate,
-            StatusTask statusTask, Task parentTask, List<Task> subtasks, List<TaskAssign> assigns) {
+            StatusTask statusTask, Task parentTask, List<Task> subtasks, List<TaskAssign> assigns, List<Review> reviews) {
         super(createdBy, createdAt, updateBy, updateAt);
         this.taskTitle = taskTitle;
         this.taskDescription = taskDescription;
@@ -73,6 +76,7 @@ public class Task extends CoreEntity {
             System.out.println(e);
             this.taskDueDate = null;
         }
+        this.reviews = reviews;
 
     }
 
