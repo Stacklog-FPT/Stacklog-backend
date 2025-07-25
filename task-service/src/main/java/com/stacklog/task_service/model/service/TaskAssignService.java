@@ -99,5 +99,10 @@ public class TaskAssignService implements IService<TaskAssign> {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'searchByFields'");
     }
+
+    public List<TaskAssign> getAllByTaskId(String token, String taskId) {
+        List<TaskAssign> taskAssigns = taskAssignRepo.findByTaskTaskId(taskId);
+        return taskAssigns;
+    }
     
 }

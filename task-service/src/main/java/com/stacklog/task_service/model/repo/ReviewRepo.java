@@ -11,7 +11,5 @@ import com.stacklog.task_service.model.entities.Review;
 public interface ReviewRepo extends JpaRepository<Review, String> {
 
     List<Review> findByTaskTaskId(String taskId);
-
-    List<Review> findByUserId(String currentUserId);
     
 }

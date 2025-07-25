@@ -49,12 +49,13 @@ public class ReviewService implements IService<Review> {
 
     @Override
     public List<Review> getAllByUserId(String token) {
-        List<Review> reviews = redisReviewService.getAll(token, NAME_SERVICE);
-        if (reviews.isEmpty()) {
-            reviews = reviewRepo.findByUserId(redisReviewService.getCurrentUserId(token));
-            redisReviewService.saveListToRedis(reviews, token, NAME_SERVICE);
-        }
-        return reviews;
+        // List<Review> reviews = redisReviewService.getAll(token, NAME_SERVICE);
+        // if (reviews.isEmpty()) {
+        //     reviews = reviewRepo.findByUserId(redisReviewService.getCurrentUserId(token));
+        //     redisReviewService.saveListToRedis(reviews, token, NAME_SERVICE);
+        // }
+        // return reviews;
+        return null;
     }
 
     public List<Review> getAllByTaskId(String token, String taskId) {

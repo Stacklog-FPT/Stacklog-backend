@@ -13,4 +13,6 @@ public interface TaskAssignRepo extends JpaRepository<TaskAssign, String> {
     
     public List<TaskAssign> findByAssignTo(String assignTo);
 
+    public List<TaskAssign> findByTaskTaskId(String taskId);
+
 }
