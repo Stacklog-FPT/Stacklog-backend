@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RedisService<E> {
 
-    private final Duration ttl = Duration.ofMinutes(5);
+    private final Duration ttl = Duration.ofMinutes(1440);
 
     private final JwtDecoder jwtDecoder;
 
