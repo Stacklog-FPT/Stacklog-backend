@@ -1,39 +1,108 @@
 package com.stacklog.task_service.model.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.stacklog.core_service.model.service.IService;
+import com.stacklog.core_service.utils.CommonFunction;
+import com.stacklog.core_service.utils.kafka.KafkaProducer;
+import com.stacklog.core_service.utils.redis.RedisService;
 import com.stacklog.task_service.model.entities.Review;
+import com.stacklog.task_service.model.repo.ReviewRepo;
 
 @Service
 public class ReviewService implements IService<Review> {
 
+    private static final String NAME_SERVICE = "review-service";
+
+    private static final String KAFKA_TOPIC_UPDATE = "task-service.review.updated";
+    private static final String KAFKA_TOPIC_CREATE = "task-service.review.created";
+
+    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
+
+    @Autowired
+    ReviewRepo reviewRepo;
+
+    @Autowired
+    KafkaProducer<Review> kafkaReviewProducer;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
+    RedisService<Review> redisReviewService;
+
+    public ReviewService(RedisService<Review> redisReviewService) {
+        this.redisReviewService = redisReviewService;
+    }
+
     @Override
     public Review delete(String id, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        return null;
     }
 
     @Override
     public List<Review> getAllByUserId(String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllByUserId'");
+        List<Review> reviews = redisReviewService.getAll(token, NAME_SERVICE);
+        if (reviews.isEmpty()) {
+            reviews = reviewRepo.findByUserId(redisReviewService.getCurrentUserId(token));
+            redisReviewService.saveListToRedis(reviews, token, NAME_SERVICE);
+        }
+        return reviews;
+    }
+
+    public List<Review> getAllByTaskId(String token, String taskId) {
+        List<Review> reviews = redisReviewService.getAll(token, NAME_SERVICE);
+        if (reviews.isEmpty()) {
+            reviews = reviewRepo.findByTaskTaskId(redisReviewService.getCurrentUserId(token));
+            redisReviewService.saveListToRedis(reviews, token, NAME_SERVICE);
+        }
+        return reviews;
     }
 
     @Override
     public Review getById(String id, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getById'");
+        Review review = redisReviewService.getById(id, token, NAME_SERVICE);
+        if (review == null) {
+            review = reviewRepo.findById(id).orElseThrow();
+            redisReviewService.saveToRedis(review, token, NAME_SERVICE);
+        }
+        return review;
     }
 
     @Override
+    @Transactional
     public Review save(Review e, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
+        boolean isCreate = (e.getReviewId() == null || !reviewRepo.existsById(e.getReviewId()));
+        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateBy(redisReviewService.getCurrentUserId(token));
+        if (e.getReviewId() == null || e.getReviewId().isBlank()) {
+            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedBy(redisReviewService.getCurrentUserId(token));
+            e.setReviewId(UUID.randomUUID().toString());
+        }
+        if (isCreate) {
+            kafkaReviewProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
+        } else {
+            kafkaReviewProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
+        }
+
+        redisReviewService.saveToRedis(e, token, NAME_SERVICE);
+
+        messagingTemplate.convertAndSend("/topic/task-service", e);
+
+        reviewRepo.save(e);
+
+        return e;
+
     }
+
 
     @Override
     public List<Review> searchByFields(Predicate<Review> p, String token) {

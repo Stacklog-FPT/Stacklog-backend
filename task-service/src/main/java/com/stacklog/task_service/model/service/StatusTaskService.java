@@ -92,6 +92,8 @@ public class StatusTaskService implements IService<StatusTask> {
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
+        e = statusTaskRepo.save(e);
+
         return e;
     }
 

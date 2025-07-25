@@ -10,6 +10,7 @@ import com.stacklog.core_service.utils.jwt.JwtDecoder;
 import com.stacklog.core_service.utils.redis.RedisService;
 import com.stacklog.task_service.model.entities.CheckItem;
 import com.stacklog.task_service.model.entities.CheckList;
+import com.stacklog.task_service.model.entities.Review;
 import com.stacklog.task_service.model.entities.StatusTask;
 import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.entities.TaskAssign;
@@ -33,6 +34,14 @@ public class RedisTaskConfig {
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder) {
         return new RedisService<>(Task.class, jwtDecoder, Task::getTaskId);
+    }
+
+    @Bean
+    public RedisService<Review> redisReviewService(
+            RedisTemplate<String, String> redisTemplate,
+            ObjectMapper objectMapper,
+            JwtDecoder jwtDecoder) {
+        return new RedisService<>(Review.class, jwtDecoder, Review::getReviewId);
     }
 
     @Bean

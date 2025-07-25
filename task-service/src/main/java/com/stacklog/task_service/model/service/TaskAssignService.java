@@ -89,6 +89,8 @@ public class TaskAssignService implements IService<TaskAssign> {
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
+        e = taskAssignRepo.save(e);
+
         return e;
     }
 
