@@ -41,6 +41,16 @@ public class TaskAssignRestController {
         }
         return ResponseEntity.ok().body(lists);
     }
+
+    @GetMapping("/{taskId}")
+    public ResponseEntity<List<TaskAssign>> getTasksByTaskId(@RequestHeader("Authorization") String token, @PathVariable (name = "taskId") String taskId) {
+        List<TaskAssign> lists = taskAssignService.getAllByTaskId(token, taskId);
+        if (lists.isEmpty() || lists == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().body(lists);
+    }
+    
     
     @PostMapping("")
     public ResponseEntity<TaskAssign> saveTaskAssign(@RequestHeader("Authorization") String token, @RequestBody TaskAssign e) {
