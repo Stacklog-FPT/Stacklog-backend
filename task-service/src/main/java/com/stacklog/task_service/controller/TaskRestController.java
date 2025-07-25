@@ -35,15 +35,6 @@ public class TaskRestController {
         return ResponseEntity.ok().body(message);
     }
 
-    @GetMapping("")
-    public ResponseEntity<List<Task>> getTasksByUserId(@RequestHeader("Authorization") String token) {
-        List<Task> lists = taskService.getAllByUserId(token);
-        if (lists.isEmpty() || lists == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok().body(lists);
-    }
-
     @GetMapping("/{groupId}")
     public ResponseEntity<List<Task>> getTasksByGroupId(@RequestHeader("Authorization") String token, @PathVariable("groupId") String groupId) {
         List<Task> lists = taskService.getAllByGroupId(token, groupId);
