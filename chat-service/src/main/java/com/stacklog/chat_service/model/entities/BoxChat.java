@@ -27,6 +27,7 @@ public class BoxChat extends CoreEntity {
     private List<ChatMessage> chatMessages;
 
     @OneToMany(mappedBy = "boxChat")
+    @JsonIgnore
     private List<BoxChatUser> boxChatUsers;
 
 }
