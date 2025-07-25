@@ -266,6 +266,24 @@ services:
       # - kafka-3
       - redis
 
+  scheduleservice:
+    build:
+      context: .
+      dockerfile: schedule-service/Dockerfile
+    volumes:
+      - ~/.m2:/root/.m2
+    container_name: scheduleservice
+    ports:
+      - "2006:2006"
+    restart: on-failure
+    networks:
+      - app-network
+    depends_on:
+      - kafka-1
+      # - kafka-2
+      # - kafka-3
+      - redis
+
 networks:
   app-network:
     driver: bridge
