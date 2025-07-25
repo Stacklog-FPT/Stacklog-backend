@@ -60,5 +60,12 @@ exports.findByRole = async (req, res) => {
 
 
 exports.findByGroupId = async (req, res) => {
-    res.status(212).json({ error: "Chưa có code nghe ní :)" });
+    const { groupId } = req.params;
+    try {
+        const users = await User.find({ groupId: groupId, isDeleted: false });
+        if (users.length === 0) return res.status(404).json({ error: `No ${role} found` });
+        res.status(200).json({ users });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 }

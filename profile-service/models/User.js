@@ -16,11 +16,16 @@ const UserSchema = new mongoose.Schema({
     isActive: { type: Boolean, default: true },
     isDeleted: { type: Boolean, default: false },
     personal_score: { type: Number, default: 0 },
-    role: {type: String, required: true}
+    role: {type: String, required: true},
+    groupId: {type: String}
 }, { timestamps: true });
 
 UserSchema.statics.findByEmail = function (email) {
     return this.findOne({ email, isDeleted: false });
 };
+
+UserSchema.statics.findByGroupId = function (groupId) {
+    return this.find({ groupId, isDeleted: false });
+}
 
 module.exports = mongoose.model('User', UserSchema);
