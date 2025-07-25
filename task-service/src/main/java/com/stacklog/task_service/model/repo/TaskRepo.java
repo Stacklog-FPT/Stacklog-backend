@@ -17,4 +17,6 @@ public interface TaskRepo extends JpaRepository<Task, String> {
     @Query("SELECT ta.task FROM TaskAssign ta WHERE ta.assignTo = :userId")
     public List<Task> findByUserId(@Param("userId") String userId);
 
+    public List<Task> findByGroupId(String groupId);
+
 }
