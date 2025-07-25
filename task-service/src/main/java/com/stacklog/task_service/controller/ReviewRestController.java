@@ -23,15 +23,6 @@ public class ReviewRestController {
     @Autowired
     ReviewService reviewService;
 
-    @GetMapping("")
-    public ResponseEntity<List<Review>> getTasksByUserId(@RequestHeader("Authorization") String token) {
-        List<Review> lists = reviewService.getAllByUserId(token);
-        if (lists.isEmpty() || lists == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok().body(lists);
-    }
-
     @GetMapping("/{taskId}")
     public ResponseEntity<List<Review>> getTasksByGroupId(@RequestHeader("Authorization") String token, @PathVariable("taskId") String taskId) {
         List<Review> lists = reviewService.getAllByTaskId(token, taskId);

@@ -33,15 +33,6 @@ public class TaskAssignRestController {
         return ResponseEntity.ok().body(message);
     }
 
-    @GetMapping("")
-    public ResponseEntity<List<TaskAssign>> getTasksByUserId(@RequestHeader("Authorization") String token) {
-        List<TaskAssign> lists = taskAssignService.getAllByUserId(token);
-        if (lists.isEmpty() || lists == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok().body(lists);
-    }
-
     @GetMapping("/{taskId}")
     public ResponseEntity<List<TaskAssign>> getTasksByTaskId(@RequestHeader("Authorization") String token, @PathVariable (name = "taskId") String taskId) {
         List<TaskAssign> lists = taskAssignService.getAllByTaskId(token, taskId);
