@@ -34,15 +34,6 @@ public class CheckListRestController {
         return ResponseEntity.ok().body(message);
     }
 
-    @GetMapping("")
-    public ResponseEntity<List<CheckList>> getCheckList(@RequestHeader("Authorization") String token) {
-        List<CheckList> checkLists = checkListService.getAllByUserId(token);
-        if (checkLists.isEmpty() || checkLists == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok().body(checkLists);
-    }
-
     @GetMapping("/{taskId}")
     public ResponseEntity<List<CheckList>> getCheckListByTaskId(@RequestHeader("Authorization") String token, @PathVariable(name = "taskId") String taskId) {
         List<CheckList> checkLists = checkListService.getAllByTaskId(taskId, token);
