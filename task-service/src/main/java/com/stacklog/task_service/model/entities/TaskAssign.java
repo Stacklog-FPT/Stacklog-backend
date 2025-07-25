@@ -21,7 +21,6 @@ public class TaskAssign extends CoreEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "taskId")
-    @JsonIgnore
     private Task task;
 
     private String assignTo;
