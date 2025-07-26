@@ -1,4 +1,4 @@
-package com.stacklog.schedule_service.Model.Service;
+package com.stacklog.schedule_service.model.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,8 +14,8 @@ import com.stacklog.core_service.model.service.IService;
 import com.stacklog.core_service.utils.CommonFunction;
 import com.stacklog.core_service.utils.kafka.KafkaProducer;
 import com.stacklog.core_service.utils.redis.RedisService;
-import com.stacklog.schedule_service.Model.Entities.Slot;
-import com.stacklog.schedule_service.Model.Repo.SlotRepo;
+import com.stacklog.schedule_service.model.entities.Slot;
+import com.stacklog.schedule_service.model.repo.SlotRepo;
 
 @Service
 public class SlotService implements IService<Slot> {
