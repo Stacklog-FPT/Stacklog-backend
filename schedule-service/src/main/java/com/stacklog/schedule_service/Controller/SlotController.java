@@ -1,5 +1,6 @@
 package com.stacklog.schedule_service.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stacklog.schedule_service.model.entities.Slot;
+import com.stacklog.schedule_service.model.entities.SlotAssign;
+import com.stacklog.schedule_service.model.service.SlotAssignService;
 import com.stacklog.schedule_service.model.service.SlotService;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +30,9 @@ public class SlotController {
     
     @Autowired
     SlotService slotService;
+
+    @Autowired
+    SlotAssignService slotAssignService;
 
     @GetMapping("/user")
     public ResponseEntity<List<Slot>> getTasksByUserId(@RequestHeader("Authorization") String token) {
@@ -44,8 +53,19 @@ public class SlotController {
     }
     
     @PostMapping("")
-    public ResponseEntity<Slot> saveTask(@RequestHeader("Authorization") String token, @RequestBody Slot e) {
-        Slot slot = slotService.save(e, token);
+    public ResponseEntity<Slot> saveTask(@RequestHeader("Authorization") String token, @RequestBody SlotDTO e) {
+        Slot slot = new Slot();
+        slot.setSlotTitle(e.slotTitle);
+        slot.setSlotDescription(e.slotDescription);
+        slot.setSlotStarTime(e.slotStarTime);
+        slot.setGroupId(e.groupId);
+        slot = slotService.save(slot, token);
+        for (String userId : e.userIdAssigns) {
+            SlotAssign slotAssign = new SlotAssign();
+            slotAssign.setSlot(slot);
+            slotAssign.setUserId(userId);
+            slotAssignService.save(slotAssign, token);   
+        }
         if (slot == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -61,4 +81,14 @@ public class SlotController {
         return ResponseEntity.ok().body("Delete success");
     }
 
+}
+
+@Getter
+@Setter
+class SlotDTO {
+    String slotTitle;
+    String slotDescription;
+    LocalDateTime slotStarTime;
+    String groupId;
+    List<String> userIdAssigns;
 }

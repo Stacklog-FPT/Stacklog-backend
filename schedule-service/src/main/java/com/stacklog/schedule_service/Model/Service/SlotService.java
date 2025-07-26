@@ -102,10 +102,10 @@ public class SlotService implements IService<Slot> {
     public List<Slot> getAllByGroupId(String token, String groupId) {
         List<Slot> slots = redisSlotService.getAll(token, NAME_SERVICE);
         if (slots.isEmpty()) {
-            slots = slotRepo.findByUserId(redisSlotService.getCurrentUserId(token));
+            slots = slotRepo.findByGroupId(groupId);
             redisSlotService.saveListToRedis(slots, token, NAME_SERVICE);
         }
-        return slots.stream().filter(t -> t.getGroupId().equals(groupId)).toList();
+        return slots;
     }
     
 }

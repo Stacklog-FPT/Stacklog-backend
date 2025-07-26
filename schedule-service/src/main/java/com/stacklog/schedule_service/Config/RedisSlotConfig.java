@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stacklog.core_service.utils.jwt.JwtDecoder;
 import com.stacklog.core_service.utils.redis.RedisService;
 import com.stacklog.schedule_service.model.entities.Slot;
+import com.stacklog.schedule_service.model.entities.SlotAssign;
 
 @Configuration
 public class RedisSlotConfig {
@@ -25,6 +26,15 @@ public class RedisSlotConfig {
             JwtDecoder jwtDecoder
     ) {
         return new RedisService<>(Slot.class, jwtDecoder, Slot::getSlotId);
+    }
+
+    @Bean
+    public RedisService<SlotAssign> redisSlotAssignService(
+            RedisTemplate<String, String> redisTemplate,
+            ObjectMapper objectMapper,
+            JwtDecoder jwtDecoder
+    ) {
+        return new RedisService<>(SlotAssign.class, jwtDecoder, SlotAssign::getSlotAssignId);
     }
 
 }

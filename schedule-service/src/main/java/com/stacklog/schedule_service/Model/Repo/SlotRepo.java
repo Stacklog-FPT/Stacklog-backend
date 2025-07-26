@@ -21,4 +21,6 @@ public interface SlotRepo extends JpaRepository<Slot, String> {
             """, nativeQuery = true)
     List<Slot> findByUserId(@Param("currentUserId") String currentUserId);
 
+    List<Slot> findByGroupId(String groupId);
+
 }
