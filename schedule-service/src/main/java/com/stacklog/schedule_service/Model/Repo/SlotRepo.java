@@ -15,8 +15,8 @@ public interface SlotRepo extends JpaRepository<Slot, String> {
 
     @Query(value = """
             SELECT s.*
-            FROM slot_assign sa
-            JOIN slot s ON sa.slot_id = s.slot_id
+            FROM slot_assign as sa
+            JOIN slot as s ON sa.slot_id = s.slot_id
             WHERE sa.user_id = :currentUserId
             """, nativeQuery = true)
     List<Slot> findByUserId(@Param("currentUserId") String currentUserId);

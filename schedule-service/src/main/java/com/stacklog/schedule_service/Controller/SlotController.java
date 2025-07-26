@@ -1,4 +1,4 @@
-package com.stacklog.schedule_service.Controller;
+package com.stacklog.schedule_service.controller;
 
 import java.util.List;
 

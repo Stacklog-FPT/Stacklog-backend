@@ -21,7 +21,7 @@ services:
       - classservice
       - chatservice
       - documentservice
-      # - scheduleservice
+      - scheduleservice
       - notificationservice
       - scoreservice
       # - searchservice
@@ -275,7 +275,7 @@ services:
     container_name: scheduleservice
     ports:
       - "2006:2006"
-    restart: on-failure
+    restart: always
     networks:
       - app-network
     depends_on:
