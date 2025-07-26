@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
 @Getter
@@ -36,9 +38,11 @@ public class Groupss extends CoreEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "classesId")
+    @JsonBackReference
     private Classes classes;
 
     @OneToMany(mappedBy = "groups")
+    @JsonManagedReference
     private List<GroupStudent> groupStudents;
 
 }

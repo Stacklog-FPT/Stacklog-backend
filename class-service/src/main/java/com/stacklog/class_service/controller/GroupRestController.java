@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
-
 @RestController
 @RequestMapping(path = "/group")
 public class GroupRestController {
@@ -30,6 +28,13 @@ public class GroupRestController {
         List<Groupss> groupsses = groupService.getAllByUserId(token);
         return ResponseEntity.ok().body(groupsses);
     }
+
+    @GetMapping("/class/{classId}")
+    public ResponseEntity<List<Groupss>> getGroupByClassId(@RequestHeader("Authorization") String token, @PathVariable(name = "classId") String classId) {
+        List<Groupss> groupsses = groupService.getAllByClassId(token, classId);
+        return ResponseEntity.ok().body(groupsses);
+    }
+    
     
     @PostMapping("")
     public ResponseEntity<Groupss> saveGroupss(@RequestBody Groupss groupss, @RequestHeader("Authorization") String token) {

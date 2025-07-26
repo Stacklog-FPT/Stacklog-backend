@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
 @Getter
@@ -28,5 +30,6 @@ public class Classes extends CoreEntity {
     private String lectureId;
 
     @OneToMany(mappedBy = "classes")
+    @JsonManagedReference
     private List<Groupss> groups;
 }
