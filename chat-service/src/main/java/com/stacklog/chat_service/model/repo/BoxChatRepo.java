@@ -13,7 +13,7 @@ import com.stacklog.chat_service.model.entities.BoxChat;
 public interface BoxChatRepo extends JpaRepository<BoxChat, String>  {
 
     @Query(value = """
-    SELECT bc 
+    SELECT box_chat.* 
     FROM box_chat bc 
     JOIN box_chat_user bcu ON bc.box_chat_id = bcu.box_chat_id 
     WHERE bcu.user_id = :userId
