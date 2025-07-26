@@ -61,7 +61,7 @@ public class ReviewService implements IService<Review> {
     public List<Review> getAllByTaskId(String token, String taskId) {
         List<Review> reviews = redisReviewService.getAll(token, NAME_SERVICE);
         if (reviews.isEmpty()) {
-            reviews = reviewRepo.findByTaskId(redisReviewService.getCurrentUserId(token));
+            reviews = reviewRepo.findByTaskId(taskId);
             redisReviewService.saveListToRedis(reviews, token, NAME_SERVICE);
         }
         return reviews;
