@@ -47,7 +47,7 @@ public class RedisService<E> {
     // get and save to redis
     public List<E> getAll(String token, String nameService) {
         String currentUserId = getCurrentUserId(token);
-        String indexKey = String.format("index:%s:%s:%s", nameService, clazz.getSimpleName(), currentUserId);
+        String indexKey = String.format("%s:%s:%s", nameService, clazz.getSimpleName(), currentUserId);
         Set<String> keys = redisTemplate.opsForSet().members(indexKey);
         if (keys == null || keys.isEmpty())
             return Collections.emptyList();
@@ -90,7 +90,7 @@ public class RedisService<E> {
         String currentUserId = getCurrentUserId(token);
         try {
             String json = objectMapper.writeValueAsString(e);
-            String indexKey = String.format("index:%s:%s:%s", nameService, clazz.getSimpleName(), currentUserId);
+            String indexKey = String.format("%s:%s:%s", nameService, clazz.getSimpleName(), currentUserId);
             redisTemplate.opsForValue().set(getKey(currentUserId, "web", nameService, idExtractor.apply(e)), json, ttl);
             redisTemplate.opsForSet().add(indexKey, getKey(currentUserId, "web", nameService, idExtractor.apply(e)));
         } catch (JsonProcessingException e1) {
@@ -101,7 +101,7 @@ public class RedisService<E> {
 
     public void deleteAllByUserId(String token, String nameService) {
         String currentUserId = getCurrentUserId(token);
-        String indexKey = String.format("index:%s:%s:%s", nameService, clazz.getSimpleName(), currentUserId);
+        String indexKey = String.format("%s:%s:%s", nameService, clazz.getSimpleName(), currentUserId);
         Set<String> keys = redisTemplate.opsForSet().members(indexKey);
         if (keys != null && !keys.isEmpty()) {
             redisTemplate.delete(keys);
