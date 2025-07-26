@@ -3,7 +3,7 @@ package com.stacklog.task_service.model.entities;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
 import jakarta.persistence.Entity;
@@ -53,11 +53,11 @@ public class Task extends CoreEntity {
     private List<Task> subtasks;
 
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
-    @JsonIgnore
+    @JsonManagedReference
     private List<Review> reviews;
 
     @OneToMany(mappedBy = "task")
-    @JsonIgnore
+    @JsonManagedReference
     private List<TaskAssign> assigns;
 
     public Task(String createdBy, String createdAt, String updateBy, String updateAt, String taskTitle,

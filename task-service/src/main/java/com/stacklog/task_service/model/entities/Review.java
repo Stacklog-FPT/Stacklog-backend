@@ -1,5 +1,6 @@
 package com.stacklog.task_service.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
 import jakarta.persistence.Entity;
@@ -23,6 +24,7 @@ public class Review extends CoreEntity  {
 
     @ManyToOne
     @JoinColumn(name = "taskId")
+    @JsonBackReference
     private Task task;
 
 }
