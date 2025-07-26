@@ -14,6 +14,9 @@ import com.stacklog.class_service.model.service.ClassService;
 import com.stacklog.class_service.model.service.GroupService;
 import com.stacklog.class_service.model.service.GroupsStudentService;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -80,6 +83,8 @@ public class GroupRestController {
 
 }
 
+@Getter
+@Setter
 class GroupDTO {
     String groupsName;
     String groupsDescriptions;
