@@ -12,12 +12,12 @@ import com.stacklog.chat_service.model.entities.BoxChat;
 @Repository
 public interface BoxChatRepo extends JpaRepository<BoxChat, String> {
 
-    @Query("""
-                SELECT bc
-                FROM BoxChat bc
-                JOIN bc.boxChatUsers bcu
-                WHERE bcu.userId = :userId
-            """)
+    @Query(value = """
+            SELECT bc.*
+            FROM box_chat as bc
+            JOIN box_chat_user as bcu ON bc.box_chat_id = bcu.box_chat_id
+            WHERE bcu.user_id = :userId
+            """, nativeQuery = true)
     List<BoxChat> findAllByUserId(@Param("userId") String currentUserId);
 
 }
