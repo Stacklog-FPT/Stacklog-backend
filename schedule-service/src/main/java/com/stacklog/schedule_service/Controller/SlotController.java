@@ -7,8 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.stacklog.schedule_service.Model.Entities.Slot;
-import com.stacklog.schedule_service.Model.Service.SlotService;
+import com.stacklog.schedule_service.model.entities.Slot;
+import com.stacklog.schedule_service.model.service.SlotService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package com.stacklog.schedule_service.Model.Repo;
+package com.stacklog.schedule_service.model.repo;
 
 import java.util.List;
 
@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.stacklog.schedule_service.Model.Entities.Slot;
+import com.stacklog.schedule_service.model.entities.Slot;
+
 
 @Repository
 public interface SlotRepo extends JpaRepository<Slot, String> {

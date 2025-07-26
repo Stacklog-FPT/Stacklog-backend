@@ -1,4 +1,4 @@
-package com.stacklog.schedule_service.Model.Entities;
+package com.stacklog.schedule_service.model.entities;
 
 import com.stacklog.core_service.model.entities.CoreEntity;
 
