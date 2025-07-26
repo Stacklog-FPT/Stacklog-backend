@@ -20,10 +20,10 @@ import com.stacklog.schedule_service.model.repo.SlotRepo;
 @Service
 public class SlotService implements IService<Slot> {
 
-    private static final String NAME_SERVICE = "slot-service";
+    private static final String NAME_SERVICE = "schedule-service";
 
-    private static final String KAFKA_TOPIC_UPDATE = "slot-service.slot.updated";
-    private static final String KAFKA_TOPIC_CREATE = "slot-service.slot.created";
+    private static final String KAFKA_TOPIC_UPDATE = "schedule-service.slot.updated";
+    private static final String KAFKA_TOPIC_CREATE = "schedule-service.slot.created";
 
     private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
 
