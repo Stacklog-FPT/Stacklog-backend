@@ -109,7 +109,7 @@ public class GroupService implements IService<Groupss> {
     public List<Groupss> getAllByClassId(String token, String classesId) {
         List<Groupss> groupsses = redisGroupsService.getAll(token, NAME_SERVICE);
         if (groupsses.isEmpty()) {
-            groupsses = groupsRepo.findByClassesClassesId(classesId);
+            groupsses = groupsRepo.findByClassesId(classesId);
             redisGroupsService.saveListToRedis(groupsses, token, NAME_SERVICE);
         } 
         return groupsses;
