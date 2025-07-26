@@ -1,5 +1,6 @@
 package com.stacklog.task_service.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -10,8 +11,15 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.stacklog.task_service.model.entities.StatusTask;
 import com.stacklog.task_service.model.entities.Task;
+import com.stacklog.task_service.model.entities.TaskAssign;
+import com.stacklog.task_service.model.entities.Task.Priority;
+import com.stacklog.task_service.model.service.TaskAssignService;
 import com.stacklog.task_service.model.service.TaskService;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +35,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class TaskRestController {
     
     @Autowired TaskService taskService;
+
+    @Autowired TaskAssignService taskAssignService;
 
     @MessageMapping("/taskify")
     @SendTo("/topic/taskservice")
@@ -45,8 +55,23 @@ public class TaskRestController {
     }
     
     @PostMapping("")
-    public ResponseEntity<Task> saveTask(@RequestHeader("Authorization") String token, @RequestBody Task e) {
-        Task task = taskService.save(e, token);
+    public ResponseEntity<Task> saveTask(@RequestHeader("Authorization") String token, @RequestBody TaskDTO e) {
+        Task task = new Task();
+        task.setTaskTitle(e.getTaskTitle());
+        task.setTaskDescription(e.getTaskDescription());
+        task.setGroupId(e.getGroupId());
+        task.setDocumentId(e.getDocumentId());
+        task.setTaskPoint(e.getTaskPoint());
+        task.setTaskDueDate(e.getTaskDueDate());
+        task.setPriority(e.getPriority());
+        task.setStatusTask(e.getStatusTask());
+        task = taskService.save(task, token);
+        for (String userId : e.getListUserAssign()) {
+            TaskAssign taskAssign = new TaskAssign();
+            taskAssign.setAssignTo(userId);
+            taskAssign.setTask(task);
+            taskAssignService.save(taskAssign, token);
+        }
         if (task == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -62,4 +87,18 @@ public class TaskRestController {
         return ResponseEntity.ok().body("Delete success");
     }
 
+}
+
+@Getter
+@Setter
+class TaskDTO {
+    private String taskTitle;
+    private String taskDescription;
+    private String groupId;
+    private String documentId;
+    private Integer taskPoint;
+    private LocalDateTime taskDueDate;
+    private Priority priority;
+    private StatusTask statusTask;
+    private List<String> listUserAssign;
 }
