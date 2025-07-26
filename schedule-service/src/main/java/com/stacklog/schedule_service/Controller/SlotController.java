@@ -25,7 +25,7 @@ public class SlotController {
     @Autowired
     SlotService slotService;
 
-    @GetMapping("")
+    @GetMapping("/user")
     public ResponseEntity<List<Slot>> getTasksByUserId(@RequestHeader("Authorization") String token) {
         List<Slot> lists = slotService.getAllByUserId(token);
         if (lists.isEmpty() || lists == null) {
@@ -34,7 +34,7 @@ public class SlotController {
         return ResponseEntity.ok().body(lists);
     }
 
-    @GetMapping("/{groupId}")
+    @GetMapping("/group/{groupId}")
     public ResponseEntity<List<Slot>> getTasksByGroupId(@RequestHeader("Authorization") String token, @PathVariable("groupId") String groupId) {
         List<Slot> lists = slotService.getAllByGroupId(token, groupId);
         if (lists.isEmpty() || lists == null) {
