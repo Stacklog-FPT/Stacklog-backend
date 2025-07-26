@@ -1,6 +1,5 @@
 package com.stacklog.chat_service.model.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
 import jakarta.persistence.Entity;
