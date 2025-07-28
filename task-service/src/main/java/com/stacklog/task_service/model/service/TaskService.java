@@ -58,10 +58,10 @@ public class TaskService implements IService<Task> {
     }
 
     public List<Task> getAllByGroupId(String token, String groupId) {
-        List<Task> tasks = redisTaskService.getAll(groupId, NAME_SERVICE);
+        List<Task> tasks = redisTaskService.getAll(token, NAME_SERVICE);
         if (tasks.isEmpty()) {
             tasks = taskRepo.findByGroupId(groupId);
-            redisTaskService.saveListToRedis(tasks, groupId, NAME_SERVICE);
+            redisTaskService.saveListToRedis(tasks, token, NAME_SERVICE);
         }
         return tasks;
     }
