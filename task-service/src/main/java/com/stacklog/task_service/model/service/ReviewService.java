@@ -20,7 +20,7 @@ import com.stacklog.task_service.model.repo.ReviewRepo;
 @Service
 public class ReviewService implements IService<Review> {
 
-    private static final String NAME_SERVICE = "review-service";
+    private static final String NAME_SERVICE = "task-service";
 
     private static final String KAFKA_TOPIC_UPDATE = "task-service.review.updated";
     private static final String KAFKA_TOPIC_CREATE = "task-service.review.created";
@@ -60,11 +60,10 @@ public class ReviewService implements IService<Review> {
     }
 
     public List<Review> getAllByTaskId(String token, String taskId) {
-        // List<Review> reviews = redisReviewService.getAll(token, NAME_SERVICE).stream()
-        //         .filter(r -> r.getTask().getTaskId().equals(taskId)).toList();
+        // List<Review> reviews = redisReviewService.getAll(taskId, NAME_SERVICE);
         // if (reviews.isEmpty()) {
         //     reviews = reviewRepo.findByTaskId(taskId);
-        //     redisReviewService.saveListToRedis(reviews, token, NAME_SERVICE);
+        //     redisReviewService.saveListToRedis(reviews, taskId, NAME_SERVICE);
         // }
         List<Review> reviews = reviewRepo.findByTaskId(taskId);
         return reviews;

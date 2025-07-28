@@ -45,11 +45,11 @@ public class Task extends CoreEntity {
     @JoinColumn(name = "statusTaskId")
     private StatusTask statusTask;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parentTaskId")
     private Task parentTask;
 
-    @OneToMany(mappedBy = "parentTask", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parentTask")
     private List<Task> subtasks;
 
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
