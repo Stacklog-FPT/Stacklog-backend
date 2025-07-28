@@ -53,10 +53,10 @@ public class StatusTaskService implements IService<StatusTask> {
     }
 
     public List<StatusTask> getAllByGroupId(String token, String groupId) {
-        List<StatusTask> statusTasks = redisStatusTaskService.getAll(token, NAME_SERVICE);
+        List<StatusTask> statusTasks = redisStatusTaskService.getAll(groupId, NAME_SERVICE);
         if (statusTasks.isEmpty() || statusTasks == null) {
             statusTasks = statusTaskRepo.findAllByGroupId(groupId);
-            redisStatusTaskService.saveListToRedis(statusTasks, token, NAME_SERVICE);
+            redisStatusTaskService.saveListToRedis(statusTasks, groupId, NAME_SERVICE);
         }
         return statusTasks;
     }
@@ -88,7 +88,7 @@ public class StatusTaskService implements IService<StatusTask> {
             statusTaskProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
         }
 
-        redisStatusTaskService.saveToRedis(e, token, NAME_SERVICE);
+        redisStatusTaskService.saveToRedis(e, e.getGroupId(), NAME_SERVICE);
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
