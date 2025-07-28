@@ -51,15 +51,17 @@ public class ReviewService implements IService<Review> {
     public List<Review> getAllByUserId(String token) {
         // List<Review> reviews = redisReviewService.getAll(token, NAME_SERVICE);
         // if (reviews.isEmpty()) {
-        //     reviews = reviewRepo.findByUserId(redisReviewService.getCurrentUserId(token));
-        //     redisReviewService.saveListToRedis(reviews, token, NAME_SERVICE);
+        // reviews =
+        // reviewRepo.findByUserId(redisReviewService.getCurrentUserId(token));
+        // redisReviewService.saveListToRedis(reviews, token, NAME_SERVICE);
         // }
         // return reviews;
         return null;
     }
 
     public List<Review> getAllByTaskId(String token, String taskId) {
-        List<Review> reviews = redisReviewService.getAll(token, NAME_SERVICE);
+        List<Review> reviews = redisReviewService.getAll(token, NAME_SERVICE).stream()
+                .filter(r -> r.getTask().getTaskId().equals(taskId)).toList();
         if (reviews.isEmpty()) {
             reviews = reviewRepo.findByTaskId(taskId);
             redisReviewService.saveListToRedis(reviews, token, NAME_SERVICE);
@@ -104,11 +106,10 @@ public class ReviewService implements IService<Review> {
 
     }
 
-
     @Override
     public List<Review> searchByFields(Predicate<Review> p, String token) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'searchByFields'");
     }
-    
+
 }
