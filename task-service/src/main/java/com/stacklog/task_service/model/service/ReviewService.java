@@ -60,12 +60,13 @@ public class ReviewService implements IService<Review> {
     }
 
     public List<Review> getAllByTaskId(String token, String taskId) {
-        List<Review> reviews = redisReviewService.getAll(token, NAME_SERVICE).stream()
-                .filter(r -> r.getTask().getTaskId().equals(taskId)).toList();
-        if (reviews.isEmpty()) {
-            reviews = reviewRepo.findByTaskId(taskId);
-            redisReviewService.saveListToRedis(reviews, token, NAME_SERVICE);
-        }
+        // List<Review> reviews = redisReviewService.getAll(token, NAME_SERVICE).stream()
+        //         .filter(r -> r.getTask().getTaskId().equals(taskId)).toList();
+        // if (reviews.isEmpty()) {
+        //     reviews = reviewRepo.findByTaskId(taskId);
+        //     redisReviewService.saveListToRedis(reviews, token, NAME_SERVICE);
+        // }
+        List<Review> reviews = reviewRepo.findByTaskId(taskId);
         return reviews;
     }
 
