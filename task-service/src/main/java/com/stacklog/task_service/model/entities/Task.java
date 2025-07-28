@@ -3,6 +3,7 @@ package com.stacklog.task_service.model.entities;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
@@ -43,10 +44,12 @@ public class Task extends CoreEntity {
 
     @ManyToOne
     @JoinColumn(name = "statusTaskId")
+    @JsonManagedReference
     private StatusTask statusTask;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parentTaskId")
+    @JsonBackReference
     private Task parentTask;
 
     @OneToMany(mappedBy = "parentTask")
