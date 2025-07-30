@@ -1,9 +1,14 @@
 package com.stacklog.task_service.model.entities;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -20,6 +25,10 @@ public class StatusTask extends CoreEntity {
     private String statusTaskName;
     private String statusTaskColor;
     private String groupId;
+
+    @OneToMany(mappedBy = "statusTask", fetch = FetchType.LAZY)
+    @JsonBackReference
+    private List<Task> tasks;
 
     public StatusTask(String createdBy, String createdAt, String updateBy, String updateAt,
             String statusTaskName, String statusTaskColor) {
