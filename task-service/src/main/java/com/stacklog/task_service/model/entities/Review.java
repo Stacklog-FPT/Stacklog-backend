@@ -24,7 +24,7 @@ public class Review extends CoreEntity  {
 
     @ManyToOne
     @JoinColumn(name = "taskId")
-    @JsonBackReference
+    @JsonBackReference("task-review")
     private Task task;
 
 }
