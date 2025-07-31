@@ -1,6 +1,7 @@
 package com.stacklog.task_service.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.stacklog.task_service.model.entities.Review;
 import com.stacklog.task_service.model.service.ReviewService;
+import com.stacklog.task_service.model.service.TaskService;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @RestController
 @RequestMapping(value = {"/review", "/review/"})
@@ -22,6 +29,9 @@ public class ReviewRestController {
     
     @Autowired
     ReviewService reviewService;
+
+    @Autowired
+    TaskService taskService;
 
     @GetMapping("/{taskId}")
     public ResponseEntity<List<Review>> getTasksByGroupId(@RequestHeader("Authorization") String token, @PathVariable("taskId") String taskId) {
@@ -33,8 +43,11 @@ public class ReviewRestController {
     }
     
     @PostMapping("")
-    public ResponseEntity<Review> saveTask(@RequestHeader("Authorization") String token, @RequestBody Review e) {
-        Review review = reviewService.save(e, token);
+    public ResponseEntity<Review> saveTask(@RequestHeader("Authorization") String token, @RequestBody ReviewDTO e) {
+        Review review = new Review();
+        review.setReviewContent(e.getContentReview());
+        review.setTask(taskService.getById(e.getTaskId(), token));
+        review = reviewService.save(review, token);
         if (review == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -50,4 +63,13 @@ public class ReviewRestController {
         return ResponseEntity.ok().body("Delete success");
     }
 
+}
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+class ReviewDTO{
+    String contentReview;
+    String taskId;
 }
