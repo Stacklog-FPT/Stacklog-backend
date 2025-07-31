@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/', createUser);
 
 // get user by id
-router.get('/:id', findById);
+router.get('/:userId', findById);
 
 // Update User
 router.put('/:id', updateUser);
