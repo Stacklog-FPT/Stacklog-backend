@@ -73,7 +73,7 @@ exports.findByGroupId = async (req, res) => {
 exports.findById = async (req, res) => {
     const { userId } = req.params;
     try {
-        const user = await User.findById({ _id: userId, isDeleted: false });
+        const user = await User.findOne({ _id: userId, isDeleted: false });
         if (user == null) return res.status(404).json({ error: `No ${userId} found` });
         res.status(200).json({ user });
     } catch (error) {
