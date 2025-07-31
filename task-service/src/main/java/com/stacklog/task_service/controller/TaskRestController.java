@@ -28,34 +28,36 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
-
 @RestController
 @RequestMapping(path = "/task")
 public class TaskRestController {
-    
-    @Autowired TaskService taskService;
 
-    @Autowired TaskAssignService taskAssignService;
+    @Autowired
+    TaskService taskService;
 
-    @Autowired StatusTaskService statusTaskService;
+    @Autowired
+    TaskAssignService taskAssignService;
+
+    @Autowired
+    StatusTaskService statusTaskService;
 
     @MessageMapping("/taskify")
     @SendTo("/topic/taskservice")
-    public ResponseEntity<Map<String, String>> sendMessage(Map<String, String> message){
+    public ResponseEntity<Map<String, String>> sendMessage(Map<String, String> message) {
         // System.out.println("oke");
         return ResponseEntity.ok().body(message);
     }
 
     @GetMapping("/{groupId}")
-    public ResponseEntity<List<Task>> getTasksByGroupId(@RequestHeader("Authorization") String token, @PathVariable("groupId") String groupId) {
+    public ResponseEntity<List<Task>> getTasksByGroupId(@RequestHeader("Authorization") String token,
+            @PathVariable("groupId") String groupId) {
         List<Task> lists = taskService.getAllByGroupId(token, groupId);
         if (lists.isEmpty() || lists == null) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().body(lists);
     }
-    
+
     @PostMapping("")
     public ResponseEntity<Task> saveTask(@RequestHeader("Authorization") String token, @RequestBody TaskDTO e) {
         Task task = new Task();
@@ -67,7 +69,12 @@ public class TaskRestController {
         task.setTaskDueDate(e.getTaskDueDate());
         task.setPriority(e.getPriority());
         task.setStatusTask(statusTaskService.getById(e.getStatusTaskId(), token));
-        task.setParentTask(taskService.getById(e.getParentTaskId(), token));
+        if (e.getParentTaskId() != null && !e.getParentTaskId().isBlank()) {
+            Task parent = taskService.getById(e.getParentTaskId(), token);
+            task.setParentTask(parent);
+        } else {
+            task.setParentTask(null);
+        }
         task = taskService.save(task, token);
         for (String userId : e.getListUserAssign()) {
             TaskAssign taskAssign = new TaskAssign();
@@ -80,9 +87,10 @@ public class TaskRestController {
         }
         return ResponseEntity.ok().body(task);
     }
-    
+
     @DeleteMapping("/{taskId}")
-    public ResponseEntity<String> deleteTask(@RequestHeader("Authorization") String token, @PathVariable("taskId") String taskId) {
+    public ResponseEntity<String> deleteTask(@RequestHeader("Authorization") String token,
+            @PathVariable("taskId") String taskId) {
         Task task = taskService.delete(taskId, token);
         if (task == null) {
             return ResponseEntity.badRequest().build();

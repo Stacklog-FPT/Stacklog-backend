@@ -93,11 +93,11 @@ public class TaskService implements IService<Task> {
             kafkaTaskProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
         }
 
+        e = taskRepo.save(e);
+
         redisTaskService.saveToRedis(e, token, NAME_SERVICE);
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
-
-        taskRepo.save(e);
 
         return e;
 
