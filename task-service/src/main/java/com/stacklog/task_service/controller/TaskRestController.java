@@ -11,10 +11,10 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.stacklog.task_service.model.entities.StatusTask;
 import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.entities.TaskAssign;
 import com.stacklog.task_service.model.entities.Task.Priority;
+import com.stacklog.task_service.model.service.StatusTaskService;
 import com.stacklog.task_service.model.service.TaskAssignService;
 import com.stacklog.task_service.model.service.TaskService;
 
@@ -37,6 +37,8 @@ public class TaskRestController {
     @Autowired TaskService taskService;
 
     @Autowired TaskAssignService taskAssignService;
+
+    @Autowired StatusTaskService statusTaskService;
 
     @MessageMapping("/taskify")
     @SendTo("/topic/taskservice")
@@ -64,7 +66,7 @@ public class TaskRestController {
         task.setTaskPoint(e.getTaskPoint());
         task.setTaskDueDate(e.getTaskDueDate());
         task.setPriority(e.getPriority());
-        task.setStatusTask(e.getStatusTask());
+        task.setStatusTask(statusTaskService.getById(e.getStatusTaskId(), token));
         task.setParentTask(taskService.getById(e.getParentTaskId(), token));
         task = taskService.save(task, token);
         for (String userId : e.getListUserAssign()) {
@@ -100,7 +102,7 @@ class TaskDTO {
     private Integer taskPoint;
     private LocalDateTime taskDueDate;
     private Priority priority;
-    private StatusTask statusTask;
+    private String statusTaskId;
     private List<String> listUserAssign;
     private String parentTaskId;
 }
