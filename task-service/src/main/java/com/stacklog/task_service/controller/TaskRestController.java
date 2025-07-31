@@ -61,6 +61,9 @@ public class TaskRestController {
     @PostMapping("")
     public ResponseEntity<Task> saveTask(@RequestHeader("Authorization") String token, @RequestBody TaskDTO e) {
         Task task = new Task();
+        if (e.getTaskId() != null || e.getTaskId().isBlank()) {
+            task.setTaskId(e.getTaskId());
+        }
         task.setTaskTitle(e.getTaskTitle());
         task.setTaskDescription(e.getTaskDescription());
         task.setGroupId(e.getGroupId());
@@ -103,6 +106,7 @@ public class TaskRestController {
 @Getter
 @Setter
 class TaskDTO {
+    private String taskId;
     private String taskTitle;
     private String taskDescription;
     private String groupId;
