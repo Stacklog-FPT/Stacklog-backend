@@ -65,6 +65,7 @@ public class TaskRestController {
         task.setTaskDueDate(e.getTaskDueDate());
         task.setPriority(e.getPriority());
         task.setStatusTask(e.getStatusTask());
+        task.setParentTask(taskService.getById(e.getParentTaskId(), token));
         task = taskService.save(task, token);
         for (String userId : e.getListUserAssign()) {
             TaskAssign taskAssign = new TaskAssign();
@@ -101,4 +102,5 @@ class TaskDTO {
     private Priority priority;
     private StatusTask statusTask;
     private List<String> listUserAssign;
+    private String parentTaskId;
 }
