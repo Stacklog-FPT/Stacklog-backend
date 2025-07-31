@@ -57,7 +57,7 @@ public class Task extends CoreEntity {
     private List<Task> subtasks;
 
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
-    @JsonManagedReference
+    @JsonManagedReference("task-review")
     private List<Review> reviews;
 
     @OneToMany(mappedBy = "task")
