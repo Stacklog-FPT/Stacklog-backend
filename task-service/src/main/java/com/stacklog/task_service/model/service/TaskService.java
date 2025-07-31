@@ -70,7 +70,7 @@ public class TaskService implements IService<Task> {
     public Task getById(String id, String token) {
         Task task = redisTaskService.getById(id, token, NAME_SERVICE);
         if (task == null) {
-            task = taskRepo.findById(id).orElseThrow();
+            task = taskRepo.findById(id).orElse(null);
             redisTaskService.saveToRedis(task, token, NAME_SERVICE);
         }
         return task;
