@@ -49,10 +49,11 @@ public class Task extends CoreEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parentTaskId")
-    @JsonBackReference
+    @JsonBackReference("task-subtasks")
     private Task parentTask;
 
     @OneToMany(mappedBy = "parentTask")
+    @JsonManagedReference("task-subtasks")
     private List<Task> subtasks;
 
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
