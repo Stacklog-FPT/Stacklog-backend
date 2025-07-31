@@ -1,11 +1,14 @@
 const express = require('express');
-const { createUser, updateUser, deleteUser, findByEmail, findByGroupId, findByRole } = require('../controller/userController');
+const { createUser, updateUser, deleteUser, findByEmail, findByGroupId, findByRole, findById } = require('../controller/userController');
 const { validateUser } = require('../middleware/validateUserMiddleware');
 
 const router = express.Router();
 
 // Create User (with validation middleware)
 router.post('/', createUser);
+
+// get user by id
+router.get('/:id', findById);
 
 // Update User
 router.put('/:id', updateUser);
