@@ -44,7 +44,7 @@ public class ReviewRestController {
     @PostMapping("")
     public ResponseEntity<Review> saveTask(@RequestHeader("Authorization") String token, @RequestBody ReviewDTO e) {
         Review review = new Review();
-        review.setReviewContent(e.getContentReview());
+        review.setReviewContent(e.getReviewContent());
         review.setTask(taskService.getById(e.getTaskId(), token));
         review = reviewService.save(review, token);
         if (review == null) {
@@ -69,6 +69,6 @@ public class ReviewRestController {
 @NoArgsConstructor
 @AllArgsConstructor
 class ReviewDTO{
-    String contentReview;
+    String reviewContent;
     String taskId;
 }
