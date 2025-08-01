@@ -1,6 +1,5 @@
 package com.stacklog.score_service.model.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -9,7 +8,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.stacklog.core_service.model.service.IService;
-import com.stacklog.core_service.utils.CommonFunction;
 import com.stacklog.core_service.utils.kafka.KafkaProducer;
 import com.stacklog.core_service.utils.redis.RedisService;
 import com.stacklog.score_service.model.entities.Score;

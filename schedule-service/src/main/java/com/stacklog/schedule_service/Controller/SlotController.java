@@ -72,7 +72,7 @@ public class SlotController {
         return ResponseEntity.ok().body(slot);
     }
     
-    @DeleteMapping("/{taskId}")
+    @DeleteMapping("/{slotId}")
     public ResponseEntity<String> deleteTask(@RequestHeader("Authorization") String token, @PathVariable("slotId") String slotId) {
         Slot slot = slotService.delete(slotId, token);
         if (slot == null) {

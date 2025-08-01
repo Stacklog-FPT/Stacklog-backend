@@ -25,8 +25,6 @@ public class TaskService implements IService<Task> {
     private static final String KAFKA_TOPIC_UPDATE = "task-service.task.updated";
     private static final String KAFKA_TOPIC_CREATE = "task-service.task.created";
 
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     @Autowired
     TaskRepo taskRepo;
 
@@ -58,10 +56,13 @@ public class TaskService implements IService<Task> {
     }
 
     public List<Task> getAllByGroupId(String token, String groupId) {
-        List<Task> tasks = redisTaskService.getAll(token, NAME_SERVICE);
+        String currentUserId = redisTaskService.getCurrentUserId(token);
+        String groupIndexKey = redisTaskService.getCustomIndexKey(currentUserId, NAME_SERVICE, "group:" + groupId);
+
+        List<Task> tasks = redisTaskService.getAll(token, groupIndexKey);
         if (tasks.isEmpty()) {
             tasks = taskRepo.findByGroupId(groupId);
-            redisTaskService.saveListToRedis(tasks, token, NAME_SERVICE);
+            redisTaskService.saveListToRedis(tasks, token, groupIndexKey);
         }
         return tasks;
     }
@@ -71,7 +72,9 @@ public class TaskService implements IService<Task> {
         Task task = redisTaskService.getById(id, token, NAME_SERVICE);
         if (task == null) {
             task = taskRepo.findById(id).orElse(null);
-            redisTaskService.saveToRedis(task, token, NAME_SERVICE);
+            if (task != null) {
+                redisTaskService.saveToRedis(task, token, NAME_SERVICE);
+            }
         }
         return task;
     }
@@ -79,30 +82,29 @@ public class TaskService implements IService<Task> {
     @Override
     @Transactional
     public Task save(Task e, String token) {
+        LocalDateTime now = CommonFunction.getCurrentTime();
         boolean isCreate = (e.getTaskId() == null || !taskRepo.existsById(e.getTaskId()));
-        e.setUpdateAt(CURRENT_TIME);
-        e.setUpdateBy(redisTaskService.getCurrentUserId(token));
-        if (e.getTaskId() == null || e.getTaskId().isBlank()) {
-            e.setCreatedAt(CURRENT_TIME);
-            e.setCreatedBy(redisTaskService.getCurrentUserId(token));
-            e.setTaskId(UUID.randomUUID().toString());
-        }
+        String currentUserId = redisTaskService.getCurrentUserId(token);
+
+        e.setUpdateAt(now);
+        e.setUpdateBy(currentUserId);
         if (isCreate) {
-            kafkaTaskProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
-        } else {
-            kafkaTaskProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
+            e.setCreatedAt(now);
+            e.setCreatedBy(currentUserId);
+            e.setTaskId(UUID.randomUUID().toString());
         }
 
         e = taskRepo.save(e);
-
-        redisTaskService.saveToRedis(e, token, NAME_SERVICE);
-
+        if (e.getGroupId() != null) {
+            String groupKey = redisTaskService.getCustomIndexKey(currentUserId, NAME_SERVICE, "group:" + e.getGroupId());
+            redisTaskService.saveToRedis(e, token, groupKey);
+        }
+        kafkaTaskProducer.sendMessage(e, isCreate ? KAFKA_TOPIC_CREATE : KAFKA_TOPIC_UPDATE);
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
         return e;
 
     }
-
 
     @Override
     public List<Task> searchByFields(Predicate<Task> p, String token) {

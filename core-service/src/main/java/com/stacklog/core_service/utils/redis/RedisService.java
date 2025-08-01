@@ -44,6 +44,17 @@ public class RedisService<E> {
         return nameService + ":" + clazz.getSimpleName() + ":" + currentUserId + ":" + subtype + ":" + eId;
     }
 
+    // ===== method tạo indexKey đúng chuẩn =====
+    private String getIndexKey(String currentUserId, String nameService) {
+        return String.format("%s:%s:index:%s", nameService, clazz.getSimpleName(), currentUserId);
+    }
+
+    // Tạo indexKey tùy biến thêm suffix như :group:<groupId>,
+    // :project:<projectId>...
+    public String getCustomIndexKey(String currentUserId, String nameService, String suffix) {
+        return String.format("%s:%s:index:%s:%s", nameService, clazz.getSimpleName(), currentUserId, suffix);
+    }
+
     // get and save to redis
     public List<E> getAll(String token, String nameService) {
         String currentUserId = getCurrentUserId(token);
@@ -66,7 +77,7 @@ public class RedisService<E> {
 
     public E getById(String eId, String token, String nameService) {
         String currentUserId = getCurrentUserId(token);
-        String key = getKey(currentUserId, nameService, "web", eId);
+        String key = getKey(currentUserId, "web", nameService, eId);
         String json = redisTemplate.opsForValue().get(key);
         try {
             return json != null ? objectMapper.readValue(json, clazz) : null;
@@ -90,7 +101,7 @@ public class RedisService<E> {
         String currentUserId = getCurrentUserId(token);
         try {
             String json = objectMapper.writeValueAsString(e);
-            String indexKey = String.format("%s:%s:%s", nameService, clazz.getSimpleName(), currentUserId);
+            String indexKey = getIndexKey(currentUserId, nameService);
             redisTemplate.opsForValue().set(getKey(currentUserId, "web", nameService, idExtractor.apply(e)), json, ttl);
             redisTemplate.opsForSet().add(indexKey, getKey(currentUserId, "web", nameService, idExtractor.apply(e)));
         } catch (JsonProcessingException e1) {
@@ -101,28 +112,21 @@ public class RedisService<E> {
 
     public void deleteAllByUserId(String token, String nameService) {
         String currentUserId = getCurrentUserId(token);
-        String indexKey = String.format("%s:%s:%s", nameService, clazz.getSimpleName(), currentUserId);
+        String indexKey = getIndexKey(currentUserId, nameService);
         Set<String> keys = redisTemplate.opsForSet().members(indexKey);
-        if (keys != null && !keys.isEmpty()) {
+        if (keys != null && !keys.isEmpty())
             redisTemplate.delete(keys);
-        }
         redisTemplate.delete(indexKey);
     }
 
-    // ===== 🔐 Get current userId từ token trong Redis
     public String getCurrentUserId(String token) {
         String userId = jwtDecoder.getIdFromToken(token);
-        String device = "web"; // nếu bạn hỗ trợ nhiều thiết bị
-
+        String device = "web";
         String key = "auth:session:" + userId + ":" + device;
-
         String storedToken = redisTemplate.opsForValue().get(key);
-
         token = token.split(" ")[1];
-
-        if (!token.equals(storedToken)) {
+        if (!token.equals(storedToken))
             throw new RuntimeException("Token invalid or expired");
-        }
         return userId;
     }
 }
