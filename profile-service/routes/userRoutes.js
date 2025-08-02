@@ -17,7 +17,7 @@ router.put('/:id', updateUser);
 router.delete('/:id', deleteUser);
 
 // find by email
-router.get('/:email', findByEmail);
+router.get('/email/:email', findByEmail);
 
 // list by role
 router.get('/role/:role', findByRole);

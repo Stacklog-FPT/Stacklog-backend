@@ -38,6 +38,7 @@ const initConsumer = async () => {
             switch (topic) {
                 case "user.created":
                     userData = {
+                        _id: data._id,
                         username: data.work_id,
                         email: data.email,
                         password: "abcd1234",
