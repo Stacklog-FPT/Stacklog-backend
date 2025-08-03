@@ -43,7 +43,6 @@ public class Task extends CoreEntity {
 
     @ManyToOne
     @JoinColumn(name = "statusTaskId")
-    @JsonBackReference("task-status")
     private StatusTask statusTask;
 
     @ManyToOne
