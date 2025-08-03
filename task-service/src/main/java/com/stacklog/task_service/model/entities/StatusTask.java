@@ -26,8 +26,8 @@ public class StatusTask extends CoreEntity {
     private String statusTaskColor;
     private String groupId;
 
-    @OneToMany(mappedBy = "statusTask", fetch = FetchType.LAZY)
-    @JsonBackReference
+    @OneToMany(mappedBy = "statusTask")
+    @JsonManagedReference("task-status")
     private List<Task> tasks;
 
     public StatusTask(String createdBy, String createdAt, String updateBy, String updateAt,
