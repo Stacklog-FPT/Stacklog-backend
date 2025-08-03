@@ -19,8 +19,9 @@ public class JwtDecoder {
 
     public String getIdFromToken(String token) {
         // System.out.println(token);
-        
-        token = token.split(" ")[1];
+        if (token.split(" ").length > 1) {
+            token = token.split(" ")[1];
+        }
 
         try {
             Key key = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
