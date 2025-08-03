@@ -20,7 +20,7 @@ public class TaskAssign extends CoreEntity {
 
     @ManyToOne
     @JoinColumn(name = "taskId")
-    @JsonBackReference
+    @JsonBackReference("task-assigns")
     private Task task;
 
     private String assignTo;

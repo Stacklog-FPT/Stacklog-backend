@@ -44,10 +44,10 @@ public class Task extends CoreEntity {
 
     @ManyToOne
     @JoinColumn(name = "statusTaskId")
-    @JsonManagedReference
+    @JsonBackReference("task-status")
     private StatusTask statusTask;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "parentTaskId")
     @JsonBackReference("task-subtasks")
     private Task parentTask;
@@ -56,12 +56,12 @@ public class Task extends CoreEntity {
     @JsonManagedReference("task-subtasks")
     private List<Task> subtasks;
 
-    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "task")
     @JsonManagedReference("task-review")
     private List<Review> reviews;
 
     @OneToMany(mappedBy = "task")
-    @JsonManagedReference
+    @JsonManagedReference("task-assigns")
     private List<TaskAssign> assigns;
 
     public Task(String createdBy, String createdAt, String updateBy, String updateAt, String taskTitle,
