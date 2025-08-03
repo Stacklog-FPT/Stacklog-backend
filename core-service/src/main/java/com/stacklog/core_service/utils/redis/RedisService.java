@@ -124,6 +124,7 @@ public class RedisService<E> {
         String device = "web";
         String key = "auth:session:" + userId + ":" + device;
         String storedToken = redisTemplate.opsForValue().get(key);
+        System.out.println(token);
         token = token.split(" ")[1];
         if (!token.equals(storedToken))
             throw new RuntimeException("Token invalid or expired");
