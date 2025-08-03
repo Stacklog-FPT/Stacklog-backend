@@ -88,7 +88,7 @@ public class StatusTaskService implements IService<StatusTask> {
             statusTaskProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
         }
 
-        redisStatusTaskService.saveToRedis(e, e.getGroupId(), NAME_SERVICE);
+        redisStatusTaskService.saveToRedis(e, token, NAME_SERVICE);
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
