@@ -28,6 +28,12 @@ public class ClassRestController {
         List<Classes> classes = classService.getAllByUserId(token);
         return ResponseEntity.ok(classes);
     }
+
+    @GetMapping("/lecture")
+    public ResponseEntity<List<Classes>> getClassesByLectureId(@RequestHeader("Authorization") String token) {
+        List<Classes> classes = classService.getAllByLecture(token);
+        return ResponseEntity.ok(classes);
+    }
     
     
     @PostMapping(path = "")

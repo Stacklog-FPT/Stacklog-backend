@@ -4,8 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import com.stacklog.notification_service.model.repo.NotificationRepo;
 import com.stacklog.notification_service.model.service.NotificationService;
 import com.stacklog.notification_service.model.service.UserNoticeService;
 
@@ -20,19 +22,23 @@ public class NotificationConsumer {
     @Autowired
     UserNoticeService userNoticesService;
 
+    @Autowired
+    NotificationRepo notificationRepo;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
     // private KafkaTemplate<String, NotificationEvent> kafkaTemplate;
 
-    @KafkaListener(topics = "task.created", groupId = "notification-service")
+    @KafkaListener(topicPattern = "task-service\\..*\\..*", groupId = "notification-service")
     public void consumerTask(String message) {
-        notificationService.save(message);
-        LOGGER.info(String.format("Message received -> %s", message));
-        
-
+        try {
+            notificationService.save(message);
+            LOGGER.info("Message received -> {}", message);
+            messagingTemplate.convertAndSend("/topic/notification", message);
+        } catch (Exception e) {
+            LOGGER.error("❌ Error processing Kafka message: {}", message, e);
+        }
     }
-    // Message received -> {"message":"order is in pending
-    // state","status":"PENDING","task":"Task(taskId=6601174048785449949,
-    // taskTitle=null, taskDescription=null, groupId=GRP01, documentId=,
-    // taskPoint=5, taskDueDate=null, priority=HIGH, statusTask=null,
-    // parentTask=null, subtasks=null, assigns=null)"}
 
 }
