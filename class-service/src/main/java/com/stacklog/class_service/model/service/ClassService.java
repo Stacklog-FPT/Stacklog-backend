@@ -56,6 +56,11 @@ public class ClassService implements IService<Classes> {
         return classes;
     }
 
+    public List<Classes> getAllByLecture(String token) {
+        List<Classes> classes = classesRepo.findByLectureId(redisClassService.getCurrentUserId(token));
+        return classes;
+    }
+
     @Override
     public Classes getById(String id, String token) {
         Classes classes = redisClassService.getById(id, token, NAME_SERVICE);
