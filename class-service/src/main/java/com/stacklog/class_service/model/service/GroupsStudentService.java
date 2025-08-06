@@ -49,8 +49,13 @@ public class GroupsStudentService implements IService<GroupStudent> {
     }
 
     @Override
-    public GroupStudent delete(String id, String token) {
-        return null;
+    public GroupStudent delete(String groupId, String token) {
+        GroupStudent gs = getByGroupId(groupId, token);
+        if (gs != null) {
+            groupsStudentRepo.delete(gs);
+        }
+
+        return gs;
     }
 
     @Override
@@ -62,6 +67,13 @@ public class GroupsStudentService implements IService<GroupStudent> {
         }
 
         return groupStudents;
+    }
+
+    public GroupStudent getByGroupId(String groupId, String token) {
+        String userId = redisGroupStudentService.getCurrentUserId(token);
+        return groupsStudentRepo.findByGroupsGroupsIdAndUserId(groupId, userId)
+                .orElseThrow(() -> new RuntimeException(
+                        "GroupStudent not found for groupId=" + groupId + " and userId=" + userId));
     }
 
     @Override
