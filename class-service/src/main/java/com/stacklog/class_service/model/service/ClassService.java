@@ -105,11 +105,6 @@ public class ClassService implements IService<Classes> {
         groupss.setGroupsLeaderId(redisClassService.getCurrentUserId(token));
         groupss = groupService.save(groupss, token);
 
-        GroupStudent groupStudent = new GroupStudent();
-        groupStudent.setGroups(groupss);
-        groupStudent.setUserId(redisClassService.getCurrentUserId(token));
-        groupStudent = groupsStudentService.save(groupStudent, token);
-
         return newClasses;
     }
 
