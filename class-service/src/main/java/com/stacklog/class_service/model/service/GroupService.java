@@ -88,11 +88,6 @@ public class GroupService implements IService<Groupss> {
 
         redisGroupsService.saveToRedis(newGroupss, token, NAME_SERVICE);
 
-        GroupStudent groupStudent = new GroupStudent();
-        groupStudent.setGroups(newGroupss);
-        groupStudent.setUserId(redisGroupsService.getCurrentUserId(token));
-        groupStudent = groupsStudentService.save(groupStudent, token);
-
         return newGroupss;
 
     }

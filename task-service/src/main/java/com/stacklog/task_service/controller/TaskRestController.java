@@ -69,6 +69,7 @@ public class TaskRestController {
         task.setGroupId(e.getGroupId());
         task.setDocumentId(e.getDocumentId());
         task.setTaskPoint(e.getTaskPoint());
+        task.setTaskStartTime(e.getTaskStartTime());
         task.setTaskDueDate(e.getTaskDueDate());
         task.setPriority(e.getPriority());
         task.setStatusTask(statusTaskService.getById(e.getStatusTaskId(), token));

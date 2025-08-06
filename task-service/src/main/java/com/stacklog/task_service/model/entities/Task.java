@@ -32,6 +32,7 @@ public class Task extends CoreEntity {
     private String groupId;
     private String documentId;
     private Integer taskPoint;
+    private LocalDateTime taskStartTime;
     private LocalDateTime taskDueDate;
 
     @Enumerated(EnumType.STRING) // hoặc EnumType.ORDINAL
