@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.stacklog.class_service.model.entities.Classes;
-import com.stacklog.class_service.model.entities.GroupStudent;
 import com.stacklog.class_service.model.entities.Groupss;
 import com.stacklog.class_service.model.repo.ClassesRepo;
 import com.stacklog.core_service.model.service.IService;
@@ -32,9 +31,6 @@ public class ClassService implements IService<Classes> {
 
     @Autowired
     private GroupService groupService;
-
-    @Autowired
-    private GroupsStudentService groupsStudentService;
 
     @Autowired
     private KafkaProducer<Classes> kafkaClassProducer;
