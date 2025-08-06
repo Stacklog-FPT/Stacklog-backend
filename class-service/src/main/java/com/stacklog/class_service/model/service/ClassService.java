@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.stacklog.class_service.model.entities.Classes;
+import com.stacklog.class_service.model.entities.GroupStudent;
+import com.stacklog.class_service.model.entities.Groupss;
 import com.stacklog.class_service.model.repo.ClassesRepo;
 import com.stacklog.core_service.model.service.IService;
 import com.stacklog.core_service.utils.CommonFunction;
@@ -27,6 +29,12 @@ public class ClassService implements IService<Classes> {
 
     @Autowired
     private ClassesRepo classesRepo;
+
+    @Autowired
+    private GroupService groupService;
+
+    @Autowired
+    private GroupsStudentService groupsStudentService;
 
     @Autowired
     private KafkaProducer<Classes> kafkaClassProducer;
@@ -89,7 +97,18 @@ public class ClassService implements IService<Classes> {
 
         redisClassService.saveToRedis(newClasses, token, NAME_SERVICE);
 
-        // messagingTemplate.convertAndSend("/topic/class-service", e);
+        Groupss groupss = new Groupss();
+        groupss.setClasses(newClasses);
+        groupss.setGroupsAvgScore(0.00);
+        groupss.setGroupsMaxMember(0);
+        groupss.setGroupsName("unassigned");
+        groupss.setGroupsLeaderId(redisClassService.getCurrentUserId(token));
+        groupss = groupService.save(groupss, token);
+
+        GroupStudent groupStudent = new GroupStudent();
+        groupStudent.setGroups(groupss);
+        groupStudent.setUserId(redisClassService.getCurrentUserId(token));
+        groupStudent = groupsStudentService.save(groupStudent, token);
 
         return newClasses;
     }

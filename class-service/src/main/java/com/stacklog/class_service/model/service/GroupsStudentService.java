@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import com.stacklog.class_service.model.entities.Classes;
 import com.stacklog.class_service.model.entities.GroupStudent;
+import com.stacklog.class_service.model.entities.Groupss;
+import com.stacklog.class_service.model.repo.ClassesRepo;
 import com.stacklog.class_service.model.repo.GroupsStudentRepo;
 import com.stacklog.core_service.model.service.IService;
 import com.stacklog.core_service.utils.CommonFunction;
@@ -28,9 +31,14 @@ public class GroupsStudentService implements IService<GroupStudent> {
 
     private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
 
-    @Autowired GroupsStudentRepo groupsStudentRepo;
+    @Autowired
+    GroupsStudentRepo groupsStudentRepo;
 
-    @Autowired KafkaProducer<GroupStudent> kafkaGroupStudentProducer;
+    @Autowired
+    ClassesRepo classesRepo;
+
+    @Autowired
+    KafkaProducer<GroupStudent> kafkaGroupStudentProducer;
 
     // @Autowired SimpMessagingTemplate messagingTemplate;
 
@@ -42,7 +50,7 @@ public class GroupsStudentService implements IService<GroupStudent> {
 
     @Override
     public GroupStudent delete(String id, String token) {
-        return null;    
+        return null;
     }
 
     @Override
@@ -102,6 +110,17 @@ public class GroupsStudentService implements IService<GroupStudent> {
     @Override
     public List<GroupStudent> searchByFields(Predicate<GroupStudent> p, String token) {
         return null;
+    }
+
+    public GroupStudent joinClass(String classId, String token) {
+        Classes classes = classesRepo.findById(classId).orElse(null);
+        Groupss groupss = classes.getGroups().stream().filter(g -> g.getGroupsName().equals("unassigned")).findFirst()
+                .get();
+        GroupStudent groupStudent = new GroupStudent();
+        groupStudent.setGroups(groupss);
+        groupStudent.setUserId(redisGroupStudentService.getCurrentUserId(token));
+
+        return save(groupStudent, token);
     }
 
 }

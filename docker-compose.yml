@@ -114,7 +114,7 @@ services:
   redis:
     image: redis:7.2.4
     container_name: redis
-    # command: redis-server /usr/local/etc/redis/redis.conf
+    command: ["redis-server"]
     # volumes:
     #   - ./redis.conf:/usr/local/etc/redis/redis.conf
     ports:
