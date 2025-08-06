@@ -113,6 +113,7 @@ class TaskDTO {
     private String groupId;
     private String documentId;
     private Integer taskPoint;
+    private LocalDateTime taskStartTime;
     private LocalDateTime taskDueDate;
     private Priority priority;
     private String statusTaskId;
