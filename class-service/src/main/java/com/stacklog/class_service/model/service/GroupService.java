@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import com.stacklog.class_service.model.entities.GroupStudent;
 import com.stacklog.class_service.model.entities.Groupss;
 import com.stacklog.class_service.model.repo.GroupsRepo;
 import com.stacklog.core_service.model.service.IService;
@@ -30,6 +31,9 @@ public class GroupService implements IService<Groupss> {
 
     @Autowired
     GroupsRepo groupsRepo;
+
+    @Autowired
+    private GroupsStudentService groupsStudentService;
 
     @Autowired
     private KafkaProducer<Groupss> kafkaGroupsProducer;
@@ -70,6 +74,7 @@ public class GroupService implements IService<Groupss> {
     @Override
     public Groupss save(Groupss e, String token) {
         boolean isCreate = (e.getGroupsId() == null || !groupsRepo.existsById(e.getGroupsId()));
+        e.setGroupsLeaderId(redisGroupsService.getCurrentUserId(token));
         Groupss newGroupss = saveToDB(e, token);
         if (newGroupss == null) {
             return null;
@@ -83,7 +88,10 @@ public class GroupService implements IService<Groupss> {
 
         redisGroupsService.saveToRedis(newGroupss, token, NAME_SERVICE);
 
-        // messagingTemplate.convertAndSend("topic/class-service");
+        GroupStudent groupStudent = new GroupStudent();
+        groupStudent.setGroups(newGroupss);
+        groupStudent.setUserId(redisGroupsService.getCurrentUserId(token));
+        groupStudent = groupsStudentService.save(groupStudent, token);
 
         return newGroupss;
 
