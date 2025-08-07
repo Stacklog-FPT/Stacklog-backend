@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -51,15 +52,15 @@ public class Task extends CoreEntity {
     @JsonBackReference("task-subtasks")
     private Task parentTask;
 
-    @OneToMany(mappedBy = "parentTask")
+    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.REMOVE)
     @JsonManagedReference("task-subtasks")
     private List<Task> subtasks;
 
-    @OneToMany(mappedBy = "task")
+    @OneToMany(mappedBy = "task", cascade = CascadeType.REMOVE)
     @JsonManagedReference("task-review")
     private List<Review> reviews;
 
-    @OneToMany(mappedBy = "task")
+    @OneToMany(mappedBy = "task", cascade = CascadeType.REMOVE)
     @JsonManagedReference("task-assigns")
     private List<TaskAssign> assigns;
 
