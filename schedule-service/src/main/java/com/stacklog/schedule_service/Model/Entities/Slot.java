@@ -1,11 +1,16 @@
 package com.stacklog.schedule_service.model.entities;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,7 +20,7 @@ import lombok.ToString;
 @ToString
 @Entity
 public class Slot extends CoreEntity {
-    
+
     @Id
     private String slotId;
 
@@ -24,5 +29,9 @@ public class Slot extends CoreEntity {
     private LocalDateTime slotStarTime;
 
     private String groupId;
+
+    @OneToMany(mappedBy = "slot", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JsonBackReference 
+    private List<SlotAssign> slotAssigns = new ArrayList<>();
 
 }

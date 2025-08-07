@@ -43,8 +43,9 @@ public class SlotService implements IService<Slot> {
 
     @Override
     public Slot delete(String id, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        Slot slot = getById(id, token);
+        slotRepo.delete(slot);
+        return slot;
     }
 
     @Override

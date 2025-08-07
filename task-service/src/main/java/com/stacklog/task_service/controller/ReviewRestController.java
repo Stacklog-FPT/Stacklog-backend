@@ -43,7 +43,12 @@ public class ReviewRestController {
     
     @PostMapping("")
     public ResponseEntity<Review> saveTask(@RequestHeader("Authorization") String token, @RequestBody ReviewDTO e) {
-        Review review = new Review();
+        Review review = null;
+        if (e.reviewId == null || e.reviewId.isEmpty()) {
+            review = new Review();
+        } else {
+            review = reviewService.getById(e.reviewId, token);
+        }
         review.setReviewContent(e.getReviewContent());
         review.setTask(taskService.getById(e.getTaskId(), token));
         review = reviewService.save(review, token);
@@ -53,7 +58,7 @@ public class ReviewRestController {
         return ResponseEntity.ok().body(review);
     }
     
-    @DeleteMapping("/{reviewId}")
+    @DeleteMapping("/delete/{reviewId}")
     public ResponseEntity<String> deleteTask(@RequestHeader("Authorization") String token, @PathVariable("reviewId") String reviewId) {
         Review review = reviewService.delete(reviewId, token);
         if (review == null) {
@@ -71,4 +76,5 @@ public class ReviewRestController {
 class ReviewDTO{
     String reviewContent;
     String taskId;
+    String reviewId;
 }

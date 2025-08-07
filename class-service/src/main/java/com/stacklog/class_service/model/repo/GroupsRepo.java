@@ -18,4 +18,6 @@ public interface GroupsRepo extends JpaRepository<Groupss, String> {
     @Query("SELECT gs.groups FROM GroupStudent gs WHERE gs.groups.classes.classesId=:classesId")
     List<Groupss> findByClassesId(@Param("classesId") String classesId);
 
+    List<Groupss> findByClassesClassesId(String classId);
+
 }

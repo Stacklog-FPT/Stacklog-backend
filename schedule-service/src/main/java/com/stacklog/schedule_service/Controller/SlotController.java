@@ -54,7 +54,12 @@ public class SlotController {
     
     @PostMapping("")
     public ResponseEntity<Slot> saveTask(@RequestHeader("Authorization") String token, @RequestBody SlotDTO e) {
-        Slot slot = new Slot();
+        Slot slot = null;
+        if (e.slotId == null || e.slotId.isBlank()) {
+            slot = new Slot();
+        } else {
+            slot = slotService.getById(e.slotId, token);
+        }
         slot.setSlotTitle(e.slotTitle);
         slot.setSlotDescription(e.slotDescription);
         slot.setSlotStarTime(e.slotStarTime);
@@ -72,7 +77,7 @@ public class SlotController {
         return ResponseEntity.ok().body(slot);
     }
     
-    @DeleteMapping("/{slotId}")
+    @DeleteMapping("/delete/{slotId}")
     public ResponseEntity<String> deleteTask(@RequestHeader("Authorization") String token, @PathVariable("slotId") String slotId) {
         Slot slot = slotService.delete(slotId, token);
         if (slot == null) {
@@ -86,6 +91,7 @@ public class SlotController {
 @Getter
 @Setter
 class SlotDTO {
+    String slotId;
     String slotTitle;
     String slotDescription;
     LocalDateTime slotStarTime;
