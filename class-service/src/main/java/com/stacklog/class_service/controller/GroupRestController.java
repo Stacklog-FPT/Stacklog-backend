@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping(path = "/group")
@@ -53,6 +54,7 @@ public class GroupRestController {
     @PostMapping("")
     public ResponseEntity<Groupss> saveGroupss(@RequestBody GroupDTO groupDTO,
             @RequestHeader("Authorization") String token) {
+
         Groupss newGroupss = new Groupss();
         newGroupss.setGroupsName(groupDTO.groupsName);
         newGroupss.setGroupsDescriptions(groupDTO.groupsDescriptions);
@@ -75,6 +77,31 @@ public class GroupRestController {
         return ResponseEntity.ok().body(newGroupss);
     }
 
+    @PutMapping("/update")
+    public ResponseEntity<Groupss> updateGroupss(@RequestBody GroupDTO groupDTO,
+            @RequestHeader("Authorization") String token) {
+        Groupss groupss = groupService.getById(groupDTO.groupsId, token);
+        if (groupss == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        groupss.setGroupsName(groupDTO.groupsName);
+        groupss.setGroupsDescriptions(groupDTO.groupsDescriptions);
+        groupss.setGroupsMaxMember(groupDTO.groupsMaxMember);
+        // groupss.setGroupsAvgScore(groupss.getGroupsAvgScore());
+        groupss.setGroupsLeaderId(groupDTO.groupsLeaderId);
+        for (String userId : groupDTO.groupUserUserIds) {
+            GroupStudent groupStudent = new GroupStudent();
+            if (groupsStudentService.getByGroupIdAndStudentId(groupss.getGroupsId(), userId) != null) {
+                continue;
+            }
+            groupStudent.setGroups(groupss);
+            groupStudent.setUserId(userId);
+            groupsStudentService.save(groupStudent, token);
+        }
+
+        return ResponseEntity.ok().body(groupss);
+    }
+
     @DeleteMapping("/{groupsId}")
     public ResponseEntity<Groupss> deleteGroupss(@RequestHeader("Authorization") String token,
             @PathVariable(name = "groupsId") String groupsId) {
@@ -86,6 +113,7 @@ public class GroupRestController {
 @Getter
 @Setter
 class GroupDTO {
+    String groupsId;
     String groupsName;
     String groupsDescriptions;
     Integer groupsMaxMember;
