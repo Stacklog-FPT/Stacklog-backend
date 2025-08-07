@@ -135,4 +135,10 @@ public class GroupsStudentService implements IService<GroupStudent> {
         return save(groupStudent, token);
     }
 
+    public GroupStudent getByGroupIdAndStudentId(String oldGroupId, String studentId) {
+        return groupsStudentRepo.findByGroupsGroupsIdAndUserId(oldGroupId, studentId)
+        .orElseThrow(() -> new RuntimeException(
+                "GroupStudent not found for groupId=" + oldGroupId + " and userId=" + studentId));
+    }
+
 }
