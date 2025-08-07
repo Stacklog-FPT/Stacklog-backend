@@ -44,7 +44,9 @@ public class ReviewService implements IService<Review> {
 
     @Override
     public Review delete(String id, String token) {
-        return null;
+        Review review = reviewRepo.findById(id).orElse(null);
+        reviewRepo.delete(review);
+        return review;
     }
 
     @Override
@@ -100,7 +102,7 @@ public class ReviewService implements IService<Review> {
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
-        reviewRepo.save(e);
+        e = reviewRepo.save(e);
 
         return e;
 

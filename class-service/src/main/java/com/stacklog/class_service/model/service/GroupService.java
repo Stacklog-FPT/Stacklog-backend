@@ -53,7 +53,7 @@ public class GroupService implements IService<Groupss> {
         if (groupsses.isEmpty()) {
             groupsses = groupsRepo.findByUserId(redisGroupsService.getCurrentUserId(token));
             redisGroupsService.saveListToRedis(groupsses, token, NAME_SERVICE);
-        } 
+        }
         return groupsses;
     }
 
@@ -110,8 +110,19 @@ public class GroupService implements IService<Groupss> {
         if (groupsses.isEmpty()) {
             groupsses = groupsRepo.findByClassesId(classesId);
             redisGroupsService.saveListToRedis(groupsses, token, NAME_SERVICE);
-        } 
+        }
         return groupsses;
+    }
+
+    public Groupss getGroupssByClassIdAndToken(String classId, String token) {
+        List<Groupss> groupssList = groupsRepo.findByClassesClassesId(classId);
+        for (Groupss groupss : groupssList) {
+            if (groupss.getGroupStudents().stream()
+                    .anyMatch(gs -> gs.getUserId().equals(redisGroupsService.getCurrentUserId(token)))) {
+                return groupss;
+            }
+        }
+        return null;
     }
 
 }
