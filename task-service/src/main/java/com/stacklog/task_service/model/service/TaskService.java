@@ -42,7 +42,11 @@ public class TaskService implements IService<Task> {
 
     @Override
     public Task delete(String id, String token) {
-        return null;
+        Task task = taskRepo.findById(id).orElseThrow();
+        taskRepo.deleteById(id);
+        List<Task> tasks = taskRepo.findByUserId(redisTaskService.getCurrentUserId(token));
+        redisTaskService.saveListToRedis(tasks, token, NAME_SERVICE);
+        return task;
     }
 
     @Override
@@ -96,7 +100,8 @@ public class TaskService implements IService<Task> {
 
         e = taskRepo.save(e);
         if (e.getGroupId() != null) {
-            String groupKey = redisTaskService.getCustomIndexKey(currentUserId, NAME_SERVICE, "group:" + e.getGroupId());
+            String groupKey = redisTaskService.getCustomIndexKey(currentUserId, NAME_SERVICE,
+                    "group:" + e.getGroupId());
             redisTaskService.saveToRedis(e, token, groupKey);
         }
         kafkaTaskProducer.sendMessage(e, isCreate ? KAFKA_TOPIC_CREATE : KAFKA_TOPIC_UPDATE);
