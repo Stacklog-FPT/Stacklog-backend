@@ -11,6 +11,11 @@ import com.stacklog.class_service.model.entities.GroupStudent;
 import com.stacklog.class_service.model.service.GroupService;
 import com.stacklog.class_service.model.service.GroupsStudentService;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,14 +55,37 @@ public class GroupStudentRestController {
         return ResponseEntity.ok().body(null);
     }
 
-    @PutMapping("/leave-group/{groupId}")
-    public ResponseEntity<GroupStudent> outGroup(@RequestHeader("Authorization") String token,
-            @PathVariable(name = "groupId") String groupId) {
-        GroupStudent gs = groupsStudentService.getByGroupId(groupId, token);
-        gs.setGroups(groupService.getAllByClassId(token, gs.getGroups().getClasses().getClassesId()).stream()
-                .filter(g -> g.getGroupsName().equals("unassigned")).findFirst().get());
-        gs = groupsStudentService.save(gs, token);
-        return ResponseEntity.ok().body(gs);
+    @PutMapping("/kick-group/{studentId}")
+    public ResponseEntity<GroupStudent> kickGroup(@RequestHeader("Authorization") String token,
+            @RequestBody OldGroupDTO oldGroupDTO,
+            @PathVariable(name = "studentId", required = false) String studentId) {
+        GroupStudent gs = new GroupStudent();
+        gs = groupsStudentService.getByGroupIdAndStudentId(oldGroupDTO.getOldGroupId(), studentId);
+        gs.setGroups(groupService.getById(oldGroupDTO.getUnassignedGroupId(), token));
+        groupsStudentService.save(gs, token);
+        return ResponseEntity.ok().body(null);
+
     }
 
+    @PutMapping("/leave-group")
+    public ResponseEntity<GroupStudent> leaveGroup(@RequestHeader("Authorization") String token,
+            @RequestBody OldGroupDTO oldGroupDTO,
+            @PathVariable(name = "studentId", required = false) String studentId) {
+        GroupStudent gs = new GroupStudent();
+        gs = groupsStudentService.getByGroupId(oldGroupDTO.getOldGroupId(), token);
+        gs.setGroups(groupService.getById(oldGroupDTO.getUnassignedGroupId(), token));
+        groupsStudentService.save(gs, token);
+        return ResponseEntity.ok().body(null);
+
+    }
+}
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+class OldGroupDTO {
+    private String classId;
+    private String oldGroupId;
+    private String unassignedGroupId;
 }
