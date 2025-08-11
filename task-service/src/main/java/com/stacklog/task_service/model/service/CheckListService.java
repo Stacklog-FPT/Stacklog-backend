@@ -3,7 +3,6 @@ package com.stacklog.task_service.model.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -96,12 +95,6 @@ public class CheckListService implements IService<CheckList> {
         e = checkListRepo.save(e);
 
         return e;
-    }
-
-    @Override
-    public List<CheckList> searchByFields(Predicate<CheckList> p, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchByFields'");
     }
     
 }

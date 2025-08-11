@@ -12,17 +12,11 @@ public class JwtDecoder {
 
     private final JwtProperties jwtProperties;
 
-
     public JwtDecoder(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
     }
 
     public String getIdFromToken(String token) {
-        // System.out.println(token);
-        if (token.split(" ").length > 1) {
-            token = token.split(" ")[1];
-        }
-
         try {
             Key key = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
 
@@ -32,8 +26,6 @@ public class JwtDecoder {
                     .parseClaimsJws(token);
 
             String id = claims.getBody().get("id", String.class);
-            // String username = claims.getBody().get("username", String.class);
-
             return id;
 
         } catch (JwtException e) {

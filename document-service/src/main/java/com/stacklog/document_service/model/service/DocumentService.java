@@ -6,7 +6,6 @@ import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -109,12 +108,6 @@ public class DocumentService implements IService<Document> {
             e.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    public List<Document> searchByFields(Predicate<Document> p, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchByFields'");
     }
 
 }
