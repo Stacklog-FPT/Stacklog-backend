@@ -94,12 +94,6 @@ public class SlotService implements IService<Slot> {
         return e;
     }
 
-    @Override
-    public List<Slot> searchByFields(Predicate<Slot> p, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchByFields'");
-    }
-
     public List<Slot> getAllByGroupId(String token, String groupId) {
         List<Slot> slots = redisSlotService.getAll(token, NAME_SERVICE);
         if (slots.isEmpty()) {

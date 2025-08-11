@@ -3,7 +3,6 @@ package com.stacklog.class_service.model.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -114,16 +113,6 @@ public class ClassService implements IService<Classes> {
             e.setClassesId(UUID.randomUUID().toString());
         }
         return classesRepo.save(e);
-    }
-
-    @Override
-    public List<Classes> searchByFields(Predicate<Classes> p, String token) {
-        List<Classes> classes = redisClassService.getAll(token, NAME_SERVICE);
-        if (classes.isEmpty()) {
-            classes = classesRepo.findAll();
-            redisClassService.saveListToRedis(classes, token, NAME_SERVICE);
-        }
-        return classes.stream().filter(p).toList();
     }
 
 }

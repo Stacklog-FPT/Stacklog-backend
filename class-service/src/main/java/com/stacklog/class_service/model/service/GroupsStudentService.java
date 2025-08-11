@@ -3,7 +3,6 @@ package com.stacklog.class_service.model.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -117,11 +116,6 @@ public class GroupsStudentService implements IService<GroupStudent> {
             e.setGroupStudentId(UUID.randomUUID().toString());
         }
         return groupsStudentRepo.save(e);
-    }
-
-    @Override
-    public List<GroupStudent> searchByFields(Predicate<GroupStudent> p, String token) {
-        return null;
     }
 
     public GroupStudent joinClass(String classId, String token) {
