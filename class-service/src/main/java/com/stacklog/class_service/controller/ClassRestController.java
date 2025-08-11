@@ -67,9 +67,9 @@ public class ClassRestController {
         if (classes == null) {
             return ResponseEntity.badRequest().body("Your class is not exist!");
         }
-        if (groupsStudentService.checkExistGroupStudent(classId, token)) {
-            return ResponseEntity.badRequest().body("You were in class!");
-        }
+        // if (groupsStudentService.checkExistGroupStudent(classId, token)) {
+        //     return ResponseEntity.badRequest().body("You were in class!");
+        // }
         groupsStudentService.joinClass(classId, token);
         return ResponseEntity.ok("You have joined the class");
     }
