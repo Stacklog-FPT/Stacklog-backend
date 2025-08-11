@@ -8,10 +8,20 @@ const { initConsumer } = require('./config/kafka');
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'https://stacklog.io.vn',
+        'https://www.stacklog.io.vn',
+        'https://*.vercel.app'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
 app.use(morgan("dev"));
 
-(async() => {
+(async () => {
     await initConsumer();
 })();
 

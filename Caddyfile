@@ -1,0 +1,3 @@
+stacklog.id.vn {
+    reverse_proxy api-gateway:80
+}
