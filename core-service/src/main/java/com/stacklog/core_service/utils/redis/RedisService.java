@@ -49,8 +49,6 @@ public class RedisService<E> {
         return String.format("%s:%s:index:%s", nameService, clazz.getSimpleName(), currentUserId);
     }
 
-    // Tạo indexKey tùy biến thêm suffix như :group:<groupId>,
-    // :project:<projectId>...
     public String getCustomIndexKey(String currentUserId, String nameService, String suffix) {
         return String.format("%s:%s:index:%s:%s", nameService, clazz.getSimpleName(), currentUserId, suffix);
     }
@@ -58,20 +56,34 @@ public class RedisService<E> {
     // get and save to redis
     public List<E> getAll(String token, String nameService) {
         String currentUserId = getCurrentUserId(token);
-        String indexKey = String.format("%s:%s:%s", nameService, clazz.getSimpleName(), currentUserId);
+        String indexKey = getIndexKey(currentUserId, nameService); // <-- dùng đúng key index
         Set<String> keys = redisTemplate.opsForSet().members(indexKey);
         if (keys == null || keys.isEmpty())
             return Collections.emptyList();
+
+        // Dùng multiGet để giảm round-trips
+        List<String> keyList = new ArrayList<>(keys);
+        List<String> jsons = redisTemplate.opsForValue().multiGet(keyList);
+
         List<E> results = new ArrayList<>();
-        for (String key : keys) {
-            String json = redisTemplate.opsForValue().get(key);
+        for (int i = 0; i < keyList.size(); i++) {
+            String k = keyList.get(i);
+            String json = (jsons != null && i < jsons.size()) ? jsons.get(i) : null;
+
+            // Lazy cleanup: nếu item đã hết hạn -> gỡ khỏi index
+            if (json == null) {
+                redisTemplate.opsForSet().remove(indexKey, k);
+                continue;
+            }
             try {
-                E obj = objectMapper.readValue(json, clazz);
-                results.add(obj);
-            } catch (Exception e) {
-                log.error("❌ Failed to deserialize key {}: {}", key, e.getMessage());
+                results.add(objectMapper.readValue(json, clazz));
+            } catch (Exception ex) {
+                log.warn("Failed to deserialize key {}: {}", k, ex.getMessage());
             }
         }
+
+        // Gia hạn TTL cho index để không bị rò key mồ côi
+        redisTemplate.expire(indexKey, ttl);
         return results;
     }
 
@@ -79,10 +91,12 @@ public class RedisService<E> {
         String currentUserId = getCurrentUserId(token);
         String key = getKey(currentUserId, "web", nameService, eId);
         String json = redisTemplate.opsForValue().get(key);
+        if (json == null)
+            return null;
         try {
-            return json != null ? objectMapper.readValue(json, clazz) : null;
+            return objectMapper.readValue(json, clazz);
         } catch (Exception e) {
-            log.error("❌ Deserialize failed: {}", e.getMessage());
+            log.error("Deserialize failed: {}", e.getMessage());
             return null;
         }
     }
@@ -119,15 +133,80 @@ public class RedisService<E> {
         redisTemplate.delete(indexKey);
     }
 
+    public List<E> getAllBySuffix(String token, String nameService, String suffix) {
+        String userId = getCurrentUserId(token);
+        String indexKey = getCustomIndexKey(userId, nameService, suffix);
+        Set<String> keys = redisTemplate.opsForSet().members(indexKey);
+        if (keys == null || keys.isEmpty())
+            return Collections.emptyList();
+        List<String> keyList = new ArrayList<>(keys);
+        List<String> jsons = redisTemplate.opsForValue().multiGet(keyList);
+        List<E> out = new ArrayList<>();
+        for (int i = 0; i < keyList.size(); i++) {
+            String json = (jsons != null && i < jsons.size()) ? jsons.get(i) : null;
+            if (json == null) {
+                redisTemplate.opsForSet().remove(indexKey, keyList.get(i));
+                continue;
+            }
+            try {
+                out.add(objectMapper.readValue(json, clazz));
+            } catch (Exception ignore) {
+            }
+        }
+        redisTemplate.expire(indexKey, ttl);
+        return out;
+    }
+
+    public void saveListToRedisWithSuffix(List<E> list, String token, String nameService, String suffix) {
+        String userId = getCurrentUserId(token);
+        String indexKey = getCustomIndexKey(userId, nameService, suffix);
+        // dọn index cũ rồi ghi lại
+        Set<String> keys = redisTemplate.opsForSet().members(indexKey);
+        if (keys != null && !keys.isEmpty())
+            redisTemplate.delete(keys);
+        redisTemplate.delete(indexKey);
+        list.forEach(e -> saveToRedisWithSuffix(e, token, nameService, suffix));
+    }
+
+    public void saveToRedisWithSuffix(E e, String token, String nameService, String suffix) {
+        String userId = getCurrentUserId(token);
+        String id = idExtractor.apply(e);
+        if (id == null)
+            return;
+        try {
+            String json = objectMapper.writeValueAsString(e);
+            String itemKey = getKey(userId, "web", nameService, id);
+            String indexKey = getCustomIndexKey(userId, nameService, suffix);
+            redisTemplate.opsForValue().set(itemKey, json, ttl);
+            redisTemplate.opsForSet().add(indexKey, itemKey);
+            redisTemplate.expire(indexKey, ttl);
+        } catch (Exception ex) {
+            log.warn("Serialize fail: {}", ex.getMessage());
+        }
+    }
+
     public String getCurrentUserId(String token) {
+        token = normalizeBearer(token); // không split mù, tránh NPE
         String userId = jwtDecoder.getIdFromToken(token);
-        String device = "web";
+
+        String device = "web"; // nếu có đa thiết bị: truyền vào param/claim
         String key = "auth:session:" + userId + ":" + device;
         String storedToken = redisTemplate.opsForValue().get(key);
-        System.out.println(token);
-        token = token.split(" ")[1];
-        if (!token.equals(storedToken))
+
+        if (storedToken == null || !token.equals(storedToken)) {
             throw new RuntimeException("Token invalid or expired");
+        }
         return userId;
+    }
+
+    private String normalizeBearer(String token) {
+        if (token == null)
+            throw new RuntimeException("Missing token");
+        String t = token.trim();
+        if (t.regionMatches(true, 0, "Bearer ", 0, 7))
+            t = t.substring(7).trim();
+        if (t.isEmpty())
+            throw new RuntimeException("Invalid token");
+        return t;
     }
 }

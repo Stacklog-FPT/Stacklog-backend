@@ -1,7 +1,6 @@
 package com.stacklog.score_service.model.service;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -64,12 +63,6 @@ public class ScoreService implements IService<Score> {
     public Score save(Score e, String token) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'save'");
-    }
-
-    @Override
-    public List<Score> searchByFields(Predicate<Score> p, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchByFields'");
     }
     
 }
