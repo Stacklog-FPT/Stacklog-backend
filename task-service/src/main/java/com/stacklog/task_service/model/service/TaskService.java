@@ -3,7 +3,6 @@ package com.stacklog.task_service.model.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -21,20 +20,15 @@ import com.stacklog.task_service.model.repo.TaskRepo;
 public class TaskService implements IService<Task> {
 
     private static final String NAME_SERVICE = "task-service";
+    private static final String GROUP_SUFFIX_PREFIX = "group:";
 
     private static final String KAFKA_TOPIC_UPDATE = "task-service.task.updated";
     private static final String KAFKA_TOPIC_CREATE = "task-service.task.created";
 
-    @Autowired
-    TaskRepo taskRepo;
-
-    @Autowired
-    KafkaProducer<Task> kafkaTaskProducer;
-
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-
-    RedisService<Task> redisTaskService;
+    @Autowired private TaskRepo taskRepo;
+    @Autowired private KafkaProducer<Task> kafkaTaskProducer;
+    @Autowired private SimpMessagingTemplate messagingTemplate;
+    private final RedisService<Task> redisTaskService;
 
     public TaskService(RedisService<Task> redisTaskService) {
         this.redisTaskService = redisTaskService;
@@ -43,9 +37,20 @@ public class TaskService implements IService<Task> {
     @Override
     public Task delete(String id, String token) {
         Task task = taskRepo.findById(id).orElseThrow();
+        String userId = redisTaskService.getCurrentUserId(token);
+
         taskRepo.deleteById(id);
-        List<Task> tasks = taskRepo.findByUserId(redisTaskService.getCurrentUserId(token));
-        redisTaskService.saveListToRedis(tasks, token, NAME_SERVICE);
+
+        // Rebuild cache theo user
+        List<Task> byUser = taskRepo.findByUserId(userId);
+        redisTaskService.saveListToRedis(byUser, token, NAME_SERVICE);
+
+        // Nếu có group, rebuild index theo group
+        if (task.getGroupId() != null) {
+            String suffix = GROUP_SUFFIX_PREFIX + task.getGroupId();
+            List<Task> byGroup = taskRepo.findByGroupId(task.getGroupId());
+            redisTaskService.saveListToRedisWithSuffix(byGroup, token, NAME_SERVICE, suffix);
+        }
         return task;
     }
 
@@ -53,20 +58,20 @@ public class TaskService implements IService<Task> {
     public List<Task> getAllByUserId(String token) {
         List<Task> tasks = redisTaskService.getAll(token, NAME_SERVICE);
         if (tasks.isEmpty()) {
-            tasks = taskRepo.findByUserId(redisTaskService.getCurrentUserId(token));
+            String userId = redisTaskService.getCurrentUserId(token);
+            tasks = taskRepo.findByUserId(userId);
             redisTaskService.saveListToRedis(tasks, token, NAME_SERVICE);
         }
         return tasks;
     }
 
     public List<Task> getAllByGroupId(String token, String groupId) {
-        String currentUserId = redisTaskService.getCurrentUserId(token);
-        String groupIndexKey = redisTaskService.getCustomIndexKey(currentUserId, NAME_SERVICE, "group:" + groupId);
+        String suffix = GROUP_SUFFIX_PREFIX + groupId;
 
-        List<Task> tasks = redisTaskService.getAll(token, groupIndexKey);
+        List<Task> tasks = redisTaskService.getAllBySuffix(token, NAME_SERVICE, suffix);
         if (tasks.isEmpty()) {
             tasks = taskRepo.findByGroupId(groupId);
-            redisTaskService.saveListToRedis(tasks, token, groupIndexKey);
+            redisTaskService.saveListToRedisWithSuffix(tasks, token, NAME_SERVICE, suffix);
         }
         return tasks;
     }
@@ -78,6 +83,10 @@ public class TaskService implements IService<Task> {
             task = taskRepo.findById(id).orElse(null);
             if (task != null) {
                 redisTaskService.saveToRedis(task, token, NAME_SERVICE);
+                if (task.getGroupId() != null) {
+                    String suffix = GROUP_SUFFIX_PREFIX + task.getGroupId();
+                    redisTaskService.saveToRedisWithSuffix(task, token, NAME_SERVICE, suffix);
+                }
             }
         }
         return task;
@@ -99,22 +108,18 @@ public class TaskService implements IService<Task> {
         }
 
         e = taskRepo.save(e);
+
+        // Cập nhật cache index tổng theo user
+        redisTaskService.saveToRedis(e, token, NAME_SERVICE);
+
+        // Nếu có group → cập nhật index theo group
         if (e.getGroupId() != null) {
-            String groupKey = redisTaskService.getCustomIndexKey(currentUserId, NAME_SERVICE,
-                    "group:" + e.getGroupId());
-            redisTaskService.saveToRedis(e, token, groupKey);
+            String suffix = GROUP_SUFFIX_PREFIX + e.getGroupId();
+            redisTaskService.saveToRedisWithSuffix(e, token, NAME_SERVICE, suffix);
         }
+
         kafkaTaskProducer.sendMessage(e, isCreate ? KAFKA_TOPIC_CREATE : KAFKA_TOPIC_UPDATE);
         messagingTemplate.convertAndSend("/topic/task-service", e);
-
         return e;
-
     }
-
-    @Override
-    public List<Task> searchByFields(Predicate<Task> p, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchByFields'");
-    }
-
 }
