@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stacklog.class_service.model.entities.Classes;
 import com.stacklog.class_service.model.entities.GroupStudent;
 import com.stacklog.class_service.model.entities.Groupss;
+import com.stacklog.class_service.model.entities.Semester;
 import com.stacklog.core_service.utils.jwt.JwtDecoder;
 import com.stacklog.core_service.utils.redis.RedisService;
 
@@ -18,6 +19,14 @@ public class RedisClassConfig {
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory("redis", 6379);
+    }
+
+    @Bean
+    public RedisService<Semester> redisSemesterService(
+            RedisTemplate<String, String> redisTemplate,
+            ObjectMapper objectMapper,
+            JwtDecoder jwtDecoder) {
+        return new RedisService<>(Semester.class, jwtDecoder, Semester::getSemesterId);
     }
 
     @Bean
