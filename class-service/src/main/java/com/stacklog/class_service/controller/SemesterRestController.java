@@ -52,6 +52,8 @@ public class SemesterRestController {
         semester.setSemesterId(semesterDTO.getSemesterId());
         semester.setSemesterName(semesterDTO.getSemesterYear() + "-" + semesterDTO.getQuarter());
         semester.setSemesterStartDate(semesterDTO.getSemesterStartDate());
+        semester.setSemesterEndDate(semesterDTO.getSemesterEndDate());
+        semester.setSemesterYear(semesterDTO.getSemesterYear());
         semester.setQuarter(semesterDTO.getQuarter());
         semester = semesterService.save(semester, token);
         if (semester == null) {
@@ -71,5 +73,6 @@ class SemesterDTO {
     private String semesterId;
     private Integer semesterYear;
     private LocalDate semesterStartDate;
+    private LocalDate semesterEndDate;
     private Quarter quarter;
 }
