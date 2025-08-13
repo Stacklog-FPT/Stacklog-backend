@@ -96,7 +96,7 @@ public class SemesterService implements IService<Semester> {
     private Semester saveToDB(Semester e, String token) {
         e.setUpdateAt(CURRENT_TIME);
         e.setUpdateBy(redisSemestService.getCurrentUserId(token));
-        if (e.getSemesterId() == null) {
+        if (e.getSemesterId() == null || e.getSemesterId().isBlank()) {
             e.setCreatedAt(CURRENT_TIME);
             e.setCreatedBy(redisSemestService.getCurrentUserId(token));
             e.setSemesterId(UUID.randomUUID().toString());
