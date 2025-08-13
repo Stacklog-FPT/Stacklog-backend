@@ -32,6 +32,7 @@ public class Semester extends CoreEntity {
     private String semesterName;
     private Integer semesterYear;
     private LocalDate semesterStartDate;
+    private LocalDate semesterEndDate;
 
     @Enumerated(EnumType.STRING)
     private Quarter quarter;
@@ -42,7 +43,6 @@ public class Semester extends CoreEntity {
 
     @OneToMany(mappedBy = "semester")
     @JsonManagedReference
-    @JsonIgnore
     private List<Classes> classes;
 
 }
