@@ -199,6 +199,20 @@ public class RedisService<E> {
         return userId;
     }
 
+    public String getCurrentRoleId(String token) {
+        token = normalizeBearer(token); // không split mù, tránh NPE
+        String userRole = jwtDecoder.getRoleFromToken(token);
+        String userId = jwtDecoder.getIdFromToken(token);
+        String device = "web"; // nếu có đa thiết bị: truyền vào param/claim
+        String key = "auth:session:" + userId + ":" + device;
+        String storedToken = redisTemplate.opsForValue().get(key);
+
+        if (storedToken == null || !token.equals(storedToken)) {
+            throw new RuntimeException("Token invalid or expired");
+        }
+        return userRole;
+    }
+
     private String normalizeBearer(String token) {
         if (token == null)
             throw new RuntimeException("Missing token");
