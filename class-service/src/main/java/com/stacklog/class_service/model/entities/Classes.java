@@ -2,6 +2,7 @@ package com.stacklog.class_service.model.entities;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -32,7 +33,7 @@ public class Classes extends CoreEntity {
     private String classesName;
     private String lectureId;
 
-    @OneToMany(mappedBy = "classes")
+    @OneToMany(mappedBy = "classes", cascade = CascadeType.REMOVE)
     @JsonManagedReference
     private List<Groupss> groups;
 

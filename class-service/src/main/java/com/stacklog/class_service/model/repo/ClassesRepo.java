@@ -12,9 +12,19 @@ import com.stacklog.class_service.model.entities.Classes;
 @Repository
 public interface ClassesRepo extends JpaRepository<Classes, String> {
 
-    @Query("SELECT DISTINCT gs.groups.classes FROM GroupStudent gs WHERE gs.userId = :userId")
-    List<Classes> findByUserId(@Param("userId") String userId);
+  @Query("""
+        SELECT DISTINCT c
+        FROM GroupStudent gs
+        JOIN gs.groups g
+        JOIN g.classes c
+        JOIN c.semester s
+        WHERE gs.userId = :currentUserId
+          AND s.semesterId = :semesterId
+      """)
+  List<Classes> findAllBySemesterIdNUserId(
+      @Param("currentUserId") String currentUserId,
+      @Param("semesterId") String semesterId);
 
-    List<Classes> findByLectureId(String lectureId);
+  List<Classes> findAllByLectureIdAndSemesterSemesterId(String lectureId, String semesterId);
 
 }

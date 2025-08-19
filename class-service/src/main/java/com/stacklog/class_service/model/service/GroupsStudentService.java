@@ -135,11 +135,9 @@ public class GroupsStudentService implements IService<GroupStudent> {
                         "GroupStudent not found for groupId=" + oldGroupId + " and userId=" + studentId));
     }
 
-    public Boolean checkExistGroupStudent(String classId, String token) {
-        return classesRepo.findById(classId)
-                .map(classes -> classes.getGroups().stream()
-                        .anyMatch(group -> group.getGroupStudents() != null && !group.getGroupStudents().isEmpty()))
-                .orElse(false);
+    public Boolean checkExistGroupStudent(Classes classes, String token) {
+        return classes.getGroups().stream().anyMatch(g -> g.getGroupStudents().stream()
+                .anyMatch(gs -> gs.getUserId().equals(redisGroupStudentService.getCurrentUserId(token))));
     }
 
 }

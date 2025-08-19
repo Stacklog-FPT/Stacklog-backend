@@ -1,12 +1,12 @@
 package com.stacklog.class_service.controller;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stacklog.class_service.model.entities.Semester;
@@ -18,11 +18,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
 
 
 @RestController
@@ -33,17 +33,14 @@ public class SemesterRestController {
     SemesterService semesterService;
 
     @GetMapping("")
-    public ResponseEntity<List<Semester>> getAllSemester(@RequestHeader("Authorization") String token,
-            @RequestParam(name = "year", required = false) Integer year,
-            @RequestParam(name = "quarter", required = false) String quarter) {
-        List<Semester> semesters = new ArrayList<>();
-        if (year == null && quarter == null) {
-            semesters = semesterService.getAllByUserId(token);
-        } else {
-            semesters = semesterService.getAllByYearAndQuarter(year, quarter, token);
+    public ResponseEntity<List<Semester>> getSemesterWithUserId(@RequestHeader("Authorization") String token) {
+        List<Semester> semesters = semesterService.getAllByUserId(token);
+        if (semesters == null) {
+            return ResponseEntity.badRequest().body(null);
         }
         return ResponseEntity.ok().body(semesters);
     }
+    
 
     @PostMapping("")
     public ResponseEntity<Semester> saveSemester(@RequestHeader("Authorization") String token,
@@ -61,7 +58,16 @@ public class SemesterRestController {
         }
         return ResponseEntity.ok().body(semester);
     }
-    
+
+    @DeleteMapping("")
+    public ResponseEntity<String> deleteSemester(@RequestHeader("Authorization") String token,
+            @RequestParam(name = "semesterId", required = false) String semesterId) {
+        if (semesterId == null || semesterId.isBlank()) {
+            return ResponseEntity.ok().body("Need semesterId for delete!");
+        }
+        semesterService.delete(semesterId, token);
+        return ResponseEntity.ok().body("Delete Semester successfully!");
+    }
 
 }
 

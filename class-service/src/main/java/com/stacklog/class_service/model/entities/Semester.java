@@ -36,13 +36,14 @@ public class Semester extends CoreEntity {
 
     @Enumerated(EnumType.STRING)
     private Quarter quarter;
-
+    
     public enum Quarter {
         SP, SU, FA
     }
 
     @OneToMany(mappedBy = "semester")
     @JsonManagedReference
+    @JsonIgnore
     private List<Classes> classes;
 
 }

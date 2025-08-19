@@ -1,6 +1,7 @@
 package com.stacklog.class_service.model.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,8 +35,6 @@ public class ClassService implements IService<Classes> {
     @Autowired
     private KafkaProducer<Classes> kafkaClassProducer;
 
-    // @Autowired private SimpMessagingTemplate messagingTemplate;
-
     private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
 
     RedisService<Classes> redisClassService;
@@ -46,22 +45,17 @@ public class ClassService implements IService<Classes> {
 
     @Override
     public Classes delete(String id, String token) {
-        return null;
+        Classes classes = getById(id, token);
+        if (classes == null) {
+            return null;
+        }
+        classesRepo.delete(classes);
+        return classes;
     }
 
     @Override
     public List<Classes> getAllByUserId(String token) {
-        List<Classes> classes = redisClassService.getAll(token, NAME_SERVICE);
-        if (classes.isEmpty()) {
-            classes = classesRepo.findByUserId(redisClassService.getCurrentUserId(token));
-            redisClassService.saveListToRedis(classes, token, NAME_SERVICE);
-        }
-        return classes;
-    }
-
-    public List<Classes> getAllByLecture(String token) {
-        List<Classes> classes = classesRepo.findByLectureId(redisClassService.getCurrentUserId(token));
-        return classes;
+        return null;
     }
 
     @Override
@@ -112,7 +106,38 @@ public class ClassService implements IService<Classes> {
             e.setCreatedBy(redisClassService.getCurrentUserId(token));
             e.setClassesId(UUID.randomUUID().toString());
         }
+        e.setLectureId(redisClassService.getCurrentUserId(token));
         return classesRepo.save(e);
+    }
+
+    public List<Classes> getAllBySemesterNUserId(String token, String semesterId) {
+
+        String currentUserRole = redisClassService.getCurrentRoleId(token);
+        List<Classes> classes = new ArrayList<>();
+        switch (currentUserRole) {
+            case "student":
+                classes = redisClassService.getAll(token, NAME_SERVICE);
+                if (classes.isEmpty()) {
+                    classes = classesRepo.findAllBySemesterIdNUserId(redisClassService.getCurrentUserId(token),
+                            semesterId);
+                    redisClassService.saveListToRedis(classes, token, NAME_SERVICE);
+                }
+                break;
+            case "lecturer":
+                classes = redisClassService.getAll(token, NAME_SERVICE);
+                if (classes.isEmpty()) {
+                    classes = classesRepo.findAllByLectureIdAndSemesterSemesterId(
+                            redisClassService.getCurrentUserId(token), semesterId);
+                    redisClassService.saveListToRedis(classes, token, NAME_SERVICE);
+                }
+                break;
+            case "admin":
+                classes = classesRepo.findAll();
+                break;
+            default:
+                break;
+        }
+        return classes;
     }
 
 }

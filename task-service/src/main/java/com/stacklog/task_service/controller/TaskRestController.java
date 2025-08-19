@@ -2,12 +2,9 @@ package com.stacklog.task_service.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,13 +37,6 @@ public class TaskRestController {
 
     @Autowired
     StatusTaskService statusTaskService;
-
-    @MessageMapping("/taskify")
-    @SendTo("/topic/taskservice")
-    public ResponseEntity<Map<String, String>> sendMessage(Map<String, String> message) {
-        // System.out.println("oke");
-        return ResponseEntity.ok().body(message);
-    }
 
     @GetMapping("/{groupId}")
     public ResponseEntity<List<Task>> getTasksByGroupId(@RequestHeader("Authorization") String token,

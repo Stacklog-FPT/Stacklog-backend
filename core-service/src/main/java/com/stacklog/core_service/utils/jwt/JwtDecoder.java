@@ -33,4 +33,22 @@ public class JwtDecoder {
         }
         return null;
     }
+
+    public String getRoleFromToken(String token) {
+        try {
+            Key key = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes());
+
+            Jws<Claims> claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+
+            String role = claims.getBody().get("role", String.class);
+            return role.toLowerCase();
+
+        } catch (JwtException e) {
+            System.out.println("❌ Invalid JWT: " + e.getMessage());
+        }
+        return null;
+    }
 }
