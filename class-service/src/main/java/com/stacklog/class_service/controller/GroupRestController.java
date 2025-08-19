@@ -178,17 +178,6 @@ public class GroupRestController {
         return ResponseEntity.ok().body(null);
     }
 
-    @GetMapping("/for-long/{classId}")
-    public ResponseEntity<Groupss> getGroupByClassIdAndToken(@RequestHeader("Authorization") String token,
-            @PathVariable(name = "classId") String classId) {
-
-        Groupss groupss = groupService.getGroupssByClassIdAndToken(classId, token);
-        if (groupss == null) {
-            return ResponseEntity.badRequest().body(groupss);
-        }
-        return ResponseEntity.ok().body(groupss);
-    }
-
 }
 
 @Getter
