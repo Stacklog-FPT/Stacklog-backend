@@ -30,16 +30,11 @@ public class ClassRestController {
     @Autowired
     GroupsStudentService groupsStudentService;
 
-    @GetMapping("")
-    public ResponseEntity<List<Classes>> getClassesByUserId(@RequestHeader("Authorization") String token) {
-        List<Classes> classes = classService.getAllByUserId(token);
-        return ResponseEntity.ok(classes);
-    }
-
-    @GetMapping("/lecture")
-    public ResponseEntity<List<Classes>> getClassesByLectureId(@RequestHeader("Authorization") String token) {
-        List<Classes> classes = classService.getAllByLecture(token);
-        return ResponseEntity.ok(classes);
+    @GetMapping("/{semesterId}")
+    public ResponseEntity<List<Classes>> getClassesByUserId(@RequestHeader("Authorization") String token,
+            @PathVariable(name = "semesterId") String semesterId) {
+        List<Classes> classes = classService.getAllBySemesterNUserId(token, semesterId);
+        return ResponseEntity.ok().body(classes);
     }
 
     @PostMapping(path = "")
@@ -49,11 +44,14 @@ public class ClassRestController {
         return ResponseEntity.ok(newClasses);
     }
 
-    @DeleteMapping(path = "/{classesId}")
-    public ResponseEntity<Classes> deleteClasses(@RequestHeader("Authorization") String token,
-            @PathVariable(name = "classesId") String classesId) {
-        classService.delete(classesId, token);
-        return ResponseEntity.ok(null);
+    @DeleteMapping(path = "")
+    public ResponseEntity<String> deleteClasses(@RequestHeader("Authorization") String token,
+            @RequestParam(name = "classId", required = false) String classesId) {
+        if (classesId == null || classesId.isBlank()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        Classes classes = classService.delete(classesId, token);
+        return ResponseEntity.ok("Delete class" + classes.getClassesName() + " successfully ");
     }
 
     @GetMapping("/join")
@@ -67,9 +65,9 @@ public class ClassRestController {
         if (classes == null) {
             return ResponseEntity.badRequest().body("Your class is not exist!");
         }
-        // if (groupsStudentService.checkExistGroupStudent(classId, token)) {
-        //     return ResponseEntity.badRequest().body("You were in class!");
-        // }
+        if (groupsStudentService.checkExistGroupStudent(classes, token)) {
+            return ResponseEntity.badRequest().body("You were in class!");
+        }
         groupsStudentService.joinClass(classId, token);
         return ResponseEntity.ok("You have joined the class");
     }
@@ -84,7 +82,8 @@ public class ClassRestController {
         if (classes == null) {
             return ResponseEntity.badRequest().body("Your class is not exist!");
         }
-        return ResponseEntity.ok("http://103.166.183.142:8080/api/class/class/join?code=" + generateInviteCodeFromClassId(classesId));
+        return ResponseEntity
+                .ok("https://stacklog.id.vn/api/class/class/join?code=" + generateInviteCodeFromClassId(classesId));
     }
 
     private String generateInviteCodeFromClassId(String classesId) {
