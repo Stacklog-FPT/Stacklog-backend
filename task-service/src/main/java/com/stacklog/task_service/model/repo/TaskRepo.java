@@ -11,12 +11,20 @@ import com.stacklog.task_service.model.entities.Task;
 
 @Repository
 public interface TaskRepo extends JpaRepository<Task, String> {
-    
+
     public List<Task> getAllByGroupId(String groupId);
 
     @Query("SELECT ta.task FROM TaskAssign ta WHERE ta.assignTo = :userId")
     public List<Task> findByUserId(@Param("userId") String userId);
 
-    public List<Task> findByGroupId(String groupId);
+    @Query("""
+              select distinct t
+              from Task t
+              left join fetch t.statusTask st
+              left join fetch t.subtasks s
+              where t.groupId = :groupId
+                and t.parentTask is null
+            """)
+    public List<Task> findByGroupId(@Param("groupId") String groupId);
 
 }
