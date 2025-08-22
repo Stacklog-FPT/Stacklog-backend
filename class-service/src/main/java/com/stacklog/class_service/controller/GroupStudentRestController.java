@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stacklog.class_service.model.entities.GroupStudent;
@@ -48,14 +49,14 @@ public class GroupStudentRestController {
         return ResponseEntity.ok().body(newGroupStudent);
     }
 
-    @DeleteMapping("/{groupId}")
+    @DeleteMapping("")
     public ResponseEntity<GroupStudent> deleteGroupStudent(@RequestHeader("Authorization") String token,
-            @PathVariable(name = "groupId") String groupId) {
+            @RequestParam(name = "groupId") String groupId) {
         groupsStudentService.delete(groupId, token);
         return ResponseEntity.ok().body(null);
     }
 
-    @PutMapping("/kick-group/{studentId}")
+    @PutMapping("/kick/{studentId}")
     public ResponseEntity<GroupStudent> kickGroup(@RequestHeader("Authorization") String token,
             @RequestBody OldGroupDTO oldGroupDTO,
             @PathVariable(name = "studentId", required = false) String studentId) {
@@ -67,10 +68,9 @@ public class GroupStudentRestController {
 
     }
 
-    @PutMapping("/leave-group")
+    @PutMapping("/leave")
     public ResponseEntity<GroupStudent> leaveGroup(@RequestHeader("Authorization") String token,
-            @RequestBody OldGroupDTO oldGroupDTO,
-            @PathVariable(name = "studentId", required = false) String studentId) {
+            @RequestBody OldGroupDTO oldGroupDTO) {
         GroupStudent gs = new GroupStudent();
         gs = groupsStudentService.getByGroupId(oldGroupDTO.getOldGroupId(), token);
         gs.setGroups(groupService.getById(oldGroupDTO.getUnassignedGroupId(), token));
