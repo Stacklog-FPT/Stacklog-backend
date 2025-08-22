@@ -115,12 +115,15 @@ services:
   redis:
     image: redis:7.2.4
     container_name: redis
-    command: ["redis-server"]
-    # volumes:
-    #   - ./redis.conf:/usr/local/etc/redis/redis.conf
+    command: ["redis-server", "--appendonly", "yes"]
     ports:
       - "6379:6379"
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli INFO replication | grep -q 'role:master'"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     networks:
       - app-network
 
