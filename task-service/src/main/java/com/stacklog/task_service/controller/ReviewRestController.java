@@ -33,7 +33,7 @@ public class ReviewRestController {
     TaskService taskService;
 
     @GetMapping("/{taskId}")
-    public ResponseEntity<List<Review>> getTasksByGroupId(@RequestHeader("Authorization") String token, @PathVariable("taskId") String taskId) {
+    public ResponseEntity<List<Review>> getReviewByTaskId(@RequestHeader("Authorization") String token, @PathVariable("taskId") String taskId) {
         List<Review> lists = reviewService.getAllByTaskId(token, taskId);
         if (lists.isEmpty() || lists == null) {
             return ResponseEntity.badRequest().build();
@@ -42,7 +42,7 @@ public class ReviewRestController {
     }
     
     @PostMapping("")
-    public ResponseEntity<Review> saveTask(@RequestHeader("Authorization") String token, @RequestBody ReviewDTO e) {
+    public ResponseEntity<Review> saveReview(@RequestHeader("Authorization") String token, @RequestBody ReviewDTO e) {
         Review review = null;
         if (e.reviewId == null || e.reviewId.isEmpty()) {
             review = new Review();
@@ -59,7 +59,7 @@ public class ReviewRestController {
     }
     
     @DeleteMapping("/delete/{reviewId}")
-    public ResponseEntity<String> deleteTask(@RequestHeader("Authorization") String token, @PathVariable("reviewId") String reviewId) {
+    public ResponseEntity<String> deleteReview(@RequestHeader("Authorization") String token, @PathVariable("reviewId") String reviewId) {
         Review review = reviewService.delete(reviewId, token);
         if (review == null) {
             return ResponseEntity.badRequest().build();
