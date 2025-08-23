@@ -125,7 +125,9 @@ services:
       timeout: 3s
       retries: 20
     networks:
-      - app-network
+      app-network:
+          aliases:
+              - redis-master
 
   # # --- Auth Service ---
   authservice:
