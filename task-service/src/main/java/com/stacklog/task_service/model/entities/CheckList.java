@@ -2,6 +2,8 @@ package com.stacklog.task_service.model.entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
 import jakarta.persistence.Entity;
@@ -26,10 +28,12 @@ public class CheckList extends CoreEntity {
     private String checkListName;
 
     @OneToMany(mappedBy = "checkItemId")
+    @JsonManagedReference("checklists-checkItems")
     private List<CheckItem> listItems;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "taskId")
+    @JsonBackReference("task-checkLists")
     private Task task;
 
     public CheckList(String createdBy, String createdAt, String updateBy, String updateAt,

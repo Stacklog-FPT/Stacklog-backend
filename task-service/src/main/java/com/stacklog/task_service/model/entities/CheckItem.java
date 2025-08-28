@@ -2,6 +2,7 @@ package com.stacklog.task_service.model.entities;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
 import jakarta.persistence.Entity;
@@ -27,6 +28,7 @@ public class CheckItem extends CoreEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "checkListId")
+    @JsonBackReference("checklists-checkItems")
     private CheckList checkList;
 
     public CheckItem(String createdBy, String createdAt, String updateBy, String updateAt,
