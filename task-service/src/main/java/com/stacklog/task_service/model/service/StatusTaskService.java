@@ -97,6 +97,7 @@ public class StatusTaskService implements IService<StatusTask> {
     public List<StatusTask> createDefaultsForGroup(String groupId, String userId) {
         for (int i = 0; i < 4; i++) {
             StatusTask defaulStatusTask = new StatusTask();
+            defaulStatusTask.setStatusTaskId(UUID.randomUUID().toString());
             defaulStatusTask.setCreatedAt(CommonFunction.getCurrentTime());
             defaulStatusTask.setCreatedBy(userId);
             defaulStatusTask.setUpdateAt(CommonFunction.getCurrentTime());
