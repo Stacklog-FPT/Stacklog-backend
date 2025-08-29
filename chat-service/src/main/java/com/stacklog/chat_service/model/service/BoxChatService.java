@@ -24,8 +24,6 @@ public class BoxChatService implements IService<BoxChat> {
     private static final String KAFKA_TOPIC_UPDATE = "chat-service.boxchat.updated";
     private static final String KAFKA_TOPIC_CREATE = "chat-service.boxchat.created";
 
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     @Autowired
     BoxChatRepo boxChatRepo;
 
@@ -71,10 +69,10 @@ public class BoxChatService implements IService<BoxChat> {
     @Transactional
     public BoxChat save(BoxChat e, String token) {
         boolean isCreate = (e.getBoxChatId() == null || !boxChatRepo.existsById(e.getBoxChatId()));
-        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisBoxChatService.getCurrentUserId(token));
         if (e.getBoxChatId() == null) {
-            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisBoxChatService.getCurrentUserId(token));
             e.setBoxChatId(UUID.randomUUID().toString());
         }
