@@ -1,6 +1,5 @@
 package com.stacklog.task_service.model.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,7 +23,8 @@ public class StatusTaskService implements IService<StatusTask> {
     private static final String KAFKA_TOPIC_UPDATE = "task-service.statustask.updated";
     private static final String KAFKA_TOPIC_CREATE = "task-service.statustask.created";
 
-    @Autowired StatusTaskRepo statusTaskRepo;
+    @Autowired
+    StatusTaskRepo statusTaskRepo;
 
     @Autowired
     KafkaProducer<StatusTask> statusTaskProducer;
@@ -93,5 +93,40 @@ public class StatusTaskService implements IService<StatusTask> {
 
         return e;
     }
-    
+
+    public List<StatusTask> createDefaultsForGroup(String groupId, String userId) {
+        for (int i = 0; i < 4; i++) {
+            StatusTask defaulStatusTask = new StatusTask();
+            defaulStatusTask.setCreatedAt(CommonFunction.getCurrentTime());
+            defaulStatusTask.setCreatedBy(userId);
+            defaulStatusTask.setUpdateAt(CommonFunction.getCurrentTime());
+            defaulStatusTask.setUpdateBy(userId);
+            defaulStatusTask.setGroupId(groupId);
+            switch (i) {
+                case 0:
+                    defaulStatusTask.setStatusTaskName("TO DO");
+                    defaulStatusTask.setStatusTaskColor("blue");
+                    break;
+                case 1:
+                    defaulStatusTask.setStatusTaskName("DOING");
+                    defaulStatusTask.setStatusTaskColor("blue");
+                    break;
+                case 2:
+                    defaulStatusTask.setStatusTaskName("DONE");
+                    defaulStatusTask.setStatusTaskColor("blue");
+                    break;
+                case 3:
+                    defaulStatusTask.setStatusTaskName("COMPLETED");
+                    defaulStatusTask.setStatusTaskColor("blue");
+                    break;
+                default:
+                    break;
+            }
+            statusTaskRepo.save(defaulStatusTask);
+
+        }
+        return statusTaskRepo.findAllByGroupId(groupId);
+
+    }
+
 }
