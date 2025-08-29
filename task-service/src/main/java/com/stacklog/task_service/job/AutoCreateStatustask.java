@@ -24,7 +24,7 @@ public class AutoCreateStatustask {
     public void consumerTask(String message) {
         try {
             GroupCreatedEvent evt = objectMapper.readValue(message, GroupCreatedEvent.class);
-            String groupId = evt.groupId();
+            String groupId = evt.groupsId();
             String userId = evt.createdBy();
             statusTaskService.createDefaultsForGroup(groupId, userId);
             LOGGER.info("Message received -> {}", message);
@@ -36,7 +36,7 @@ public class AutoCreateStatustask {
 }
 
 record GroupCreatedEvent(
-        String groupId,
+        String groupsId,
         String groupName,
         String createdBy) {
 }
