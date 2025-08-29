@@ -24,8 +24,6 @@ public class CheckListService implements IService<CheckList> {
     private static final String KAFKA_TOPIC_UPDATE = "task-service.checklist.updated";
     private static final String KAFKA_TOPIC_CREATE = "task-service.checklist.created";
 
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     @Autowired CheckListRepo checkListRepo;
 
     @Autowired
@@ -75,10 +73,10 @@ public class CheckListService implements IService<CheckList> {
     @Override
     public CheckList save(CheckList e, String token) {
         boolean isCreate = (e.getCheckListId() == null || !checkListRepo.existsById(e.getCheckListId()));
-        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisCheckListService.getCurrentUserId(token));
         if (e.getCheckListId() == null) {
-            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisCheckListService.getCurrentUserId(token));
             e.setCheckListId(UUID.randomUUID().toString());
         }

@@ -24,8 +24,6 @@ public class ChatMessageService implements IService<ChatMessage> {
     private static final String KAFKA_TOPIC_UPDATE = "chat-service.chatmessage.updated";
     private static final String KAFKA_TOPIC_CREATE = "chat-service.chatmessage.created";
 
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     @Autowired
     ChatMessageRepo chatMessageRepo;
 
@@ -76,10 +74,10 @@ public class ChatMessageService implements IService<ChatMessage> {
     @Transactional
     public ChatMessage save(ChatMessage e, String token) {
         boolean isCreate = (e.getChatMessageId() == null || !chatMessageRepo.existsById(e.getChatMessageId()));
-        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisChatMessageService.getCurrentUserId(token));
         if (e.getChatMessageId() == null) {
-            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisChatMessageService.getCurrentUserId(token));
             e.setChatMessageId(UUID.randomUUID().toString());
         }

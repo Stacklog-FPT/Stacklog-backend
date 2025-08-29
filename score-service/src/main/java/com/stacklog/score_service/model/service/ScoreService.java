@@ -17,11 +17,6 @@ public class ScoreService implements IService<Score> {
 
     private static final String NAME_SERVICE = "score-service";
 
-    // private static final String KAFKA_TOPIC_UPDATE = "score-service.score.updated";
-    // private static final String KAFKA_TOPIC_CREATE = "score-service.score.created";
-
-    // private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     @Autowired
     private ScoreRepo scoreRepo;
 

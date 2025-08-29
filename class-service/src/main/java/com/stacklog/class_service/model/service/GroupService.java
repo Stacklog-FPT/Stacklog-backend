@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-
 import com.stacklog.class_service.model.entities.Groupss;
 import com.stacklog.class_service.model.repo.GroupsRepo;
 import com.stacklog.core_service.model.service.IService;
@@ -25,15 +23,11 @@ public class GroupService implements IService<Groupss> {
     private static final String KAFKA_TOPIC_UPDATE = "class-service.groupsses.updated";
     private static final String KAFKA_TOPIC_CREATE = "class-service.groupsses.created";
 
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     @Autowired
     GroupsRepo groupsRepo;
 
     @Autowired
     private KafkaProducer<Groupss> kafkaGroupsProducer;
-
-    // @Autowired private SimpMessagingTemplate messagingTemplate;
 
     RedisService<Groupss> redisGroupsService;
 
@@ -89,10 +83,10 @@ public class GroupService implements IService<Groupss> {
 
     @Transactional
     private Groupss saveToDB(Groupss e, String token) {
-        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisGroupsService.getCurrentUserId(token));
         if (e.getGroupsId() == null) {
-            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisGroupsService.getCurrentUserId(token));
             e.setGroupsId(UUID.randomUUID().toString());
         }

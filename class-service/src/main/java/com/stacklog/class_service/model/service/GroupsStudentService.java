@@ -28,8 +28,6 @@ public class GroupsStudentService implements IService<GroupStudent> {
     private static final String KAFKA_TOPIC_UPDATE = "class-service.groupstudent.updated";
     private static final String KAFKA_TOPIC_CREATE = "class-service.groupstudent.created";
 
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     @Autowired
     GroupsStudentRepo groupsStudentRepo;
 
@@ -108,10 +106,10 @@ public class GroupsStudentService implements IService<GroupStudent> {
 
     @Transactional
     private GroupStudent saveToDB(GroupStudent e, String token) {
-        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisGroupStudentService.getCurrentUserId(token));
         if (e.getGroupStudentId() == null) {
-            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisGroupStudentService.getCurrentUserId(token));
             e.setGroupStudentId(UUID.randomUUID().toString());
         }

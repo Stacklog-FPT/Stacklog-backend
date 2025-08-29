@@ -29,8 +29,6 @@ public class DocumentService implements IService<Document> {
 
     private static final String LOCATION_DIRECTORY = "Storage-Files";
 
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     @Autowired
     DocumentRepo documentRepo;
 
@@ -74,10 +72,10 @@ public class DocumentService implements IService<Document> {
     @Transactional
     public Document save(Document e, String token) {
         boolean isCreate = (e.getDocumentId() == null || !documentRepo.existsById(e.getDocumentId()));
-        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisDocumentService.getCurrentUserId(token));
         if (e.getDocumentId() == null) {
-            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisDocumentService.getCurrentUserId(token));
             e.setDocumentId(UUID.randomUUID().toString());
         }

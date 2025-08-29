@@ -24,8 +24,6 @@ public class SlotAssignService implements IService<SlotAssign> {
     private static final String KAFKA_TOPIC_UPDATE = "schedule-service.slotAssign.updated";
     private static final String KAFKA_TOPIC_CREATE = "schedule-service.slotAssign.created";
 
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     @Autowired SlotAssignRepo slotAssignRepo;
 
     @Autowired
@@ -70,10 +68,10 @@ public class SlotAssignService implements IService<SlotAssign> {
     @Transactional
     public SlotAssign save(SlotAssign e, String token) {
         boolean isCreate = (e.getSlotAssignId() == null || !slotAssignRepo.existsById(e.getSlotAssignId()));
-        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisSlotService.getCurrentUserId(token));
         if (e.getSlotAssignId() == null || e.getSlotAssignId().isBlank()) {
-            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisSlotService.getCurrentUserId(token));
             e.setSlotAssignId(UUID.randomUUID().toString());
         }

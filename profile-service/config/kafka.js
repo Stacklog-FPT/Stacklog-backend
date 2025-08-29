@@ -6,7 +6,7 @@ clientId: process.env.KAFKA_CLIENT_ID,
 });
 
 const producer = kafka.producer();
-const consumerClassService = kafka.consumer({ groupId: "Class-Serivce" });
+const consumerClassService = kafka.consumer({ groupId: "class-serivce" });
 
 const produceMessage = async (topic, message) => {
     await producer.connect();
