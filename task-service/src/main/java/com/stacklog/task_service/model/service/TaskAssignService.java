@@ -1,6 +1,5 @@
 package com.stacklog.task_service.model.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,8 +22,6 @@ public class TaskAssignService implements IService<TaskAssign> {
 
     private static final String KAFKA_TOPIC_UPDATE = "task-service.taskassign.updated";
     private static final String KAFKA_TOPIC_CREATE = "task-service.taskassign.created";
-
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
 
     @Autowired
     TaskAssignRepo taskAssignRepo;
@@ -71,10 +68,10 @@ public class TaskAssignService implements IService<TaskAssign> {
     @Transactional
     public TaskAssign save(TaskAssign e, String token) {
         boolean isCreate = (e.getTaskAssignId() == null || !taskAssignRepo.existsById(e.getTaskAssignId()));
-        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisTaskAssignService.getCurrentUserId(token));
         if (e.getTaskAssignId() == null) {
-            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisTaskAssignService.getCurrentUserId(token));
             e.setTaskAssignId(UUID.randomUUID().toString());
         }

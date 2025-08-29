@@ -35,8 +35,6 @@ public class ClassService implements IService<Classes> {
     @Autowired
     private KafkaProducer<Classes> kafkaClassProducer;
 
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     RedisService<Classes> redisClassService;
 
     public ClassService(RedisService<Classes> redisClassService) {
@@ -99,10 +97,10 @@ public class ClassService implements IService<Classes> {
 
     @Transactional
     private Classes saveToDB(Classes e, String token) {
-        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisClassService.getCurrentUserId(token));
         if (e.getClassesId() == null) {
-            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisClassService.getCurrentUserId(token));
             e.setClassesId(UUID.randomUUID().toString());
         }

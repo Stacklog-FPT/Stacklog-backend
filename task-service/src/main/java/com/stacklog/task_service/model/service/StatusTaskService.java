@@ -24,8 +24,6 @@ public class StatusTaskService implements IService<StatusTask> {
     private static final String KAFKA_TOPIC_UPDATE = "task-service.statustask.updated";
     private static final String KAFKA_TOPIC_CREATE = "task-service.statustask.created";
 
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     @Autowired StatusTaskRepo statusTaskRepo;
 
     @Autowired
@@ -74,10 +72,10 @@ public class StatusTaskService implements IService<StatusTask> {
     @Transactional
     public StatusTask save(StatusTask e, String token) {
         boolean isCreate = (e.getStatusTaskId() == null || !statusTaskRepo.existsById(e.getStatusTaskId()));
-        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisStatusTaskService.getCurrentUserId(token));
         if (e.getStatusTaskId() == null) {
-            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisStatusTaskService.getCurrentUserId(token));
             e.setStatusTaskId(UUID.randomUUID().toString());
         }

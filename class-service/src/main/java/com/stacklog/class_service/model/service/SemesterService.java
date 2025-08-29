@@ -30,8 +30,6 @@ public class SemesterService implements IService<Semester> {
     @Autowired
     private KafkaProducer<Semester> kafkaSemesterProducer;
 
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     RedisService<Semester> redisSemestService;
 
     public SemesterService(RedisService<Semester> redisSemestService) {
@@ -94,10 +92,10 @@ public class SemesterService implements IService<Semester> {
 
     @Transactional
     private Semester saveToDB(Semester e, String token) {
-        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisSemestService.getCurrentUserId(token));
         if (e.getSemesterId() == null || e.getSemesterId().isBlank()) {
-            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisSemestService.getCurrentUserId(token));
             e.setSemesterId(UUID.randomUUID().toString());
         }

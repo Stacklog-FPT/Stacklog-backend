@@ -24,8 +24,6 @@ public class ReviewService implements IService<Review> {
     private static final String KAFKA_TOPIC_UPDATE = "task-service.review.updated";
     private static final String KAFKA_TOPIC_CREATE = "task-service.review.created";
 
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     @Autowired
     ReviewRepo reviewRepo;
 
@@ -84,10 +82,10 @@ public class ReviewService implements IService<Review> {
     @Transactional
     public Review save(Review e, String token) {
         boolean isCreate = (e.getReviewId() == null || !reviewRepo.existsById(e.getReviewId()));
-        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisReviewService.getCurrentUserId(token));
         if (e.getReviewId() == null || e.getReviewId().isBlank()) {
-            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisReviewService.getCurrentUserId(token));
             e.setReviewId(UUID.randomUUID().toString());
         }

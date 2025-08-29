@@ -24,8 +24,6 @@ public class CheckItemService implements IService<CheckItem> {
     private static final String KAFKA_TOPIC_UPDATE = "task-service.checkitem.updated";
     private static final String KAFKA_TOPIC_CREATE = "task-service.checkitem.created";
 
-    private LocalDateTime CURRENT_TIME = CommonFunction.getCurrentTime();
-
     @Autowired CheckItemRepo checkItemRepo;
 
     @Autowired
@@ -70,10 +68,10 @@ public class CheckItemService implements IService<CheckItem> {
     @Transactional
     public CheckItem save(CheckItem e, String token) {
         boolean isCreate = (e.getCheckItemId() == null || !checkItemRepo.existsById(e.getCheckItemId()));
-        e.setUpdateAt(CURRENT_TIME);
+        e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisCheckItemService.getCurrentUserId(token));
         if (e.getCheckItemId() == null) {
-            e.setCreatedAt(CURRENT_TIME);
+            e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisCheckItemService.getCurrentUserId(token));
             e.setCheckItemId(UUID.randomUUID().toString());
         }
