@@ -25,9 +25,15 @@ public class TaskService implements IService<Task> {
     private static final String KAFKA_TOPIC_UPDATE = "task-service.task.updated";
     private static final String KAFKA_TOPIC_CREATE = "task-service.task.created";
 
-    @Autowired private TaskRepo taskRepo;
-    @Autowired private KafkaProducer<Task> kafkaTaskProducer;
-    @Autowired private SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    private TaskRepo taskRepo;
+    @Autowired
+    private KafkaProducer<Task> kafkaTaskProducer;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    private ClassServiceClient classServiceClient;
+
     private final RedisService<Task> redisTaskService;
 
     public TaskService(RedisService<Task> redisTaskService) {
@@ -62,6 +68,36 @@ public class TaskService implements IService<Task> {
             tasks = taskRepo.findByUserId(userId);
             redisTaskService.saveListToRedis(tasks, token, NAME_SERVICE);
         }
+        return tasks;
+    }
+
+    public List<Task> getAllByUserIdAndSemesterId(String token, String semesterId) {
+        // 1) gọi class-service để lấy groupIds theo học kỳ
+        List<String> groupIds = classServiceClient.getGroupssBySemesterId(token, semesterId)
+                .stream()
+                .map(Groupss::getGroupsId)
+                .filter(id -> id != null && !id.isBlank())
+                .toList();
+
+        if (groupIds.isEmpty())
+            return List.of();
+
+        // 2) lấy userId hiện tại từ Redis (như bạn đang làm)
+        String userId = redisTaskService.getCurrentUserId(token);
+
+        // 3) query DB 1 lần cho tất cả group
+        List<Task> tasks = taskRepo.findUserTasksByGroupIds(userId, groupIds);
+
+        // 4) warm cache theo group để lần sau nhanh hơn
+        for (String gid : groupIds) {
+            String suffix = "group:" + gid;
+            redisTaskService.saveListToRedisWithSuffix(
+                    tasks.stream().filter(t -> gid.equals(t.getGroupId())).toList(),
+                    token, "task-service", suffix);
+        }
+        // 5) cũng có thể fill cache tổng theo user nếu cần
+        redisTaskService.saveListToRedis(tasks, token, "task-service");
+
         return tasks;
     }
 

@@ -1,13 +1,19 @@
 package com.stacklog.task_service.controller;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.stacklog.task_service.model.entities.CheckList;
+import com.stacklog.task_service.model.entities.Review;
+import com.stacklog.task_service.model.entities.StatusTask;
 import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.entities.TaskAssign;
 import com.stacklog.task_service.model.entities.Task.Priority;
@@ -24,6 +30,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping(path = "/task")
@@ -39,13 +46,34 @@ public class TaskRestController {
     StatusTaskService statusTaskService;
 
     @GetMapping("/{groupId}")
-    public ResponseEntity<List<Task>> getTasksByGroupId(@RequestHeader("Authorization") String token,
+    public ResponseEntity<List<ResponseTask>> getTasksByGroupId(@RequestHeader("Authorization") String token,
             @PathVariable("groupId") String groupId) {
-        List<Task> lists = taskService.getAllByGroupId(token, groupId);
+        List<ResponseTask> lists = new ArrayList<>();
+        taskService.getAllByGroupId(token, groupId).stream().forEach(t -> lists.add(new ResponseTask(t)));
+
         if (lists.isEmpty() || lists == null) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().body(lists);
+    }
+
+    @GetMapping("/personal-task")
+    public ResponseEntity<Map<String, List<ResponseTask>>> getTasksPersonal(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(name = "semesterId", required = false) String semesterId) {
+
+        List<Task> tasks;
+        if (semesterId != null && !semesterId.isBlank()) {
+            tasks = taskService.getAllByUserIdAndSemesterId(token, semesterId);
+        } else {
+            tasks = taskService.getAllByUserId(token);
+        }
+
+        Map<String, List<ResponseTask>> result = tasks.stream()
+                .map(ResponseTask::new)
+                .collect(Collectors.groupingBy(rt -> rt.getStatusTask().getStatusTaskName()));
+
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("")
@@ -109,4 +137,47 @@ class TaskDTO {
     private String statusTaskId;
     private List<String> listUserAssign;
     private String parentTaskId;
+}
+
+@Getter
+@Setter
+class ResponseTask {
+    private String taskId;
+    private String taskTitle;
+    private String taskDescription;
+    private String groupId;
+    private String documentId;
+    private Integer taskPoint;
+    private LocalDateTime taskStartTime;
+    private LocalDateTime taskDueDate;
+    private Priority priority;
+    private List<Task> subtasks;
+    private List<Review> reviews;
+    private StatusTask statusTask;
+    private List<CheckList> checkLists;
+    private List<String> assignTo;
+
+    public ResponseTask(Task task) {
+        this.taskId = task.getTaskId();
+        this.taskTitle = task.getTaskTitle();
+        this.taskDescription = task.getTaskDescription();
+        this.groupId = task.getGroupId();
+        this.documentId = task.getDocumentId();
+        this.taskPoint = task.getTaskPoint();
+        this.taskStartTime = task.getTaskStartTime();
+        this.taskDueDate = task.getTaskDueDate();
+        this.priority = task.getPriority();
+        this.subtasks = task.getSubtasks();
+        this.reviews = task.getReviews();
+        this.statusTask = task.getStatusTask();
+        this.checkLists = task.getCheckLists();
+        this.assignTo = convertAssignsToAssignTo(task.getAssigns());
+    }
+
+    private List<String> convertAssignsToAssignTo(List<TaskAssign> taskAssigns) {
+        List<String> assignTo = new ArrayList<>();
+        taskAssigns.stream().forEach(ta -> assignTo.add(ta.getAssignTo()));
+        return assignTo;
+    }
+
 }
