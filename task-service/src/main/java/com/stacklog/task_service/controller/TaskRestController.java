@@ -180,6 +180,9 @@ class ResponseTask {
 
     private List<String> convertAssignsToAssignTo(List<TaskAssign> taskAssigns) {
         List<String> assignTo = new ArrayList<>();
+        if (taskAssigns == null || taskAssigns.isEmpty()) {
+            return new ArrayList<>();
+        }
         taskAssigns.stream().forEach(ta -> assignTo.add(ta.getAssignTo()));
         return assignTo;
     }
