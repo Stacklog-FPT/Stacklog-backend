@@ -1,5 +1,6 @@
 package com.stacklog.class_service.model.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -96,7 +97,8 @@ public class GroupService implements IService<Groupss> {
     }
 
     public List<Groupss> getAllByClassId(String token, String classesId) {
-        List<Groupss> groupsses = redisGroupsService.getAll(token, NAME_SERVICE);
+        // List<Groupss> groupsses = redisGroupsService.getAll(token, NAME_SERVICE);
+        List<Groupss> groupsses = new ArrayList<>();
         if (groupsses.isEmpty()) {
             groupsses = groupsRepo.findByClassesId(classesId);
             redisGroupsService.saveListToRedis(groupsses, token, NAME_SERVICE);
