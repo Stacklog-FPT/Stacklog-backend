@@ -102,12 +102,15 @@ public class TaskRestController {
             task.setParentTask(null);
         }
         task = taskService.save(task, token);
-        for (String userId : e.getListUserAssign()) {
-            TaskAssign taskAssign = new TaskAssign();
-            taskAssign.setAssignTo(userId);
-            taskAssign.setTask(task);
-            taskAssignService.save(taskAssign, token);
+        if (e.getListUserAssign() != null && !e.getListUserAssign().isEmpty()) {
+            for (String userId : e.getListUserAssign()) {
+                TaskAssign taskAssign = new TaskAssign();
+                taskAssign.setAssignTo(userId);
+                taskAssign.setTask(task);
+                taskAssignService.save(taskAssign, token);
+            }
         }
+
         if (task == null) {
             return ResponseEntity.badRequest().build();
         }
