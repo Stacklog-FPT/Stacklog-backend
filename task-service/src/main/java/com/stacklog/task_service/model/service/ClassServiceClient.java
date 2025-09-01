@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@FeignClient(name = "class-service", url = "http://localhost:2003", path = "")
+@FeignClient(name = "class-service", url = "http://localhost:2003/group", path = "")
 public interface ClassServiceClient {
     @GetMapping("/find/{semesterId}")
     List<Groupss> getGroupssBySemesterId(
