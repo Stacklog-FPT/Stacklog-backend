@@ -1,9 +1,7 @@
 package com.stacklog.schedule_service.model.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;

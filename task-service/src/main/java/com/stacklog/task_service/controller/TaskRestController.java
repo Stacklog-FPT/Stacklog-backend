@@ -2,8 +2,10 @@ package com.stacklog.task_service.controller;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.stacklog.task_service.model.entities.CheckList;
 import com.stacklog.task_service.model.entities.Review;
-import com.stacklog.task_service.model.entities.StatusTask;
 import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.entities.TaskAssign;
 import com.stacklog.task_service.model.entities.Task.Priority;
@@ -62,16 +63,19 @@ public class TaskRestController {
             @RequestHeader("Authorization") String token,
             @RequestParam(name = "semesterId", required = false) String semesterId) {
 
-        List<Task> tasks;
-        if (semesterId != null && !semesterId.isBlank()) {
-            tasks = taskService.getAllByUserIdAndSemesterId(token, semesterId);
-        } else {
-            tasks = taskService.getAllByUserId(token);
-        }
+        List<Task> tasks = (semesterId != null && !semesterId.isBlank())
+                ? taskService.getAllByUserIdAndSemesterId(token, semesterId)
+                : taskService.getAllByUserId(token);
 
         Map<String, List<ResponseTask>> result = tasks.stream()
-                .map(ResponseTask::new)
-                .collect(Collectors.groupingBy(rt -> rt.getStatusTask().getStatusTaskName().trim().toUpperCase()));
+                .collect(Collectors.groupingBy(
+                        t -> Optional.ofNullable(t.getStatusTask())
+                                .map(st -> st.getStatusTaskName())
+                                .map(String::trim)
+                                .map(String::toUpperCase)
+                                .orElse("UNKNOWN"),
+                        LinkedHashMap::new,
+                        Collectors.mapping(ResponseTask::new, Collectors.toList())));
 
         return ResponseEntity.ok(result);
     }
@@ -153,7 +157,7 @@ class ResponseTask {
     private Priority priority;
     private List<Task> subtasks;
     private List<Review> reviews;
-    private StatusTask statusTask;
+    private String statusTaskId;
     private List<CheckList> checkLists;
     private List<String> assignTo;
 
@@ -169,7 +173,7 @@ class ResponseTask {
         this.priority = task.getPriority();
         this.subtasks = task.getSubtasks();
         this.reviews = task.getReviews();
-        this.statusTask = task.getStatusTask();
+        this.statusTaskId = task.getStatusTask().getStatusTaskId();
         this.checkLists = task.getCheckLists();
         this.assignTo = convertAssignsToAssignTo(task.getAssigns());
     }

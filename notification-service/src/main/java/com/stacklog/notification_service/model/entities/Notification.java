@@ -28,6 +28,7 @@ public class Notification {
     private Long notificationId;
 
     private String content;
+    private Boolean isRead;
     
     @Enumerated(EnumType.STRING)
     private NotificationType type;

@@ -1,6 +1,5 @@
 package com.stacklog.schedule_service.model.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 

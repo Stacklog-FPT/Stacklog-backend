@@ -50,7 +50,8 @@ public class StatusTaskService implements IService<StatusTask> {
     }
 
     public List<StatusTask> getAllByGroupId(String token, String groupId) {
-        List<StatusTask> statusTasks = redisStatusTaskService.getAll(token, NAME_SERVICE);
+        List<StatusTask> statusTasks = redisStatusTaskService.getAll(token, NAME_SERVICE).stream()
+                .filter(st -> st.getGroupId().equals(groupId)).toList();
         if (statusTasks.isEmpty() || statusTasks == null) {
             statusTasks = statusTaskRepo.findAllByGroupId(groupId);
             redisStatusTaskService.saveListToRedis(statusTasks, token, NAME_SERVICE);
