@@ -105,7 +105,7 @@ public class StatusTaskService implements IService<StatusTask> {
             defaulStatusTask.setGroupId(groupId);
             switch (i) {
                 case 0:
-                    defaulStatusTask.setStatusTaskName("TO DO");
+                    defaulStatusTask.setStatusTaskName("TODO");
                     defaulStatusTask.setStatusTaskColor("blue");
                     break;
                 case 1:

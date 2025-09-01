@@ -71,7 +71,7 @@ public class TaskRestController {
 
         Map<String, List<ResponseTask>> result = tasks.stream()
                 .map(ResponseTask::new)
-                .collect(Collectors.groupingBy(rt -> rt.getStatusTask().getStatusTaskName()));
+                .collect(Collectors.groupingBy(rt -> rt.getStatusTask().getStatusTaskName().trim().toUpperCase()));
 
         return ResponseEntity.ok(result);
     }
