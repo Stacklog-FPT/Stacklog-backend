@@ -94,7 +94,7 @@ public class GroupRestController {
         for (String userId : groupDTO.groupUserUserIds) {
             try {
                 Groupss oldGroups = groupService.getAllByClassId(token, clazz.getClassesId()).stream()
-                        .filter(g -> g.getGroupsName().equals("unassigned")).findFirst()
+                        .filter(g -> g.getGroupsName().toLowerCase().equals("unassigned")).findFirst()
                         .orElseThrow(() -> new RuntimeException("Unassigned group not found"));
                 GroupStudent groupStudent = groupsStudentService.getByGroupIdAndStudentId(oldGroups.getGroupsId(),
                         userId);
