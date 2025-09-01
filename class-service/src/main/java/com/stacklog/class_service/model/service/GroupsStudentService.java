@@ -1,6 +1,5 @@
 package com.stacklog.class_service.model.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -137,5 +136,7 @@ public class GroupsStudentService implements IService<GroupStudent> {
         return classes.getGroups().stream().anyMatch(g -> g.getGroupStudents().stream()
                 .anyMatch(gs -> gs.getUserId().equals(redisGroupStudentService.getCurrentUserId(token))));
     }
+
+    
 
 }

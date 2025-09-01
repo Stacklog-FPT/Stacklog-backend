@@ -1,11 +1,13 @@
 package com.stacklog.class_service.model.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Service;
+
 import com.stacklog.class_service.model.entities.Groupss;
 import com.stacklog.class_service.model.repo.GroupsRepo;
 import com.stacklog.core_service.model.service.IService;
@@ -113,4 +115,21 @@ public class GroupService implements IService<Groupss> {
         return null;
     }
 
+    public List<Groupss> getGroupssBySemesterIdAndToken(String semesterId, String token) {
+        return groupsRepo.findBySemesterIdAndUserId(semesterId, redisGroupsService.getCurrentUserId(token));
+    }
+
+    @KafkaListener(topics = "class-service.groupsses.find", groupId = "task-service.find-groups")
+    @SendTo
+    public List<String> onFindGroups(GroupssFindReq req) throws Exception {
+        var ids = groupsRepo.findBySemesterIdAndUserId(req.semesterId(), req.token())
+                .stream().map(Groupss::getGroupsId).toList();
+        return ids;
+    }
+
+}
+
+record GroupssFindReq(
+        String semesterId,
+        String token) {
 }

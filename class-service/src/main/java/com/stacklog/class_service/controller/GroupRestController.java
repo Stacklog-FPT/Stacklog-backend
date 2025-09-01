@@ -56,6 +56,13 @@ public class GroupRestController {
         return ResponseEntity.ok().body(groupsses);
     }
 
+    @GetMapping("/find/{semesterId}")
+    public ResponseEntity<List<Groupss>> getGroupssBySemesterId(@RequestHeader("Authorization") String token,
+            @PathVariable(name = "semesterId") String semesterId) {
+        List<Groupss> groupsses = groupService.getGroupssBySemesterIdAndToken(semesterId, token);
+        return ResponseEntity.ok().body(groupsses);
+    }
+
     @PostMapping("")
     public ResponseEntity<Groupss> saveGroupss(@RequestBody GroupDTO groupDTO,
             @RequestHeader("Authorization") String token) {
