@@ -50,6 +50,7 @@ public class ClassRestController {
             }
             return ResponseEntity.badRequest().body(null);
         }
+        classes.setSemester(semesterService.getById(semesterId, token));
         Classes newClasses = classService.save(classes, token);
         return ResponseEntity.ok(newClasses);
     }
