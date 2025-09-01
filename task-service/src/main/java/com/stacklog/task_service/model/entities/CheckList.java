@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -31,7 +30,7 @@ public class CheckList extends CoreEntity {
     @JsonManagedReference("checklists-checkItems")
     private List<CheckItem> listItems;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "taskId")
     @JsonBackReference("task-checkLists")
     private Task task;

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -26,7 +25,7 @@ public class CheckItem extends CoreEntity {
     private LocalDateTime checkItemDueDate;
     private Boolean isChecked;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "checkListId")
     @JsonBackReference("checklists-checkItems")
     private CheckList checkList;
