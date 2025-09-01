@@ -81,7 +81,7 @@ public class TaskRestController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<Task> saveTask(@RequestHeader("Authorization") String token, @RequestBody TaskDTO e) {
+    public ResponseEntity<ResponseTask> saveTask(@RequestHeader("Authorization") String token, @RequestBody TaskDTO e) {
         Task task = new Task();
         if (e.getTaskId() != null || e.getTaskId().isBlank()) {
             task.setTaskId(e.getTaskId());
@@ -111,7 +111,7 @@ public class TaskRestController {
         if (task == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok().body(task);
+        return ResponseEntity.ok().body(new ResponseTask(task));
     }
 
     @DeleteMapping("/{taskId}")
