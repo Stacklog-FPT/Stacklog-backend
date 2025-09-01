@@ -20,7 +20,7 @@ public interface GroupsRepo extends JpaRepository<Groupss, String> {
 
     List<Groupss> findByClassesClassesId(String classId);
 
-    @Query("SELECT gs.groups FROM GroupStudent gs WHERE gs.groups.classes.semesterId=:semesterId and gs.userId = :userId")
+    @Query("SELECT gs.groups FROM GroupStudent gs WHERE gs.groups.classes.semester.semesterId=:semesterId and gs.userId = :userId")
     List<Groupss> findBySemesterIdAndUserId(@Param("semesterId") String semesterId, @Param("userId") String userId);
 
 }
