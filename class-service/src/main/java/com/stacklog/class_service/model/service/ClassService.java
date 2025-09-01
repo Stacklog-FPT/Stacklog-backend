@@ -57,7 +57,8 @@ public class ClassService implements IService<Classes> {
 
     @Override
     public Classes getById(String id, String token) {
-        Classes classes = redisClassService.getById(id, token, NAME_SERVICE);
+        // Classes classes = redisClassService.getById(id, token, NAME_SERVICE);
+        Classes classes = null;
         if (classes == null) {
             classes = classesRepo.findById(id).orElseThrow();
             redisClassService.saveToRedis(classes, token, NAME_SERVICE);
@@ -81,8 +82,6 @@ public class ClassService implements IService<Classes> {
             kafkaClassProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
         }
 
-        redisClassService.saveToRedis(newClasses, token, NAME_SERVICE);
-
         Groupss groupss = new Groupss();
         groupss.setClasses(newClasses);
         groupss.setGroupsAvgScore(0.00);
@@ -90,6 +89,8 @@ public class ClassService implements IService<Classes> {
         groupss.setGroupsName("unassigned");
         groupss.setGroupsLeaderId(redisClassService.getCurrentUserId(token));
         groupss = groupService.save(groupss, token);
+
+        redisClassService.saveToRedis(getById(newClasses.getClassesId(), token), token, NAME_SERVICE);
 
         return newClasses;
     }
@@ -113,7 +114,7 @@ public class ClassService implements IService<Classes> {
         List<Classes> classes = new ArrayList<>();
         switch (currentUserRole) {
             case "student":
-                classes = redisClassService.getAll(token, NAME_SERVICE);
+                // classes = redisClassService.getAll(token, NAME_SERVICE);
                 if (classes.isEmpty()) {
                     classes = classesRepo.findAllBySemesterIdNUserId(redisClassService.getCurrentUserId(token),
                             semesterId);
@@ -121,7 +122,7 @@ public class ClassService implements IService<Classes> {
                 }
                 break;
             case "lecturer":
-                classes = redisClassService.getAll(token, NAME_SERVICE);
+                // classes = redisClassService.getAll(token, NAME_SERVICE);
                 if (classes.isEmpty()) {
                     classes = classesRepo.findAllByLectureIdAndSemesterSemesterId(
                             redisClassService.getCurrentUserId(token), semesterId);
