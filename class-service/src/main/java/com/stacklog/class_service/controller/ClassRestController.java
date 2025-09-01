@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.stacklog.class_service.model.entities.Classes;
 import com.stacklog.class_service.model.service.ClassService;
 import com.stacklog.class_service.model.service.GroupsStudentService;
+import com.stacklog.class_service.model.service.SemesterService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +29,9 @@ public class ClassRestController {
     ClassService classService;
 
     @Autowired
+    SemesterService semesterService;
+
+    @Autowired
     GroupsStudentService groupsStudentService;
 
     @GetMapping("/{semesterId}")
@@ -39,7 +43,13 @@ public class ClassRestController {
 
     @PostMapping(path = "")
     public ResponseEntity<Classes> saveClasses(@RequestBody Classes classes,
-            @RequestHeader("Authorization") String token) {
+            @RequestHeader("Authorization") String token, @RequestParam(name = "semesterId", required = false) String semesterId) {
+        if (semesterId == null) {
+            if (semesterService.getById(semesterId, token) == null) {
+                return ResponseEntity.badRequest().body(null);
+            }
+            return ResponseEntity.badRequest().body(null);
+        }
         Classes newClasses = classService.save(classes, token);
         return ResponseEntity.ok(newClasses);
     }
