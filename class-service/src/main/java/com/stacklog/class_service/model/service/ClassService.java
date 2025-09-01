@@ -112,7 +112,7 @@ public class ClassService implements IService<Classes> {
 
         String currentUserRole = redisClassService.getCurrentRoleId(token);
         List<Classes> classes = new ArrayList<>();
-        switch (currentUserRole) {
+        switch (currentUserRole.toLowerCase()) {
             case "student":
                 // classes = redisClassService.getAll(token, NAME_SERVICE);
                 if (classes.isEmpty()) {
