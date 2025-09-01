@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 
 @RestController
-@RequestMapping(value = {"", "/"})
+@RequestMapping(value = "")
 public class SlotController {
     
     @Autowired
@@ -34,7 +34,7 @@ public class SlotController {
     @Autowired
     SlotAssignService slotAssignService;
 
-    @GetMapping("/user")
+    @GetMapping("/personal-schedule")
     public ResponseEntity<List<Slot>> getTasksByUserId(@RequestHeader("Authorization") String token) {
         List<Slot> lists = slotService.getAllByUserId(token);
         if (lists.isEmpty() || lists == null) {
@@ -43,7 +43,7 @@ public class SlotController {
         return ResponseEntity.ok().body(lists);
     }
 
-    @GetMapping("/group/{groupId}")
+    @GetMapping("/{groupId}")
     public ResponseEntity<List<Slot>> getTasksByGroupId(@RequestHeader("Authorization") String token, @PathVariable("groupId") String groupId) {
         List<Slot> lists = slotService.getAllByGroupId(token, groupId);
         if (lists.isEmpty() || lists == null) {
@@ -52,7 +52,7 @@ public class SlotController {
         return ResponseEntity.ok().body(lists);
     }
     
-    @PostMapping("")
+    @PostMapping("/save")
     public ResponseEntity<Slot> saveTask(@RequestHeader("Authorization") String token, @RequestBody SlotDTO e) {
         Slot slot = null;
         if (e.slotId == null || e.slotId.isBlank()) {
