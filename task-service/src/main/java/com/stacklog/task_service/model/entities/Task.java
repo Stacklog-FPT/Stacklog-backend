@@ -52,19 +52,19 @@ public class Task extends CoreEntity {
     @JsonBackReference("task-subtasks")
     private Task parentTask;
 
-    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("task-subtasks")
     private List<Task> subtasks;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("task-review")
     private List<Review> reviews;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("task-assigns")
     private List<TaskAssign> assigns;
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("task-checkLists")
     private List<CheckList> checkLists;
 
