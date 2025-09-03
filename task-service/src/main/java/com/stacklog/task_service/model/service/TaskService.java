@@ -155,6 +155,9 @@ public class TaskService implements IService<Task> {
         if (e.getCheckLists() != null && !e.getCheckLists().isEmpty()) {
             e.getCheckLists().stream().forEach(cl -> checkListService.save(cl, token));    
         }
+        if (e.getSubtasks() != null && !e.getSubtasks().isEmpty()) {
+            e.getSubtasks().stream().forEach(st -> saveToDB(st, token, (st.getTaskId() == null || !taskRepo.existsById(st.getTaskId()))));
+        }
 
         entityManager.flush();
         entityManager.clear();
