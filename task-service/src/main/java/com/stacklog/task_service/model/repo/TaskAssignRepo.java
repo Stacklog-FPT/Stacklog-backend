@@ -15,4 +15,6 @@ public interface TaskAssignRepo extends JpaRepository<TaskAssign, String> {
 
     public List<TaskAssign> findByTaskTaskId(String taskId);
 
+    boolean existsByTaskTaskIdAndAssignTo(String taskId, String assignTo);
+
 }
