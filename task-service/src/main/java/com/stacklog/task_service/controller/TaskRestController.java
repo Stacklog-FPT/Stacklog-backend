@@ -83,7 +83,7 @@ public class TaskRestController {
     @PostMapping("/save")
     public ResponseEntity<ResponseTask> saveTask(@RequestHeader("Authorization") String token, @RequestBody TaskDTO e) {
         Task task = new Task();
-        if (e.getTaskId() != null || e.getTaskId().isBlank()) {
+        if (e.getTaskId() != null || !e.getTaskId().isBlank()) {
             task.setTaskId(e.getTaskId());
         }
         task.setTaskTitle(e.getTaskTitle());
@@ -111,8 +111,9 @@ public class TaskRestController {
             }
         }
         task.setAssigns(assigns);
-        task.setCheckLists(new ArrayList<>());
-        task.setReviews(new ArrayList<>());
+        task.setCheckLists(e.getCheckLists());
+        task.setReviews(e.getReviews());
+        task.setSubtasks(e.getSubTasks());
         task = taskService.save(task, token);
         
 
@@ -149,6 +150,9 @@ class TaskDTO {
     private Priority priority;
     private String statusTaskId;
     private List<String> listUserAssign;
+    private List<Review> reviews;
+    private List<CheckList> checkLists;
+    private List<Task> subTasks;
     private String parentTaskId;
 }
 
