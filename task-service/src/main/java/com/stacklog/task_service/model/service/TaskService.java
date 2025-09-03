@@ -143,7 +143,7 @@ public class TaskService implements IService<Task> {
             e.setTaskId(UUID.randomUUID().toString());
         }
 
-        e = taskRepo.save(e);
+        e.setTaskId(taskRepo.save(e).getTaskId());
 
         // Cập nhật cache index tổng theo user
         redisTaskService.saveToRedis(e, token, NAME_SERVICE);
