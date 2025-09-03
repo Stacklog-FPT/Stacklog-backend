@@ -162,7 +162,13 @@ public class TaskService implements IService<Task> {
         entityManager.flush();
         entityManager.clear();
 
-        Task newTask = taskRepo.findById(e.getTaskId()).orElse(null);
+        Task newTask = new Task();
+        if (e.getParentTask() == null) {
+            newTask = taskRepo.findById(e.getTaskId()).orElse(null);
+        } else {
+            newTask = taskRepo.findById(e.getParentTask().getTaskId()).orElse(null);
+        }
+        
 
         // Cập nhật cache index tổng theo user
         redisTaskService.saveToRedis(newTask, token, NAME_SERVICE);
