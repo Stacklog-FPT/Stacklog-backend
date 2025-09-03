@@ -16,6 +16,8 @@ import com.stacklog.core_service.utils.redis.RedisService;
 import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.repo.TaskRepo;
 
+import jakarta.persistence.EntityManager;
+
 @Service
 public class TaskService implements IService<Task> {
 
@@ -39,6 +41,9 @@ public class TaskService implements IService<Task> {
     private SimpMessagingTemplate messagingTemplate;
     @Autowired
     private ClassServiceClient classServiceClient;
+
+    @Autowired
+    EntityManager entityManager;
 
     private final RedisService<Task> redisTaskService;
 
@@ -150,6 +155,9 @@ public class TaskService implements IService<Task> {
         if (e.getCheckLists() != null && !e.getCheckLists().isEmpty()) {
             e.getCheckLists().stream().forEach(cl -> checkListService.save(cl, token));    
         }
+
+        entityManager.flush();
+        entityManager.clear();
 
         Task newTask = taskRepo.findById(e.getTaskId()).orElse(null);
 
