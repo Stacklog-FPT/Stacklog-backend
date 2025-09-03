@@ -28,6 +28,12 @@ public class TaskService implements IService<Task> {
     @Autowired
     private TaskRepo taskRepo;
     @Autowired
+    private TaskAssignService taskAssignService;
+    @Autowired
+    private CheckListService checkListService;
+    @Autowired
+    private ReviewService reviewService;
+    @Autowired
     private KafkaProducer<Task> kafkaTaskProducer;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -134,6 +140,16 @@ public class TaskService implements IService<Task> {
         boolean isCreate = (e.getTaskId() == null || !taskRepo.existsById(e.getTaskId()));
 
         e = saveToDB(e, token, isCreate);
+
+        if (e.getAssigns() != null && !e.getAssigns().isEmpty()) {
+            e.getAssigns().stream().forEach(a -> taskAssignService.save(a, token));
+        }
+        if (e.getReviews() != null && !e.getReviews().isEmpty()) {
+            e.getReviews().stream().forEach(r -> reviewService.save(r, token));
+        }
+        if (e.getCheckLists() != null && !e.getCheckLists().isEmpty()) {
+            e.getCheckLists().stream().forEach(cl -> checkListService.save(cl, token));    
+        }
 
         e = taskRepo.findById(e.getTaskId()).get();
 
