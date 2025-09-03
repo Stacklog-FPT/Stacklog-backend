@@ -151,20 +151,20 @@ public class TaskService implements IService<Task> {
             e.getCheckLists().stream().forEach(cl -> checkListService.save(cl, token));    
         }
 
-        e = taskRepo.findById(e.getTaskId()).get();
+        Task newTask = taskRepo.findById(e.getTaskId()).orElse(null);
 
         // Cập nhật cache index tổng theo user
-        redisTaskService.saveToRedis(e, token, NAME_SERVICE);
+        redisTaskService.saveToRedis(newTask, token, NAME_SERVICE);
 
         // Nếu có group → cập nhật index theo group
         if (e.getGroupId() != null) {
-            String suffix = GROUP_SUFFIX_PREFIX + e.getGroupId();
-            redisTaskService.saveToRedisWithSuffix(e, token, NAME_SERVICE, suffix);
+            String suffix = GROUP_SUFFIX_PREFIX + newTask.getGroupId();
+            redisTaskService.saveToRedisWithSuffix(newTask, token, NAME_SERVICE, suffix);
         }
 
-        kafkaTaskProducer.sendMessage(e, isCreate ? KAFKA_TOPIC_CREATE : KAFKA_TOPIC_UPDATE);
+        kafkaTaskProducer.sendMessage(newTask, isCreate ? KAFKA_TOPIC_CREATE : KAFKA_TOPIC_UPDATE);
         messagingTemplate.convertAndSend("/topic/task-service", e);
-        return e;
+        return newTask;
     }
 
     @Transactional
