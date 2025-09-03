@@ -111,6 +111,8 @@ public class TaskRestController {
             }
         }
         task.setAssigns(assigns);
+        task.setCheckLists(new ArrayList<>());
+        task.setReviews(new ArrayList<>());
         task = taskService.save(task, token);
         
 
