@@ -28,6 +28,12 @@ public class TaskService implements IService<Task> {
     @Autowired
     private TaskRepo taskRepo;
     @Autowired
+    private TaskAssignService taskAssignService;
+    @Autowired
+    private CheckListService checkListService;
+    @Autowired
+    private ReviewService reviewService;
+    @Autowired
     private KafkaProducer<Task> kafkaTaskProducer;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -131,19 +137,15 @@ public class TaskService implements IService<Task> {
     @Override
     @Transactional
     public Task save(Task e, String token) {
-        LocalDateTime now = CommonFunction.getCurrentTime();
         boolean isCreate = (e.getTaskId() == null || !taskRepo.existsById(e.getTaskId()));
-        String currentUserId = redisTaskService.getCurrentUserId(token);
 
-        e.setUpdateAt(now);
-        e.setUpdateBy(currentUserId);
-        if (isCreate) {
-            e.setCreatedAt(now);
-            e.setCreatedBy(currentUserId);
-            e.setTaskId(UUID.randomUUID().toString());
-        }
+        e = saveToDB(e, token, isCreate);
 
-        e.setTaskId(taskRepo.save(e).getTaskId());
+        e.getAssigns().stream().forEach(a -> taskAssignService.save(a, token));
+        e.getReviews().stream().forEach(r -> reviewService.save(r, token));
+        e.getCheckLists().stream().forEach(cl -> checkListService.save(cl, token));
+
+        e = taskRepo.findById(e.getTaskId()).get();
 
         // Cập nhật cache index tổng theo user
         redisTaskService.saveToRedis(e, token, NAME_SERVICE);
@@ -156,6 +158,23 @@ public class TaskService implements IService<Task> {
 
         kafkaTaskProducer.sendMessage(e, isCreate ? KAFKA_TOPIC_CREATE : KAFKA_TOPIC_UPDATE);
         messagingTemplate.convertAndSend("/topic/task-service", e);
+        return e;
+    }
+
+    @Transactional
+    private Task saveToDB(Task e, String token, boolean isCreate) {
+        LocalDateTime now = CommonFunction.getCurrentTime();
+        String currentUserId = redisTaskService.getCurrentUserId(token);
+
+        e.setUpdateAt(now);
+        e.setUpdateBy(currentUserId);
+        if (isCreate) {
+            e.setCreatedAt(now);
+            e.setCreatedBy(currentUserId);
+            e.setTaskId(UUID.randomUUID().toString());
+        }
+
+        e.setTaskId(taskRepo.save(e).getTaskId());
         return e;
     }
 }
