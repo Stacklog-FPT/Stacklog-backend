@@ -12,7 +12,7 @@ import com.stacklog.task_service.model.entities.Task;
 @Repository
 public interface TaskRepo extends JpaRepository<Task, String> {
 
-    @Query("SELECT ta.task FROM TaskAssign ta WHERE ta.assignTo = :userId OR ta.task.createBy = :userId")
+    @Query("SELECT ta.task FROM TaskAssign ta WHERE ta.assignTo = :userId OR ta.task.createdBy = :userId")
     public List<Task> findByUserId(@Param("userId") String userId);
 
     @Query("""
