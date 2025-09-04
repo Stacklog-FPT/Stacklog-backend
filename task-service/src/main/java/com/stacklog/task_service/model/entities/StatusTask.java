@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -25,7 +26,7 @@ public class StatusTask extends CoreEntity {
     private String statusTaskColor;
     private String groupId;
 
-    @OneToMany(mappedBy = "statusTask")
+    @OneToMany(mappedBy = "statusTask", cascade = CascadeType.REMOVE)
     @JsonIgnore
     private List<Task> tasks;
 
