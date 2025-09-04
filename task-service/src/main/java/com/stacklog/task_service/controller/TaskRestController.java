@@ -110,6 +110,12 @@ public class TaskRestController {
                 assigns.add(taskAssign);
             }
         }
+        for (Review review : e.getReviews()) {
+            review.setTask(task);
+        }
+        for (CheckList checkList : e.getCheckLists()) {
+            checkList.setTask(task);
+        }
         task.setAssigns(assigns);
         task.setCheckLists(e.getCheckLists());
         task.setReviews(e.getReviews());
