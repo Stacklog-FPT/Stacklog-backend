@@ -74,6 +74,8 @@ public class SlotAssignService implements IService<SlotAssign> {
             e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisSlotService.getCurrentUserId(token));
             e.setSlotAssignId(UUID.randomUUID().toString());
+        } else {
+            e.setSlotAssignId(slotAssign.getSlotAssignId());
         }
         if (isCreate) {
             kafkaSlotProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
