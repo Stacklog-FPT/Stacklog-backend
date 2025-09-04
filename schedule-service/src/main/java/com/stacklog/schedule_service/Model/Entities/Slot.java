@@ -1,7 +1,6 @@
 package com.stacklog.schedule_service.model.entities;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -32,6 +31,6 @@ public class Slot extends CoreEntity {
 
     @OneToMany(mappedBy = "slot", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonManagedReference("slot-assign") 
-    private List<SlotAssign> slotAssigns = new ArrayList<>();
+    private List<SlotAssign> slotAssigns;
 
 }
