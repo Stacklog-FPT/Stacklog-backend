@@ -14,6 +14,6 @@ public interface SlotAssignRepo extends JpaRepository<SlotAssign, String> {
 
     List<SlotAssign> findBySlotSlotId(String slotId);
 
-    SlotAssign findBySlotIdAndUserId(String slotId, String userId);
+    SlotAssign findBySlotSlotIdAndUserId(String slotId, String userId);
     
 }
