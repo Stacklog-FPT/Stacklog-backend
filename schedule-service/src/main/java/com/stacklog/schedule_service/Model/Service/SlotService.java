@@ -15,6 +15,8 @@ import com.stacklog.core_service.utils.redis.RedisService;
 import com.stacklog.schedule_service.model.entities.Slot;
 import com.stacklog.schedule_service.model.repo.SlotRepo;
 
+import jakarta.persistence.EntityManager;
+
 @Service
 public class SlotService implements IService<Slot> {
 
@@ -23,13 +25,20 @@ public class SlotService implements IService<Slot> {
     private static final String KAFKA_TOPIC_UPDATE = "schedule-service.slot.updated";
     private static final String KAFKA_TOPIC_CREATE = "schedule-service.slot.created";
 
-    @Autowired SlotRepo slotRepo;
+    @Autowired
+    private SlotRepo slotRepo;
+
+    @Autowired
+    private SlotAssignService slotAssignService;
 
     @Autowired
     private KafkaProducer<Slot> kafkaSlotProducer;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+
+    @Autowired
+    private EntityManager entityManager;
 
     RedisService<Slot> redisSlotService;
 
@@ -50,7 +59,7 @@ public class SlotService implements IService<Slot> {
         if (slotes.isEmpty()) {
             slotes = slotRepo.findByUserId(redisSlotService.getCurrentUserId(token));
             redisSlotService.saveListToRedis(slotes, token, NAME_SERVICE);
-        } 
+        }
         return slotes;
     }
 
@@ -75,17 +84,23 @@ public class SlotService implements IService<Slot> {
             e.setCreatedBy(redisSlotService.getCurrentUserId(token));
             e.setSlotId(UUID.randomUUID().toString());
         }
-        if (isCreate) {
-            kafkaSlotProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
-        } else {
-            kafkaSlotProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
+
+        e = slotRepo.save(e);
+        if (e.getSlotAssigns() != null && !e.getSlotAssigns().isEmpty()) {
+            e.getSlotAssigns().stream().forEach(sl -> slotAssignService.save(sl, token));
         }
 
-        redisSlotService.saveToRedis(e, token, NAME_SERVICE);
+        entityManager.flush();
+        entityManager.clear();
 
-        messagingTemplate.convertAndSend("/topic/task-service", e);
+        Slot newSlot = new Slot();
+        newSlot = slotRepo.findById(e.getSlotId()).orElseThrow();
 
-        slotRepo.save(e);
+        redisSlotService.saveToRedis(newSlot, token, NAME_SERVICE);
+
+        kafkaSlotProducer.sendMessage(newSlot, isCreate ? KAFKA_TOPIC_CREATE : KAFKA_TOPIC_UPDATE);
+
+        messagingTemplate.convertAndSend("/topic/task-service", newSlot);
 
         return e;
     }
@@ -98,5 +113,5 @@ public class SlotService implements IService<Slot> {
         }
         return slots;
     }
-    
+
 }
