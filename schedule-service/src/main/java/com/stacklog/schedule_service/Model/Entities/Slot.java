@@ -29,7 +29,7 @@ public class Slot extends CoreEntity {
 
     private String groupId;
 
-    @OneToMany(mappedBy = "slot", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "slot", cascade = CascadeType.REMOVE)
     @JsonManagedReference("slot-assign") 
     private List<SlotAssign> slotAssigns;
 

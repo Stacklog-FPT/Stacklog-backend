@@ -64,13 +64,15 @@ public class SlotController {
         slot.setSlotDescription(e.slotDescription);
         slot.setSlotStarTime(e.slotStarTime);
         slot.setGroupId(e.groupId);
-        slot = slotService.save(slot, token);
+        List<SlotAssign> slotAssigns = new ArrayList<>();
         for (String userId : e.userIdAssigns) {
             SlotAssign slotAssign = new SlotAssign();
             slotAssign.setSlot(slot);
             slotAssign.setUserId(userId);
-            slotAssignService.save(slotAssign, token);   
+            slotAssigns.add(slotAssign);   
         }
+        slot.setSlotAssigns(slotAssigns);
+        slot = slotService.save(slot, token);
         if (slot == null) {
             return ResponseEntity.badRequest().build();
         }

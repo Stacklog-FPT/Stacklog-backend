@@ -81,11 +81,11 @@ public class SlotAssignService implements IService<SlotAssign> {
             kafkaSlotProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
         }
 
+        e = slotAssignRepo.save(e);
+
         redisSlotService.saveToRedis(e, token, NAME_SERVICE);
 
         messagingTemplate.convertAndSend("/topic/schedule-service", e);
-
-        slotAssignRepo.save(e);
 
         return e;
     }
