@@ -95,12 +95,7 @@ public class TaskRestController {
         task.setTaskDueDate(e.getTaskDueDate());
         task.setPriority(e.getPriority());
         task.setStatusTask(statusTaskService.getById(e.getStatusTaskId(), token));
-        if (e.getParentTaskId() != null && !e.getParentTaskId().isBlank()) {
-            Task parent = taskService.getById(e.getParentTaskId(), token);
-            task.setParentTask(parent);
-        } else {
-            task.setParentTask(null);
-        }
+        task.setParentTask(null);
         List<TaskAssign> assigns = new ArrayList<>();
         if (e.getListUserAssign() != null && !e.getListUserAssign().isEmpty()) {
             for (String userId : e.getListUserAssign()) {
@@ -140,6 +135,45 @@ public class TaskRestController {
         return ResponseEntity.ok().body("Delete success");
     }
 
+    @PostMapping("/subtask/save")
+    public ResponseEntity<ResponseTask> saveSubTask(@RequestHeader("Authorization") String token, @RequestBody SubTaskDTO e) {
+        Task task = new Task();
+        if (e.getTaskId() != null || !e.getTaskId().isBlank()) {
+            task.setTaskId(e.getTaskId());
+        }
+        task.setTaskTitle(e.getTaskTitle());
+        task.setTaskDescription(e.getTaskDescription());
+        task.setGroupId(e.getGroupId());
+        task.setDocumentId(e.getDocumentId());
+        task.setTaskPoint(e.getTaskPoint());
+        task.setTaskStartTime(e.getTaskStartTime());
+        task.setTaskDueDate(e.getTaskDueDate());
+        task.setPriority(e.getPriority());
+        task.setStatusTask(statusTaskService.getById(e.getStatusTaskId(), token));
+        if (e.getParentTaskId() != null && !e.getParentTaskId().isBlank()) {
+            Task parent = taskService.getById(e.getParentTaskId(), token);
+            task.setParentTask(parent);
+        } else {
+            return ResponseEntity.status(459).body(new ResponseTask(task));
+        }
+        List<TaskAssign> assigns = new ArrayList<>();
+        if (e.getListUserAssign() != null && !e.getListUserAssign().isEmpty()) {
+            for (String userId : e.getListUserAssign()) {
+                TaskAssign taskAssign = new TaskAssign();
+                taskAssign.setAssignTo(userId);
+                taskAssign.setTask(task);
+                assigns.add(taskAssign);
+            }
+        }
+        task = taskService.save(task, token);
+        if (task == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        task = taskService.getById(task.getTaskId(), token);
+        return ResponseEntity.ok().body(new ResponseTask(task));
+    }
+    
+
 }
 
 @Getter
@@ -159,6 +193,22 @@ class TaskDTO {
     private List<Review> reviews;
     private List<CheckList> checkLists;
     private List<Task> subTasks;
+}
+
+@Getter
+@Setter
+class SubTaskDTO {
+    private String taskId;
+    private String taskTitle;
+    private String taskDescription;
+    private String groupId;
+    private String documentId;
+    private Integer taskPoint;
+    private LocalDateTime taskStartTime;
+    private LocalDateTime taskDueDate;
+    private Priority priority;
+    private String statusTaskId;
+    private List<String> listUserAssign;
     private String parentTaskId;
 }
 
