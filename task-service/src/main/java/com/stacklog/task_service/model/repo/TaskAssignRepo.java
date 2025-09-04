@@ -12,19 +12,12 @@ import com.stacklog.task_service.model.entities.TaskAssign;
 @Repository
 public interface TaskAssignRepo extends JpaRepository<TaskAssign, String> {
 
-    public List<TaskAssign> findByAssignTo(String assignTo);
+        public List<TaskAssign> findByAssignTo(String assignTo);
 
-    public List<TaskAssign> findByTaskTaskId(String taskId);
+        public List<TaskAssign> findByTaskTaskId(String taskId);
 
-    @Query(value = """
-            SELECT EXISTS (
-              SELECT 1
-              FROM task_assign ta
-              WHERE ta.task_id = :taskId
-                AND ta.assign_to = :assignTo
-            )
-            """, nativeQuery = true)
-    Long existsByTaskIdAndAssignTo(@Param("taskId") String taskId,
-            @Param("assignTo") String assignTo);
+        @Query(value = " SELECT task_assign FROM task_assign ta WHERE ta.task_id=:taskId AND ta.assign_to=:assignTo", nativeQuery = true)
+        TaskAssign findByTaskIdAndAssignTo(@Param("taskId") String taskId,
+                        @Param("assignTo") String assignTo);
 
 }

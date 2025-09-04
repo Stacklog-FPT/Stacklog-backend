@@ -53,7 +53,6 @@ public class TaskAssignService implements IService<TaskAssign> {
         return taskAssigns;
     }
 
-    
     @Override
     public TaskAssign getById(String id, String token) {
         TaskAssign taskAssign = redisTaskAssignService.getById(id, token, NAME_SERVICE);
@@ -67,13 +66,16 @@ public class TaskAssignService implements IService<TaskAssign> {
     @Override
     @Transactional
     public TaskAssign save(TaskAssign e, String token) {
-        boolean isCreate = !(taskAssignRepo.existsByTaskIdAndAssignTo(e.getTask().getTaskId(), e.getAssignTo()) > 0);
+        boolean isCreate = (taskAssignRepo.findByTaskIdAndAssignTo(e.getTask().getTaskId(), e.getAssignTo()) == null);
         e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisTaskAssignService.getCurrentUserId(token));
-        if (e.getTaskAssignId() == null) {
+        if (isCreate) {
             e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisTaskAssignService.getCurrentUserId(token));
             e.setTaskAssignId(UUID.randomUUID().toString());
+        } else {
+            e.setTaskAssignId(
+                    taskAssignRepo.findByTaskIdAndAssignTo(e.getTask().getTaskId(), e.getAssignTo()).getTaskAssignId());
         }
         if (isCreate) {
             taskAssignProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
@@ -94,5 +96,5 @@ public class TaskAssignService implements IService<TaskAssign> {
         List<TaskAssign> taskAssigns = taskAssignRepo.findByTaskTaskId(taskId);
         return taskAssigns;
     }
-    
+
 }
