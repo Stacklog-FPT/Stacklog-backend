@@ -67,7 +67,7 @@ public class TaskAssignService implements IService<TaskAssign> {
     @Override
     @Transactional
     public TaskAssign save(TaskAssign e, String token) {
-        boolean isCreate = !taskAssignRepo.existsByTaskIdAndAssignTo(e.getTask().getTaskId(), e.getAssignTo());
+        boolean isCreate = !(taskAssignRepo.existsByTaskIdAndAssignTo(e.getTask().getTaskId(), e.getAssignTo()) > 0);
         e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisTaskAssignService.getCurrentUserId(token));
         if (e.getTaskAssignId() == null) {
