@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
 import jakarta.persistence.CascadeType;
@@ -31,7 +31,7 @@ public class Slot extends CoreEntity {
     private String groupId;
 
     @OneToMany(mappedBy = "slot", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @JsonBackReference 
+    @JsonManagedReference("slot-assign") 
     private List<SlotAssign> slotAssigns = new ArrayList<>();
 
 }

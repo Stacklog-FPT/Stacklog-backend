@@ -2,6 +2,8 @@ package com.stacklog.schedule_service.model.entities;
 
 import com.stacklog.core_service.model.entities.CoreEntity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -23,6 +25,7 @@ public class SlotAssign extends CoreEntity {
 
     @ManyToOne
     @JoinColumn(name = "slotId")
+    @JsonBackReference("slot-assign")
     private Slot slot;
 
 }
