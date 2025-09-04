@@ -24,7 +24,7 @@ public interface TaskAssignRepo extends JpaRepository<TaskAssign, String> {
                 AND ta.assign_to = :assignTo
             )
             """, nativeQuery = true)
-    boolean existsByTaskIdAndAssignTo(@Param("taskId") String taskId,
+    Long existsByTaskIdAndAssignTo(@Param("taskId") String taskId,
             @Param("assignTo") String assignTo);
 
 }
