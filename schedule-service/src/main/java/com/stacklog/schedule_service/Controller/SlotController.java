@@ -55,12 +55,8 @@ public class SlotController {
     
     @PostMapping("/save")
     public ResponseEntity<Slot> saveTask(@RequestHeader("Authorization") String token, @RequestBody SlotDTO e) {
-        Slot slot = null;
-        if (e.slotId == null || e.slotId.isBlank()) {
-            slot = new Slot();
-        } else {
-            slot = slotService.getById(e.slotId, token);
-        }
+        Slot slot = new Slot();
+        slot.setSlotId(e.getSlotId());
         slot.setSlotTitle(e.slotTitle);
         slot.setSlotDescription(e.slotDescription);
         slot.setSlotStarTime(e.slotStarTime);
