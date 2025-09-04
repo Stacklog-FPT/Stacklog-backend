@@ -85,7 +85,7 @@ public class SlotService implements IService<Slot> {
             e.setSlotId(UUID.randomUUID().toString());
         }
 
-        e = slotRepo.save(e);
+        e.setSlotId(slotRepo.save(e).getSlotId());
         if (e.getSlotAssigns() != null && !e.getSlotAssigns().isEmpty()) {
             e.getSlotAssigns().stream().forEach(sl -> slotAssignService.save(sl, token));
         }
