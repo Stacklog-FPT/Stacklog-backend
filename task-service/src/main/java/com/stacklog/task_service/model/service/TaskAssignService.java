@@ -66,7 +66,8 @@ public class TaskAssignService implements IService<TaskAssign> {
     @Override
     @Transactional
     public TaskAssign save(TaskAssign e, String token) {
-        boolean isCreate = (taskAssignRepo.findByTaskIdAndAssignTo(e.getTask().getTaskId(), e.getAssignTo()) == null);
+        TaskAssign taskAssign = taskAssignRepo.findByTaskTaskIdAndAssignTo(e.getTask().getTaskId(), e.getAssignTo());
+        boolean isCreate = (taskAssign == null);
         e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisTaskAssignService.getCurrentUserId(token));
         if (isCreate) {
@@ -74,8 +75,7 @@ public class TaskAssignService implements IService<TaskAssign> {
             e.setCreatedBy(redisTaskAssignService.getCurrentUserId(token));
             e.setTaskAssignId(UUID.randomUUID().toString());
         } else {
-            e.setTaskAssignId(
-                    taskAssignRepo.findByTaskIdAndAssignTo(e.getTask().getTaskId(), e.getAssignTo()).getTaskAssignId());
+            e.setTaskAssignId(taskAssign.getTaskAssignId());
         }
         if (isCreate) {
             taskAssignProducer.sendMessage(e, KAFKA_TOPIC_CREATE);

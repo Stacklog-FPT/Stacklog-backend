@@ -3,7 +3,6 @@ package com.stacklog.task_service.model.repo;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -16,8 +15,7 @@ public interface TaskAssignRepo extends JpaRepository<TaskAssign, String> {
 
         public List<TaskAssign> findByTaskTaskId(String taskId);
 
-        @Query(value = " SELECT task_assign FROM task_assign ta WHERE ta.task_id=:taskId AND ta.assign_to=:assignTo", nativeQuery = true)
-        TaskAssign findByTaskIdAndAssignTo(@Param("taskId") String taskId,
+        TaskAssign findByTaskTaskIdAndAssignTo(@Param("taskId") String taskId,
                         @Param("assignTo") String assignTo);
 
 }
