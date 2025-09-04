@@ -66,7 +66,7 @@ public class SlotAssignService implements IService<SlotAssign> {
     @Override
     @Transactional
     public SlotAssign save(SlotAssign e, String token) {
-        SlotAssign slotAssign = slotAssignRepo.findBySlotIdAndUserId(e.getSlot().getSlotId(), e.getUserId());
+        SlotAssign slotAssign = slotAssignRepo.findBySlotSlotIdAndUserId(e.getSlot().getSlotId(), e.getUserId());
         boolean isCreate = slotAssign == null;
         e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisSlotService.getCurrentUserId(token));
