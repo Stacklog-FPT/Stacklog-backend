@@ -66,10 +66,11 @@ public class SlotAssignService implements IService<SlotAssign> {
     @Override
     @Transactional
     public SlotAssign save(SlotAssign e, String token) {
-        boolean isCreate = (e.getSlotAssignId() == null || !slotAssignRepo.existsById(e.getSlotAssignId()));
+        SlotAssign slotAssign = slotAssignRepo.findBySlotIdAndUserId(e.getSlot().getSlotId(), e.getUserId());
+        boolean isCreate = slotAssign == null;
         e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisSlotService.getCurrentUserId(token));
-        if (e.getSlotAssignId() == null || e.getSlotAssignId().isBlank()) {
+        if (isCreate) {
             e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisSlotService.getCurrentUserId(token));
             e.setSlotAssignId(UUID.randomUUID().toString());
