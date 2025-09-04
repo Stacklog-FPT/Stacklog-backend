@@ -11,5 +11,7 @@ import com.stacklog.task_service.model.entities.StatusTask;
 public interface StatusTaskRepo extends JpaRepository<StatusTask, String> {
 
     List<StatusTask> findAllByGroupId(String groupId);
+
+    List<StatusTask> findByCreatedBy(String userId);
     
 }

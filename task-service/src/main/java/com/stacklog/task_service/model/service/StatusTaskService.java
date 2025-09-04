@@ -20,6 +20,8 @@ public class StatusTaskService implements IService<StatusTask> {
 
     private static final String NAME_SERVICE = "task-service";
 
+    private static final String GROUP_SUFFIX_PREFIX = "group:";
+
     private static final String KAFKA_TOPIC_UPDATE = "task-service.statustask.updated";
     private static final String KAFKA_TOPIC_CREATE = "task-service.statustask.created";
 
@@ -40,8 +42,22 @@ public class StatusTaskService implements IService<StatusTask> {
 
     @Override
     public StatusTask delete(String id, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        StatusTask statusTask = statusTaskRepo.findById(id).orElseThrow();
+        String userId = redisStatusTaskService.getCurrentUserId(token);
+
+        statusTaskRepo.deleteById(id);
+
+        List<StatusTask> byUser = statusTaskRepo.findByCreatedBy(userId);
+        redisStatusTaskService.saveListToRedis(byUser, token, NAME_SERVICE);
+
+        if (statusTask.getGroupId() != null) {
+            String suffix = GROUP_SUFFIX_PREFIX + statusTask.getGroupId();
+            List<StatusTask> byGroup = statusTaskRepo.findAllByGroupId(statusTask.getGroupId());
+            redisStatusTaskService.saveListToRedisWithSuffix(byGroup, token, NAME_SERVICE, suffix);
+        }
+
+        return statusTask;
+
     }
 
     @Override
@@ -80,13 +96,15 @@ public class StatusTaskService implements IService<StatusTask> {
             e.setCreatedBy(redisStatusTaskService.getCurrentUserId(token));
             e.setStatusTaskId(UUID.randomUUID().toString());
         }
-        if (isCreate) {
-            statusTaskProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
-        } else {
-            statusTaskProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
+
+        if (e.getGroupId() != null) {
+            String suffix = GROUP_SUFFIX_PREFIX + e.getGroupId();
+            redisStatusTaskService.saveToRedisWithSuffix(e, token, NAME_SERVICE, suffix);
         }
 
         redisStatusTaskService.saveToRedis(e, token, NAME_SERVICE);
+
+        statusTaskProducer.sendMessage(e, isCreate ? KAFKA_TOPIC_CREATE : KAFKA_TOPIC_UPDATE);
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
