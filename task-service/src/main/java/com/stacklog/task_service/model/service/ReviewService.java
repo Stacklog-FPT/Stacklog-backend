@@ -96,6 +96,8 @@ public class ReviewService implements IService<Review> {
 
         redisReviewService.saveToRedis(e, token, NAME_SERVICE);
 
+        
+
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
         e = reviewRepo.save(e);

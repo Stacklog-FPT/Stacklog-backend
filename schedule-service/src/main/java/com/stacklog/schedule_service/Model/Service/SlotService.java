@@ -50,6 +50,7 @@ public class SlotService implements IService<Slot> {
     public Slot delete(String id, String token) {
         Slot slot = getById(id, token);
         slotRepo.delete(slot);
+        getAllByUserId(token);
         return slot;
     }
 

@@ -21,6 +21,7 @@ import com.stacklog.task_service.model.entities.Task.Priority;
 import com.stacklog.task_service.model.service.StatusTaskService;
 import com.stacklog.task_service.model.service.TaskAssignService;
 import com.stacklog.task_service.model.service.TaskService;
+import com.stacklog.task_service.payload.ResponseTask;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -212,48 +213,3 @@ class SubTaskDTO {
     private String parentTaskId;
 }
 
-@Getter
-@Setter
-class ResponseTask {
-    private String taskId;
-    private String taskTitle;
-    private String taskDescription;
-    private String groupId;
-    private String documentId;
-    private Integer taskPoint;
-    private LocalDateTime taskStartTime;
-    private LocalDateTime taskDueDate;
-    private Priority priority;
-    private List<Task> subtasks;
-    private List<Review> reviews;
-    private String statusTaskId;
-    private List<CheckList> checkLists;
-    private List<String> assignTo;
-
-    public ResponseTask(Task task) {
-        this.taskId = task.getTaskId();
-        this.taskTitle = task.getTaskTitle();
-        this.taskDescription = task.getTaskDescription();
-        this.groupId = task.getGroupId();
-        this.documentId = task.getDocumentId();
-        this.taskPoint = task.getTaskPoint();
-        this.taskStartTime = task.getTaskStartTime();
-        this.taskDueDate = task.getTaskDueDate();
-        this.priority = task.getPriority();
-        this.subtasks = task.getSubtasks();
-        this.reviews = task.getReviews();
-        this.statusTaskId = task.getStatusTask().getStatusTaskId();
-        this.checkLists = task.getCheckLists();
-        this.assignTo = convertAssignsToAssignTo(task.getAssigns());
-    }
-
-    private List<String> convertAssignsToAssignTo(List<TaskAssign> taskAssigns) {
-        List<String> assignTo = new ArrayList<>();
-        if (taskAssigns == null || taskAssigns.isEmpty()) {
-            return new ArrayList<>();
-        }
-        taskAssigns.stream().forEach(ta -> assignTo.add(ta.getAssignTo()));
-        return assignTo;
-    }
-
-}

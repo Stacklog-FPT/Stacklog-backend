@@ -125,15 +125,12 @@ public class TaskService implements IService<Task> {
 
     @Override
     public Task getById(String id, String token) {
-        Task task = redisTaskService.getById(id, token, NAME_SERVICE);
-        if (task == null) {
-            task = taskRepo.findById(id).orElse(null);
-            if (task != null) {
-                redisTaskService.saveToRedis(task, token, NAME_SERVICE);
-                if (task.getGroupId() != null) {
-                    String suffix = GROUP_SUFFIX_PREFIX + task.getGroupId();
-                    redisTaskService.saveToRedisWithSuffix(task, token, NAME_SERVICE, suffix);
-                }
+        Task task = taskRepo.findById(id).orElse(null);
+        if (task != null) {
+            redisTaskService.saveToRedis(task, token, NAME_SERVICE);
+            if (task.getGroupId() != null) {
+                String suffix = GROUP_SUFFIX_PREFIX + task.getGroupId();
+                redisTaskService.saveToRedisWithSuffix(task, token, NAME_SERVICE, suffix);
             }
         }
         return task;
@@ -153,10 +150,11 @@ public class TaskService implements IService<Task> {
             e.getReviews().stream().forEach(r -> reviewService.save(r, token));
         }
         if (e.getCheckLists() != null && !e.getCheckLists().isEmpty()) {
-            e.getCheckLists().stream().forEach(cl -> checkListService.save(cl, token));    
+            e.getCheckLists().stream().forEach(cl -> checkListService.save(cl, token));
         }
         if (e.getSubtasks() != null && !e.getSubtasks().isEmpty()) {
-            e.getSubtasks().stream().forEach(st -> saveToDB(st, token, (st.getTaskId() == null || !taskRepo.existsById(st.getTaskId()))));
+            e.getSubtasks().stream().forEach(
+                    st -> saveToDB(st, token, (st.getTaskId() == null || !taskRepo.existsById(st.getTaskId()))));
         }
 
         entityManager.flush();
@@ -168,7 +166,6 @@ public class TaskService implements IService<Task> {
         } else {
             newTask = taskRepo.findById(e.getParentTask().getTaskId()).orElse(null);
         }
-        
 
         // Cập nhật cache index tổng theo user
         redisTaskService.saveToRedis(newTask, token, NAME_SERVICE);

@@ -23,7 +23,11 @@ public class CheckListService implements IService<CheckList> {
     private static final String KAFKA_TOPIC_UPDATE = "task-service.checklist.updated";
     private static final String KAFKA_TOPIC_CREATE = "task-service.checklist.created";
 
-    @Autowired CheckListRepo checkListRepo;
+    @Autowired
+    CheckListRepo checkListRepo;
+    
+    @Autowired
+    private CheckItemService checkItemService;
 
     @Autowired
     KafkaProducer<CheckList> checkListProducer;
@@ -39,8 +43,9 @@ public class CheckListService implements IService<CheckList> {
 
     @Override
     public CheckList delete(String id, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        CheckList checkList = checkListRepo.findById(id).orElseThrow();
+        checkListRepo.deleteById(id);
+        return checkList;
     }
 
     @Override
@@ -79,19 +84,22 @@ public class CheckListService implements IService<CheckList> {
             e.setCreatedBy(redisCheckListService.getCurrentUserId(token));
             e.setCheckListId(UUID.randomUUID().toString());
         }
-        if (isCreate) {
-            checkListProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
-        } else {
-            checkListProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
+
+        e.setCheckListId(checkListRepo.save(e).getCheckListId());
+
+        if (e.getListItems() != null && e.getListItems().isEmpty()) {
+            e.getListItems().stream().forEach(item -> checkItemService.save(item, token));
         }
 
-        redisCheckListService.saveToRedis(e, token, NAME_SERVICE);
+        CheckList newCheckList = checkListRepo.findById(e.getCheckListId()).orElseThrow();
+
+        redisCheckListService.saveToRedis(newCheckList, token, NAME_SERVICE);
+
+        checkListProducer.sendMessage(newCheckList, isCreate ? KAFKA_TOPIC_CREATE : KAFKA_TOPIC_UPDATE);
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
-        e = checkListRepo.save(e);
-
         return e;
     }
-    
+
 }

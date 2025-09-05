@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.stacklog.task_service.model.entities.Review;
 import com.stacklog.task_service.model.service.ReviewService;
 import com.stacklog.task_service.model.service.TaskService;
+import com.stacklog.task_service.payload.ResponseTask;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,7 +43,7 @@ public class ReviewRestController {
     }
     
     @PostMapping("")
-    public ResponseEntity<Review> saveReview(@RequestHeader("Authorization") String token, @RequestBody ReviewDTO e) {
+    public ResponseEntity<ResponseTask> saveReview(@RequestHeader("Authorization") String token, @RequestBody ReviewDTO e) {
         Review review = null;
         if (e.reviewId == null || e.reviewId.isEmpty()) {
             review = new Review();
@@ -55,7 +56,7 @@ public class ReviewRestController {
         if (review == null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.ok().body(review);
+        return ResponseEntity.ok().body(new ResponseTask(taskService.getById(e.getTaskId(), token)));
     }
     
     @DeleteMapping("/delete/{reviewId}")
