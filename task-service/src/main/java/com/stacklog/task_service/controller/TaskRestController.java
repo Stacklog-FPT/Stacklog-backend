@@ -170,7 +170,6 @@ public class TaskRestController {
         if (task == null) {
             return ResponseEntity.badRequest().build();
         }
-        task = taskService.getById(task.getTaskId(), token);
         return ResponseEntity.ok().body(new ResponseTask(task));
     }
     
