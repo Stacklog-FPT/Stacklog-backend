@@ -59,7 +59,7 @@ public class SlotController {
         slot.setSlotId(e.getSlotId());
         slot.setSlotTitle(e.slotTitle);
         slot.setSlotDescription(e.slotDescription);
-        slot.setSlotStarTime(e.slotStartTime);
+        slot.setSlotStartTime(e.slotStartTime);
         slot.setGroupId(e.groupId);
         List<SlotAssign> slotAssigns = new ArrayList<>();
         for (String userId : e.userIdAssigns) {

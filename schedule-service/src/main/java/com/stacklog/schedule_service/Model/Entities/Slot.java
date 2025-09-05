@@ -25,7 +25,7 @@ public class Slot extends CoreEntity {
 
     private String slotTitle;
     private String slotDescription;
-    private LocalDateTime slotStarTime;
+    private LocalDateTime slotStartTime;
 
     private String groupId;
 
