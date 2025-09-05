@@ -59,7 +59,7 @@ public class SlotController {
         slot.setSlotId(e.getSlotId());
         slot.setSlotTitle(e.slotTitle);
         slot.setSlotDescription(e.slotDescription);
-        slot.setSlotStarTime(e.slotStarTime);
+        slot.setSlotStarTime(e.slotStartTime);
         slot.setGroupId(e.groupId);
         List<SlotAssign> slotAssigns = new ArrayList<>();
         for (String userId : e.userIdAssigns) {
@@ -93,7 +93,7 @@ class SlotDTO {
     String slotId;
     String slotTitle;
     String slotDescription;
-    LocalDateTime slotStarTime;
+    LocalDateTime slotStartTime;
     String groupId;
     List<String> userIdAssigns;
 }
