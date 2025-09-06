@@ -18,6 +18,8 @@ import com.stacklog.task_service.model.repo.CheckListRepo;
 @Service
 public class CheckListService implements IService<CheckList> {
 
+    
+
     private static final String NAME_SERVICE = "task-service";
 
     private static final String KAFKA_TOPIC_UPDATE = "task-service.checklist.updated";
@@ -25,9 +27,7 @@ public class CheckListService implements IService<CheckList> {
 
     @Autowired
     CheckListRepo checkListRepo;
-    
-    @Autowired
-    private CheckItemService checkItemService;
+    @Autowired private CheckItemService checkItemService;
 
     @Autowired
     KafkaProducer<CheckList> checkListProducer;
