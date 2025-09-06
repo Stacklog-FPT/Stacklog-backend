@@ -50,7 +50,9 @@ public class SlotService implements IService<Slot> {
     public Slot delete(String id, String token) {
         Slot slot = getById(id, token);
         slotRepo.delete(slot);
-        getAllByUserId(token);
+        List<Slot> slots = redisSlotService.getAll(token, NAME_SERVICE);
+        slots.remove(slot);
+        redisSlotService.saveListToRedis(slots, token, NAME_SERVICE);
         return slot;
     }
 
@@ -103,7 +105,7 @@ public class SlotService implements IService<Slot> {
 
         messagingTemplate.convertAndSend("/topic/task-service", newSlot);
 
-        return e;
+        return newSlot;
     }
 
     public List<Slot> getAllByGroupId(String token, String groupId) {
