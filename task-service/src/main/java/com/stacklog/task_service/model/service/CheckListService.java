@@ -87,7 +87,7 @@ public class CheckListService implements IService<CheckList> {
 
         e.setCheckListId(checkListRepo.save(e).getCheckListId());
 
-        if (e.getListItems() != null && e.getListItems().isEmpty()) {
+        if (e.getListItems() != null && !e.getListItems().isEmpty()) {
             e.getListItems().stream().forEach(item -> checkItemService.save(item, token));
         }
 
