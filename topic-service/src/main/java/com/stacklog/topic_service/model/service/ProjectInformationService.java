@@ -58,12 +58,13 @@ public class ProjectInformationService implements IService<ProjectInformation> {
 
     @Override
     public List<ProjectInformation> getAllByUserId(String token) {
-        List<ProjectInformation> lists = redisPIService.getAll(token, NAME_SERVICE);
-        if (lists == null || lists.isEmpty()) {
-            lists = piRepo.findAllByUserId(redisPIService.getCurrentUserId(token));
-            redisPIService.saveListToRedis(lists, token, NAME_SERVICE);
-        }
-        return lists;
+        // List<ProjectInformation> lists = redisPIService.getAll(token, NAME_SERVICE);
+        // if (lists == null || lists.isEmpty()) {
+        //     lists = piRepo.findAllByUserId(redisPIService.getCurrentUserId(token));
+        //     redisPIService.saveListToRedis(lists, token, NAME_SERVICE);
+        // }
+        // return lists;
+        return null;
     }
 
     public ProjectInformation getByGroupId(String groupId, String token) {
@@ -89,7 +90,7 @@ public class ProjectInformationService implements IService<ProjectInformation> {
         String userId = redisPIService.getCurrentUserId(token);
 
         // 3) query DB 1 lần cho tất cả group
-        List<ProjectInformation> piList = piRepo.findAllByGroupIds(userId, groupIds);
+        List<ProjectInformation> piList = piRepo.findAllByGroupIds(groupIds);
 
         // 4) warm cache theo group để lần sau nhanh hơn
         for (String gid : groupIds) {
@@ -112,6 +113,7 @@ public class ProjectInformationService implements IService<ProjectInformation> {
     }
 
     @Override
+    @Transactional
     public ProjectInformation save(ProjectInformation e, String token) {
         boolean isCreate = (e.getPiId() == null || !piRepo.existsById(e.getPiId()));
 

@@ -13,16 +13,13 @@ import com.stacklog.topic_service.model.entities.ProjectInformation;
 @Repository
 public interface ProjectInformationRepo extends JpaRepository<ProjectInformation, String> {
 
-    List<ProjectInformation> findAllByUserId(String currentUserId);
-
     Optional<ProjectInformation> findByGroupId(String groupId);
 
     @Query("""
-            select distinct t
+            select distinct pi
             from ProjectInformation pi
-            WHERE t.groupId in :groupIds
+            WHERE pi.groupId in :groupIds
             """)
-    List<ProjectInformation> findAllByGroupIds(@Param("userId") String userId,
-            @Param("groupIds") List<String> groupIds);
+    List<ProjectInformation> findAllByGroupIds(@Param("groupIds") List<String> groupIds);
 
 }
