@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @FeignClient(name = "class-service", url = "http://classservice:2003/group", path = "")
 public interface ClassServiceClient {
-    @GetMapping("/class/find/{classId}")
+    @GetMapping("/class/{classId}")
     List<Groupss> getGroupssByClassId(
             @RequestHeader("Authorization") String token,
             @PathVariable("classId") String classId);
