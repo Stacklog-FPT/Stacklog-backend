@@ -24,7 +24,7 @@ public interface SlotRepo extends JpaRepository<Slot, String> {
     List<Slot> findByGroupId(String groupId);
 
     @Query("""
-              select s.slot
+              select sa.slot
               from SlotAssign sa
               where sa.slot.groupId in :groupIds
                 and sa.userId = :currentUserId
