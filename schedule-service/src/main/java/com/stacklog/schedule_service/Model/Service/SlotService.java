@@ -133,7 +133,11 @@ public class SlotService implements IService<Slot> {
         String currentUserId = redisSlotService.getCurrentUserId(token);
 
         List<Slot> personalSlots = slotRepo.findAllByGroupIds(groupIds, currentUserId);
-        personalSlots.addAll(slotRepo.findAllByCreatedBy(currentUserId));
+        slotRepo.findAllByCreatedBy(currentUserId).stream().forEach(s -> {
+            if (!personalSlots.contains(s)) {
+                personalSlots.add(s);
+            }
+        });
 
         for (String gid : groupIds) {
             String suffix = "group:" + gid;
