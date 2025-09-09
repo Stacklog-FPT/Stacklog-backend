@@ -32,6 +32,9 @@ public class SlotService implements IService<Slot> {
     private SlotAssignService slotAssignService;
 
     @Autowired
+    ClassServiceClient classServiceClient;
+
+    @Autowired
     private KafkaProducer<Slot> kafkaSlotProducer;
 
     @Autowired
@@ -115,6 +118,34 @@ public class SlotService implements IService<Slot> {
             redisSlotService.saveListToRedis(slots, token, NAME_SERVICE);
         }
         return slots;
+    }
+
+    public List<Slot> getAllBySemesterId(String semesterId, String token) {
+        List<String> groupIds = classServiceClient.getGroupssBySemesterId(token, semesterId)
+                .stream()
+                .map(Groupss::getGroupsId)
+                .filter(id -> id != null && !id.isBlank())
+                .toList();
+
+        if (groupIds.isEmpty())
+            return List.of();
+
+        String currentUserId = redisSlotService.getCurrentUserId(token);
+
+        List<Slot> personalSlots = slotRepo.findAllByGroupIds(groupIds, currentUserId);
+        personalSlots.addAll(slotRepo.findAllByCreatedBy(currentUserId));
+
+        for (String gid : groupIds) {
+            String suffix = "group:" + gid;
+            redisSlotService.saveListToRedisWithSuffix(
+                    personalSlots.stream().filter(t -> gid.equals(t.getGroupId())).toList(),
+                    token, NAME_SERVICE, suffix);
+        }
+        // 5) cũng có thể fill cache tổng theo user nếu cần
+        redisSlotService.saveListToRedis(personalSlots, token, NAME_SERVICE);
+
+        return personalSlots;
+
     }
 
 }

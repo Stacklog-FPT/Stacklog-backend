@@ -1,5 +1,6 @@
 package com.stacklog.schedule_service.model.repo;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.stacklog.schedule_service.model.entities.Slot;
-
 
 @Repository
 public interface SlotRepo extends JpaRepository<Slot, String> {
@@ -22,5 +22,16 @@ public interface SlotRepo extends JpaRepository<Slot, String> {
     List<Slot> findByUserId(@Param("currentUserId") String currentUserId);
 
     List<Slot> findByGroupId(String groupId);
+
+    @Query("""
+              select s.slot
+              from SlotAssign sa
+              where sa.slot.groupId in :groupIds
+                and sa.userId = :currentUserId
+            """)
+    List<Slot> findAllByGroupIds(@Param("groupIds") List<String> groupIds,
+            @Param("currentUserId") String currentUserId);
+
+    Collection<? extends Slot> findAllByCreatedBy(String currentUserId);
 
 }
