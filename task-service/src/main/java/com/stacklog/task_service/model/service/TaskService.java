@@ -147,6 +147,7 @@ public class TaskService implements IService<Task> {
             e.getAssigns().stream().forEach(a -> taskAssignService.save(a, token));
         }
         if (e.getReviews() != null && !e.getReviews().isEmpty()) {
+            reviewService.deleteReviews(e.getTaskId(), e.getReviews());
             e.getReviews().stream().forEach(r -> reviewService.save(r, token));
         }
         if (e.getCheckLists() != null && !e.getCheckLists().isEmpty()) {

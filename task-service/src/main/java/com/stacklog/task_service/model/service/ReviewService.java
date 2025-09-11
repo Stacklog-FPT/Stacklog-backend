@@ -1,7 +1,10 @@
 package com.stacklog.task_service.model.service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -60,8 +63,8 @@ public class ReviewService implements IService<Review> {
     public List<Review> getAllByTaskId(String token, String taskId) {
         // List<Review> reviews = redisReviewService.getAll(taskId, NAME_SERVICE);
         // if (reviews.isEmpty()) {
-        //     reviews = reviewRepo.findByTaskId(taskId);
-        //     redisReviewService.saveListToRedis(reviews, taskId, NAME_SERVICE);
+        // reviews = reviewRepo.findByTaskId(taskId);
+        // redisReviewService.saveListToRedis(reviews, taskId, NAME_SERVICE);
         // }
         List<Review> reviews = reviewRepo.findByTaskId(taskId);
         return reviews;
@@ -96,14 +99,26 @@ public class ReviewService implements IService<Review> {
 
         redisReviewService.saveToRedis(e, token, NAME_SERVICE);
 
-        
-
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
         e = reviewRepo.save(e);
 
         return e;
 
+    }
+
+    void deleteReviews(String taskId, List<Review> reviewsFE) {
+        Set<String> keepIds = reviewsFE.stream()
+                .map(Review::getReviewId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        if (keepIds == null || keepIds.isEmpty()) {
+            reviewRepo.deleteAllByTaskId(taskId);
+        } else {
+            reviewRepo.deleteAllNotIn(taskId, keepIds);
+        }
+        reviewRepo.deleteAllNotIn(taskId, keepIds);
     }
 
 }
