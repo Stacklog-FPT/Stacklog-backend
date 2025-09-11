@@ -1,7 +1,10 @@
 package com.stacklog.task_service.model.service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -87,5 +90,19 @@ public class CheckItemService implements IService<CheckItem> {
         e = checkItemRepo.save(e);
 
         return e;
+    }
+
+    public void deleteCheckItems(String taskId, List<CheckItem> checkItemsFE) {
+        Set<String> keepIds = checkItemsFE.stream()
+                .map(CheckItem::getCheckItemId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        if (keepIds == null || keepIds.isEmpty()) {
+            checkItemRepo.deleteAllByTaskId(taskId);
+        } else {
+            checkItemRepo.deleteAllNotIn(taskId, keepIds);
+        }
+        checkItemRepo.deleteAllNotIn(taskId, keepIds);
     }
 }
