@@ -1,7 +1,10 @@
 package com.stacklog.task_service.model.service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -95,6 +98,20 @@ public class TaskAssignService implements IService<TaskAssign> {
     public List<TaskAssign> getAllByTaskId(String token, String taskId) {
         List<TaskAssign> taskAssigns = taskAssignRepo.findByTaskTaskId(taskId);
         return taskAssigns;
+    }
+
+    public void deleteTaskAssigns(String taskId, List<TaskAssign> assignsFE) {
+        Set<String> keepIds = assignsFE.stream()
+                .map(TaskAssign::getTaskAssignId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        if (keepIds == null || keepIds.isEmpty()) {
+            taskAssignRepo.deleteAllByTaskId(taskId);
+        } else {
+            taskAssignRepo.deleteAllNotIn(taskId, keepIds);
+        }
+        taskAssignRepo.deleteAllNotIn(taskId, keepIds);
     }
 
 }
