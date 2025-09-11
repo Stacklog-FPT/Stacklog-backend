@@ -144,6 +144,9 @@ public class TaskService implements IService<Task> {
         e = saveToDB(e, token, isCreate);
 
         if (e.getAssigns() != null && !e.getAssigns().isEmpty()) {
+            if (!isCreate) {
+                taskAssignService.deleteTaskAssigns(e.getTaskId(), e.getAssigns());
+            }
             e.getAssigns().stream().forEach(a -> taskAssignService.save(a, token));
         }
         if (e.getReviews() != null && !e.getReviews().isEmpty()) {
@@ -153,6 +156,9 @@ public class TaskService implements IService<Task> {
             e.getReviews().stream().forEach(r -> reviewService.save(r, token));
         }
         if (e.getCheckLists() != null && !e.getCheckLists().isEmpty()) {
+            if (!isCreate) {
+                checkListService.deleteCheckLists(e.getTaskId(), e.getCheckLists());
+            }
             e.getCheckLists().stream().forEach(cl -> checkListService.save(cl, token));
         }
         if (e.getSubtasks() != null && !e.getSubtasks().isEmpty()) {

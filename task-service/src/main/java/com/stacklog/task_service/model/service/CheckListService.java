@@ -1,7 +1,10 @@
 package com.stacklog.task_service.model.service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -100,6 +103,20 @@ public class CheckListService implements IService<CheckList> {
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
         return e;
+    }
+
+    public void deleteCheckLists(String taskId, List<CheckList> checkListsFE) {
+        Set<String> keepIds = checkListsFE.stream()
+                .map(CheckList::getCheckListId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        if (keepIds == null || keepIds.isEmpty()) {
+            checkListRepo.deleteAllByTaskId(taskId);
+        } else {
+            checkListRepo.deleteAllNotIn(taskId, keepIds);
+        }
+        checkListRepo.deleteAllNotIn(taskId, keepIds);
     }
 
 }
