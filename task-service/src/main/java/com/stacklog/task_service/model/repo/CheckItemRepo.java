@@ -1,8 +1,10 @@
 package com.stacklog.task_service.model.repo;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,5 +20,13 @@ public interface CheckItemRepo extends JpaRepository<CheckItem, String> {
     "JOIN task_assign ta ON ta.task_id = t.task_id " +
     "WHERE ta.assign_to = :userId", nativeQuery = true)
     List<CheckItem> findAllByUserId(@Param("userId") String currentUserId);
+
+    @Modifying
+    @Query("delete from CheckItem ct where ct.checkList.task.taskId = :taskId")
+    public void deleteAllByTaskId(String taskId);
+
+    @Modifying
+    @Query("delete from CheckItem ct where ct.checkList.task.taskId = :taskId and ct.checkItemId not in :keepIds")
+    public void deleteAllNotIn(String taskId, Set<String> keepIds);
 
 }
