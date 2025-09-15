@@ -3,6 +3,7 @@ const { redis } = require('../config/db');
 const { ioEmit } = require('../config/socket');
 const { publish } = require('../config/kafka');
 const {
+  ChatMessage,
   insertMessage, listMessages, recallMessage,
   softDeleteMessage, hardDeleteMessage
 } = require('../models/message');
@@ -17,15 +18,28 @@ exports.send = asyncHandler(async (req, res) => {
   const { senderId, content, attachment, mentionUserIds = [] } = req.body || {};
   if (!senderId) return res.status(400).json({ message: 'senderId required' });
 
+  const box = await BoxChat.findById(boxId).select({ members: 1 }).lean();
+  if (!box) return res.status(404).json({ message: 'Box not found' });
+
+  // quyền: sender phải là member
+  const isMember = (box.members || []).some(m => String(m.user) === String(senderId));
+  if (!isMember) return res.status(403).json({ message: 'Forbidden' });
+
   const msgId = await insertMessage({ boxId, senderId, content, attachment });
 
   // update last message cache
-  await redis.set(lastKey(boxId), JSON.stringify({ chat_message_id: msgId, preview: content, at: Date.now() }), { EX: 3600 });
+  await redis.set(
+    lastKey(boxId),
+    JSON.stringify({ chat_message_id: msgId, preview: content, at: Date.now() }),
+    { EX: 3600 }
+  );
+
+  // cập nhật updated_at của box để list sort mới lên
+  await BoxChat.updateOne({ _id: boxId }, { $set: { updated_at: new Date() } });
 
   // unread++ cho mọi member trừ sender
-  const box = await BoxChat.findById(boxId).select({ members: 1 }).lean();
-  for (const m of box?.members || []) {
-    if (m.user === senderId) continue;
+  for (const m of box.members || []) {
+    if (String(m.user) === String(senderId)) continue;
     await redis.incr(unreadKey(boxId, m.user));
   }
 
@@ -49,8 +63,14 @@ exports.list = asyncHandler(async (req, res) => {
 exports.recall = asyncHandler(async (req, res) => {
   const { messageId } = req.params;
   const { operatorId } = req.body || {};
+
+  // Lấy boxId để emit đúng room + có thể check quyền (sender/admin)
+  const msg = await ChatMessage.findById(messageId).lean();
+  if (!msg) return res.status(404).json({ message: 'Message not found' });
+
+  // TODO: quyền: operatorId == msg.created_by || isAdmin(box, operatorId)
   await recallMessage(messageId, operatorId);
-  ioEmit('message:recalled', { chat_message_id: messageId }, undefined); // client nên đang ở room box
+  ioEmit('message:recalled', { chat_message_id: messageId }, `box:${msg.box_chat_id}`);
   res.status(204).end();
 });
 
@@ -58,9 +78,15 @@ exports.remove = asyncHandler(async (req, res) => {
   const { messageId } = req.params;
   const { operatorId } = req.body || {};
   const hard = String(req.query.hard || '0') === '1';
+
+  const msg = await ChatMessage.findById(messageId).lean();
+  if (!msg) return res.status(404).json({ message: 'Message not found' });
+
+  // TODO: quyền: operatorId == msg.created_by || isAdmin(box, operatorId)
   if (hard) await hardDeleteMessage(messageId);
   else await softDeleteMessage(messageId, operatorId);
-  ioEmit('message:deleted', { chat_message_id: messageId, hard }, undefined);
+
+  ioEmit('message:deleted', { chat_message_id: messageId, hard }, `box:${msg.box_chat_id}`);
   res.status(204).end();
 });
 
