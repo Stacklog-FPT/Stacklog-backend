@@ -4,7 +4,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const connectDB = require("./config/db");
-const { startKafka, publish } = require("./config/kafka");
+const { initProducer, initConsumer } = require("./config/kafka");
 
 const boxesRoutes    = require('./routes/boxes');
 const messagesRoutes = require('./routes/messages');
@@ -29,13 +29,13 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 (async () => {
-    await startKafka();
-    await publish();
+    await initProducer();
+    await initConsumer();
 })();
 
 // Routes
-app.use('/api/boxes', boxesRoutes);
-app.use('/api/messages', messagesRoutes);
+app.use('/boxes', boxesRoutes);
+app.use('/messages', messagesRoutes);
 
 app.get("/", (req, res) => {
     res.send("Chat Service is Running...");
