@@ -3,7 +3,8 @@ const { createBox, addMembers, listBoxesByUser } = require('../models/box');
 const { ioEmit } = require('../config/socket');
 
 exports.create = asyncHandler(async (req, res) => {
-  const { name, avatar, creatorId, memberIds = [] } = req.body || {};
+  const { name, avatar, memberIds = [] } = req.body || {};
+  const creatorId = req.user.id;  // <-- lấy từ token
   if (!memberIds.length) return res.status(400).json({ message: 'memberIds required' });
 
   const box = await createBox({ name, avatar, creatorId, memberIds });
@@ -15,7 +16,8 @@ exports.create = asyncHandler(async (req, res) => {
 
 exports.addMembers = asyncHandler(async (req, res) => {
   const { boxId } = req.params;
-  const { operatorId, memberIds = [] } = req.body || {};
+  const operatorId = req.user.id;  // <-- lấy từ token
+  const { memberIds = [] } = req.body || {};
   await addMembers(boxId, operatorId, memberIds);
   for (const uid of new Set(memberIds)) {
     ioEmit('box:member_added', { box_chat_id: boxId, user_id: uid }, `user:${uid}`);
@@ -24,8 +26,8 @@ exports.addMembers = asyncHandler(async (req, res) => {
 });
 
 exports.listByUser = asyncHandler(async (req, res) => {
-  const { userId } = req.query;
-  if (!userId) return res.status(400).json({ message: 'userId required' });
+  const userId = req.user.id;   // <-- lấy từ token
   const boxes = await listBoxesByUser(userId);
   res.json(boxes);
 });
+

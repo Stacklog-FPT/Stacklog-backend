@@ -1,10 +1,11 @@
 const router = require('express').Router();
 const ctrl = require('../controllers/messages.controller');
+const auth = require('../middleware/auth');
 
-router.post('/:boxId', ctrl.send);
-router.get('/:boxId', ctrl.list);
-router.put('/recall/:messageId', ctrl.recall);
-router.delete('/:messageId', ctrl.remove);
-router.post('/read/:boxId', ctrl.readReset);
+router.post('/:boxId', auth, ctrl.send);
+router.get('/:boxId', auth, ctrl.list);
+router.put('/recall/:messageId', auth, ctrl.recall);
+router.delete('/:messageId', auth, ctrl.remove);
+router.post('/read/:boxId', auth, ctrl.readReset);
 
 module.exports = router;

@@ -16,8 +16,9 @@ let io = null;
  * Phù hợp khi đứng sau Nginx reverse proxy (đã bật Upgrade/Connection).
  */
 async function attachSocket(server) {
-
+  console.log('[socket] attaching...');
   io = new Server(server, {
+    path: '/socket.io/',
     origin: [
       'http://localhost:5173',
       'https://stacklog.io.vn',
@@ -28,7 +29,7 @@ async function attachSocket(server) {
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
   });
-
+  console.log('[socket] attached OK at /socket.io');
   io.on('connection', (socket) => {
     const userId = socket.handshake.query?.userId || socket.handshake.auth?.userId;
     if (userId) {
@@ -56,7 +57,10 @@ async function attachSocket(server) {
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
 
-  console.log(`[socket] attached at path=${SOCKET_PATH} cors=${CORS_ORIGINS.join('|')}`);
+  console.log(`[socket] attached at path=/socket.io cors='http://localhost:5173',
+      'https://stacklog.io.vn',
+      'https://www.stacklog.io.vn',
+      'https://*.vercel.app'`);
 }
 
 /**

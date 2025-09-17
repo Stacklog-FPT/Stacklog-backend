@@ -3,11 +3,11 @@ const { Schema, model } = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 
 const MemberSchema = new Schema({
-  user:   { type: String, required: true, index: true }, // user_id
   isAdmin:{ type: Boolean, default: false },
   isMute: { type: Boolean, default: false },
   joinedAt: { type: Date, default: Date.now },
-  addedBy:  { type: String, default: null }
+  addedBy:  { type: String, default: null },
+  userId: { type: String, default: null }
 }, { _id: false });
 
 const BoxChatSchema = new Schema({
@@ -30,7 +30,7 @@ async function createBox({ name, avatar, creatorId, memberIds }) {
   const set = new Set(memberIds || []);
   set.add(String(creatorId)); // đảm bảo có creator
   const members = Array.from(set).map(uid => ({
-    user: uid, isAdmin: String(uid) === String(creatorId), addedBy: creatorId
+    userId: uid, isAdmin: String(uid) === String(creatorId), addedBy: creatorId
   }));
   const doc = await BoxChat.create({ _id: id, name_box: name, ava_box: avatar, created_by: creatorId, members });
   return doc.toObject();
@@ -43,14 +43,14 @@ async function addMembers(boxId, operatorId, memberIds = []) {
   await BoxChat.updateOne(
     { _id: boxId },
     { $addToSet: {
-        members: { $each: uniqueIds.map(uid => ({ user: uid, isAdmin: false, isMute: false, addedBy: operatorId }))
+        members: { $each: uniqueIds.map(uid => ({ userId: uid, isAdmin: false, isMute: false, addedBy: operatorId }))
       } }
     }
   );
 }
 
 async function listBoxesByUser(userId) {
-  return BoxChat.find({ 'members.user': userId })
+  return BoxChat.find({ 'members.userId': userId })
     .sort({ updated_at: -1 }) // dùng updated_at cho thống nhất
     .select({ _id: 1, name_box: 1, ava_box: 1, updated_at: 1 })
     .lean();
@@ -70,7 +70,7 @@ async function autoCreateBoxFromGroupEvent({ groupId, name, avatar, memberIds = 
   await BoxChat.updateOne(
     { _id: groupId },
     { $addToSet: {
-        members: { $each: uniqueIds.map(uid => ({ user: uid, isAdmin: false, isMute: false, addedBy: createdBy })) }
+        members: { $each: uniqueIds.map(uid => ({ userId: uid, isAdmin: false, isMute: false, addedBy: createdBy })) }
       }
     }
   );
