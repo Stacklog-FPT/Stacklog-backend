@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('chat-service:server');
 var http = require('http');
+const { attachSocket } = require('../config/socket');
 
 /**
  * Get port from environment and store in Express.
@@ -23,6 +24,7 @@ console.log('🟢 App starting, PID:', process.pid);
 
 var server = http.createServer(app);
 
+
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -30,6 +32,9 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+// socket port
+attachSocket(server);   
 
 /**
  * Normalize a port into a number, string, or false.

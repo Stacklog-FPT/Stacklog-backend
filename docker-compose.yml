@@ -254,6 +254,24 @@ services:
       # - kafka-3
       - redis
 
+  topicservice:
+    build:
+      context: .
+      dockerfile: topic-service/Dockerfile
+    volumes:
+      - ~/.m2:/root/.m2
+    container_name: topicservice
+    ports:
+      - "2010:2010"
+    restart: always
+    networks:
+      - app-network
+    depends_on:
+      - kafka-1
+      # - kafka-2
+      # - kafka-3
+      - redis
+
 
   caddy:
     image: caddy:2
