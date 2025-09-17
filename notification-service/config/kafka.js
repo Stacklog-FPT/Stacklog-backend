@@ -1,8 +1,7 @@
 const { Kafka } = require("kafkajs");
 require("dotenv").config();
 
-const { createNotification } = require("../controllers/notification.controller"); // gợi ý: import từ models/Notification thay vì controller
-const { autoCreateBoxFromGroupEvent } = require("../models/box");
+const { createNotification } = require("../controllers/notification.controller");
 const Group = require("../models/group");
 
 const KAFKA_BROKER = process.env.KAFKA_BROKER || "localhost:9092";
