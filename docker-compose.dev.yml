@@ -167,12 +167,7 @@ services:
     build:
       context: ./chat-service
       dockerfile: Dockerfile
-    volumes:
-      - ~/.m2:/root/.m2
     container_name: chatservice
-    ports:
-      - "2004:2004"
-    restart: on-failure
     networks:
       - app-network
     depends_on:
@@ -180,6 +175,7 @@ services:
       # - kafka-2
       # - kafka-3
       - redis
+    restart: on-failure
             # # --- Document Service ---
   # documentservice:
   #   build:
@@ -202,14 +198,9 @@ services:
                 # # --- Notification Service ---
   notificationservice:
     build:
-      context: .
-      dockerfile: notification-service/Dockerfile
-    volumes:
-      - ~/.m2:/root/.m2
+      context: ./notification-service
+      dockerfile: Dockerfile
     container_name: notificationservice
-    ports:
-      - "2007:2007"
-    restart: on-failure
     networks:
       - app-network
     depends_on:
@@ -217,6 +208,7 @@ services:
       # - kafka-2
       # - kafka-3
       - redis
+    restart: on-failure
 
                 # # --- Score Service ---
   # scoreservice:

@@ -2,7 +2,6 @@ const { Kafka } = require("kafkajs");
 require("dotenv").config();
 
 const { createNotification } = require("../controllers/notification.controller");
-const Group = require("../models/group");
 
 const KAFKA_BROKER = process.env.KAFKA_BROKER || "localhost:9092";
 const CLIENT_ID = process.env.KAFKA_CLIENT_ID || "notification-service";
