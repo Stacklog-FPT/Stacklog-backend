@@ -57,8 +57,18 @@ async function hardDeleteMessage(messageId) {
   await ChatMessage.deleteOne({ _id: messageId });
 }
 
+async function deleteByBoxId(boxId) {
+  const deletedBox = await BoxChat.deleteOne({ _id: boxId });
+  const deletedMessages = await ChatMessage.deleteMany({ box_chat_id: boxId });
+
+  return {
+    deletedBoxCount: deletedBox.deletedCount,
+    deletedMessageCount: deletedMessages.deletedCount
+  };
+}
+
 module.exports = {
   ChatMessage,
   insertMessage, listMessages,
-  recallMessage, softDeleteMessage, hardDeleteMessage
+  recallMessage, softDeleteMessage, hardDeleteMessage, deleteByBoxId
 };
