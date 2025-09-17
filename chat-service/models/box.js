@@ -52,7 +52,7 @@ async function addMembers(boxId, operatorId, memberIds = []) {
 async function listBoxesByUser(userId) {
   return BoxChat.find({ 'members.userId': userId })
     .sort({ updated_at: -1 }) // dùng updated_at cho thống nhất
-    .select({ _id: 1, name_box: 1, ava_box: 1, updated_at: 1 })
+    .select({ _id: 1, name_box: 1, ava_box: 1, updated_at: 1, members: [] })
     .lean();
 }
 
