@@ -78,4 +78,8 @@ async function autoCreateBoxFromGroupEvent({ groupId, name, avatar, memberIds = 
   return BoxChat.findById(groupId).lean();
 }
 
-module.exports = { BoxChat, createBox, addMembers, listBoxesByUser, autoCreateBoxFromGroupEvent };
+async function deleteBox(boxId) {
+  return BoxChat.deleteOne({ _id: boxId });
+}
+
+module.exports = { BoxChat, createBox, addMembers, listBoxesByUser, autoCreateBoxFromGroupEvent, deleteBox };

@@ -1,5 +1,6 @@
 const asyncHandler = require('../middleware/asyncHandler');
-const { createBox, addMembers, listBoxesByUser } = require('../models/box');
+const { createBox, addMembers, listBoxesByUser, deleteBox } = require('../models/box');
+const { deleteByBoxId } = require('../models/message');
 const { ioEmit } = require('../config/socket');
 
 exports.create = asyncHandler(async (req, res) => {
@@ -29,5 +30,31 @@ exports.listByUser = asyncHandler(async (req, res) => {
   const userId = req.user.id;   // <-- lấy từ token
   const boxes = await listBoxesByUser(userId);
   res.json(boxes);
+});
+
+exports.delete = asyncHandler(async (req, res) => {
+  try {
+    const { boxId } = req.params;
+    if (!boxId) {
+      return res.status(400).json({ success: false, error: "boxId is required" });
+    }
+
+    await deleteByBoxId(boxId);
+
+    const result = await deleteBox(boxId);
+
+    // Emit socket để client update UI
+    ioEmit("box:deleted", { boxId, ...result }, `box:${boxId}`);
+
+    res.json({ success: true, message: "Box deleted", result });
+  } catch (err) {
+    // Ghi log chi tiết
+    console.error(`[BoxController] Delete boxId=${req.params.boxId} error:`, err);
+
+    res.status(500).json({
+      success: false,
+      error: err.message || "Internal Server Error",
+    });
+  }
 });
 
