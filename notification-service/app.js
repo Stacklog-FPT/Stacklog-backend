@@ -46,7 +46,7 @@ app.use("/", notificationRoutes);
 
 // Health check
 app.get("/", (req, res) => {
-    res.send("Chat Service is Running...");
+    res.send("Notification Service is Running...");
 });
 app.get("/healthz", (req, res) => res.json({ ok: true }));
 
