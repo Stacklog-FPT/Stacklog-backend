@@ -15,6 +15,7 @@ const BoxChatSchema = new Schema({
   name_box: { type: String },
   ava_box: { type: String },
   created_by: { type: String },
+  boxType: { type: String, enum: ['PERSONAL','GROUP'], default: 'GROUP', index: true },
   members: { type: [MemberSchema], default: [] }
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, versionKey: false });
 
@@ -25,14 +26,14 @@ BoxChatSchema.index({ updated_at: -1 });
 const BoxChat = model('BoxChat', BoxChatSchema);
 
 // Services
-async function createBox({ name, avatar, creatorId, memberIds }) {
+async function createBox({ name, avatar, creatorId, memberIds, boxType }) {
   const id = uuidv4();
   const set = new Set(memberIds || []);
   set.add(String(creatorId)); // đảm bảo có creator
   const members = Array.from(set).map(uid => ({
     userId: uid, isAdmin: String(uid) === String(creatorId), addedBy: creatorId
   }));
-  const doc = await BoxChat.create({ _id: id, name_box: name, ava_box: avatar, created_by: creatorId, members });
+  const doc = await BoxChat.create({ _id: id, name_box: name, ava_box: avatar, created_by: creatorId, members, boxType: boxType });
   return doc.toObject();
 }
 
