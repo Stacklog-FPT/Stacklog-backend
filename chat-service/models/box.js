@@ -57,7 +57,7 @@ async function listBoxesByUser(userId) {
   return BoxChat.find({ 'members.userId': userId })
     .sort({ updated_at: -1 }) // dùng updated_at cho thống nhất
     .select({
-      _id: 1, name_box: 1, ava_box: 1, updated_at: 1, members: 1, created_at: 1, updated_at: 1,
+      _id: 1, name_box: 1, ava_box: 1, boxType: 1, updated_at: 1, members: 1, created_at: 1, updated_at: 1,
     })
     .lean();
 }
