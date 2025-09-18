@@ -4,11 +4,11 @@ const { deleteByBoxId } = require('../models/message');
 const { ioEmit } = require('../config/socket');
 
 exports.create = asyncHandler(async (req, res) => {
-  const { name, avatar, memberIds = [] } = req.body || {};
+  const { name, avatar, memberIds = [], type } = req.body || {};
   const creatorId = req.user.id;  // <-- lấy từ token
   if (!memberIds.length) return res.status(400).json({ message: 'memberIds required' });
 
-  const box = await createBox({ name, avatar, creatorId, memberIds });
+  const box = await createBox({ name, avatar, creatorId, memberIds, type });
   for (const uid of new Set(memberIds)) {
     ioEmit('box:created', { box_chat_id: box.box_chat_id, name_box: box.name_box }, `user:${uid}`);
   }
