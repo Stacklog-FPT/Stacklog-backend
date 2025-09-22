@@ -11,74 +11,117 @@ const kafka = new Kafka({ clientId: CLIENT_ID, brokers: [KAFKA_BROKER] });
 const producer = kafka.producer();
 const consumer = kafka.consumer({ groupId: GROUP_ID });
 
+// --- Helpers ---
+const pad2 = (n) => (n < 10 ? `0${n}` : `${n}`);
+
+/** Convert array from Java LocalDateTime -> JS Date (UTC) */
+function fromJavaTimeArray(arr) {
+  if (!Array.isArray(arr) || arr.length < 3) return null;
+  const [y, M, d, h = 0, m = 0, s = 0, ns = 0] = arr;
+  const ms = Math.floor((typeof ns === "number" ? ns : 0) / 1e6);
+  // JS month is 0-based; dùng UTC để ổn định
+  return new Date(Date.UTC(y, (M - 1), d, h, m, s, ms));
+}
+
+/** Format to 'YYYY-MM-DD HH:mm' (UTC). Đổi theo TZ nếu bạn muốn. */
+function toReadable(arrOrDate) {
+  const d = Array.isArray(arrOrDate) ? fromJavaTimeArray(arrOrDate) :
+    (arrOrDate instanceof Date ? arrOrDate : new Date(arrOrDate));
+  if (!d || isNaN(d.getTime())) return "";
+  return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())} `
+    + `${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`;
+}
+
+/** Extract memberIds từ payload.assigns */
+function getMemberIdsFromAssigns(payload) {
+  if (Array.isArray(payload?.assigns)) {
+    return payload.assigns
+      .map(a => a?.assignTo)
+      .filter(Boolean);
+  }
+  return [];
+}
+
+// --- Topic handlers ---
 const topicHandlers = {
-  // Khi group được tạo
+  // Nhóm được tạo (giữ nguyên nếu payload của bạn có memberIds & groupName, groupId)
   [process.env.TOPIC_GROUP_CREATED || "class-service.groupsses.created"]: async (payload) => {
     const memberIds = Array.isArray(payload.memberIds) ? payload.memberIds : [];
+    const groupName = payload.groupName || "Nhóm";
+    const groupId = payload.groupId;
 
-    await autoCreateBoxFromGroupEvent(payload);
+    // Nếu bạn có autoCreateBoxFromGroupEvent thì gọi ở đây
+    // await autoCreateBoxFromGroupEvent(payload);
 
-    await createNotification(
-      memberIds,
-      `Nhóm ${payload.groupName} đã được tạo`,
-      "system",
-      { groupId: payload.groupId }
-    );
+    if (memberIds.length) {
+      await createNotification(
+        memberIds,
+        `Nhóm ${groupName} đã được tạo`,
+        "system"
+      );
+    }
   },
 
-  // Khi task mới được tạo
+  // Task mới được tạo
   [process.env.TOPIC_TASK_CREATED || "task-service.task.created"]: async (payload) => {
-    const { groupId, taskId, taskName } = payload;
+    const { groupId, taskId, taskTitle } = payload;
 
-    let memberIds = [];
-    if (Array.isArray(payload.memberIds)) {
-      memberIds = payload.memberIds;
-    } else if (groupId) {
-      const group = await Group.findById(groupId).lean();
-      memberIds = group?.memberIds || [];
+    const memberIds = getMemberIdsFromAssigns(payload);
+
+    // Fallback: nếu không có assigns, bạn có thể chọn gửi broadcast cho group
+    // hoặc bỏ qua. Ở đây mình chỉ gửi khi có memberIds.
+    if (memberIds.length) {
+      await createNotification(
+        memberIds,
+        `Task mới: ${taskTitle}`,
+        "task"
+      );
     }
 
-    await createNotification(
-      memberIds,
-      `Task mới: ${taskName}`,
-      "task",
-      { groupId, taskId }
-    );
+    // Nếu bạn muốn emit thêm thông tin (groupId, taskId) -> thêm vào content
+    // hoặc sửa controller/model để có meta.
   },
 
-  // Khi task đến deadline
-  [process.env.TOPIC_TASK_DEADLINE || "task-service.task.deadline"]: async (payload) => {
-    const { groupId, taskId, taskName, deadline } = payload;
-
-    let memberIds = [];
-    if (Array.isArray(payload.memberIds)) {
-      memberIds = payload.memberIds;
-    } else if (groupId) {
-      const group = await Group.findById(groupId).lean();
-      memberIds = group?.memberIds || [];
-    }
-
-    await createNotification(
-      memberIds,
-      `⏰ Task "${taskName}" sắp đến hạn (${deadline})`,
-      "task",
-      { groupId, taskId, deadline }
-    );
-  },
-
-  // Khi có review mới cho task
+  // Review mới cho task (payload mang cả mảng reviews)
   [process.env.TOPIC_REVIEW_CREATED || "task-service.review.created"]: async (payload) => {
-    const { taskId, taskName, reviewerId, reviewContent, ownerId } = payload;
+    const { taskId, taskTitle, reviews } = payload;
 
-    // Gửi cho chủ task (owner)
-    const receivers = [ownerId];
+    if (Array.isArray(reviews) && reviews.length > 0) {
+      const latestReview = reviews[reviews.length - 1];
+      const { reviewContent, createdBy: reviewerId } = latestReview || {};
 
-    await createNotification(
-      receivers,
-      `💬 Task "${taskName}" có review mới: "${reviewContent}"`,
-      "task",
-      { taskId, reviewerId }
-    );
+      // Gửi cho chủ task (owner): dùng createdBy của task
+      const ownerId = payload.createdBy;
+      if (ownerId) {
+        await createNotification(
+          [ownerId],
+          `💬 Task "${taskTitle}" có review mới: "${reviewContent}"`,
+          "task"
+        );
+      }
+
+      // (Optional) Nếu muốn gửi cho tất cả người được assign:
+      // const assignees = getMemberIdsFromAssigns(payload);
+      // if (assignees.length) {
+      //   await createNotification(assignees, `💬 Task "${taskTitle}" có review mới`, "task");
+      // }
+    }
+  },
+
+  // Task đến deadline (sử dụng taskDueDate từ payload)
+  [process.env.TOPIC_TASK_DEADLINE || "task-service.task.deadline"]: async (payload) => {
+    const { groupId, taskId, taskTitle, taskDueDate } = payload;
+
+    const deadlineText = toReadable(taskDueDate); // ví dụ: 2025-09-26 01:35 (UTC)
+    const memberIds = getMemberIdsFromAssigns(payload);
+
+    if (memberIds.length) {
+      await createNotification(
+        memberIds,
+        `⏰ Task "${taskTitle}" sắp đến hạn (${deadlineText})`,
+        "task"
+      );
+    }
   },
 };
 

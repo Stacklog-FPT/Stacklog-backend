@@ -1,84 +1,75 @@
-const { Server } = require('socket.io');
-
-// OPTIONAL for scale-out (nhiều instance sau Nginx)
-let createAdapter, createClient;
-try {
-  ({ createAdapter } = require('@socket.io/redis-adapter'));
-  ({ createClient } = require('redis'));
-} catch (_) {
-  // không bắt buộc, chỉ dùng khi cài @socket.io/redis-adapter và redis
-}
+const { Server } = require("socket.io");
 
 let io = null;
 
 /**
- * Attach Socket.IO vào HTTP server nội bộ của chat-service.
- * Phù hợp khi đứng sau Nginx reverse proxy (đã bật Upgrade/Connection).
+ * Attach Socket.IO vào HTTP server của notification-service.
  */
 async function attachSocket(server) {
-  console.log('[socket] attaching...');
+  console.log("[socket] attaching (notification)...");
   io = new Server(server, {
-    path: '/socket.io/',
-    origin: [
-      'http://localhost:5173',
-      'https://stacklog.io.vn',
-      'https://www.stacklog.io.vn',
-      'https://*.vercel.app'
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+    path: "/socket.io/",
+    cors: {
+      origin: [
+        "http://localhost:5173",
+        "https://stacklog.io.vn",
+        "https://www.stacklog.io.vn",
+        /\.vercel\.app$/, // regex cho *.vercel.app
+      ],
+      methods: ["GET", "POST", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      credentials: true,
+    },
   });
-  console.log('[socket] attached OK at /socket.io');
-  io.on('connection', (socket) => {
-    const userId = socket.handshake.query?.userId || socket.handshake.auth?.userId;
+
+  console.log("[socket] attached OK at /socket.io (notification)");
+
+  io.on("connection", (socket) => {
+    const userId =
+      socket.handshake.query?.userId || socket.handshake.auth?.userId;
+
     if (userId) {
       socket.join(`user:${userId}`);
+      console.log(`[socket] user ${userId} connected, joined room user:${userId}`);
+    } else {
+      console.warn("[socket] connection without userId");
     }
 
-    // Tham gia/thoát room theo box
-    socket.on('room:join', (boxId) => {
-      if (!boxId) return;
-      socket.join(`box:${boxId}`);
-    });
-
-    socket.on('room:leave', (boxId) => {
-      if (!boxId) return;
-      socket.leave(`box:${boxId}`);
+    socket.on("disconnect", () => {
+      console.log("[socket] client disconnected:", userId);
     });
   });
 
-  // Gợi ý graceful shutdown: đóng io khi process thoát
+  // Graceful shutdown
   const shutdown = () => {
     if (io) {
-      io.close(() => console.log('[socket] closed'));
+      io.close(() => console.log("[socket] closed (notification)"));
     }
   };
-  process.on('SIGINT', shutdown);
-  process.on('SIGTERM', shutdown);
-
-  console.log(`[socket] attached at path=/socket.io cors='http://localhost:5173',
-      'https://stacklog.io.vn',
-      'https://www.stacklog.io.vn',
-      'https://*.vercel.app'`);
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 }
 
 /**
- * Emit tiện lợi: phát ra toàn hệ thống hoặc phòng cụ thể (string hoặc string[])
+ * Emit tiện lợi: phát notification cho user cụ thể hoặc broadcast.
  */
-function ioEmit(event, payload, room) {
+function ioEmitNotification(payload, userIds) {
   if (!io) {
-    console.warn('[socket] io not initialized; skip emit');
+    console.warn("[socket] io not initialized; skip emit");
     return;
   }
-  if (!room) {
-    io.emit(event, payload);
+
+  if (!userIds) {
+    io.emit("notification", payload); // broadcast all
     return;
   }
-  if (Array.isArray(room)) {
-    room.forEach(r => io.to(r).emit(event, payload));
+
+  if (Array.isArray(userIds)) {
+    userIds.forEach((id) =>{
+      io.to(`user:${id}`).emit("notification", payload)
+    });
   } else {
-    io.to(room).emit(event, payload);
+    io.to(`user:${userIds}`).emit("notification", payload);
   }
 }
 
@@ -86,4 +77,4 @@ function getIO() {
   return io;
 }
 
-module.exports = { attachSocket, ioEmit, getIO };
+module.exports = { attachSocket, ioEmitNotification, getIO };
