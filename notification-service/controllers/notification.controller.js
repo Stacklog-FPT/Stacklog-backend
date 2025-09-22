@@ -1,7 +1,11 @@
 const {
+    Notification,
     getAllNotifications,
     getNotificationsByUser,
 } = require("../model/Notification");
+
+const { redisService } = require("../config/redis");
+const { ioEmitNotification } = require('../config/socket');
 
 /**
  * GET /api/notifications (tất cả hệ thống - chỉ admin mới nên dùng)
@@ -52,8 +56,9 @@ async function createNotification(userIds, content, type = "system", meta = {}) 
 
     // 2. Lưu Redis + emit socket realtime
     for (const uid of userIds) {
-        await redisService.saveToRedis(notification.toObject(), null, "notification-service");
-        ioEmit("notification:new", notification, `user:${uid}`);
+        // await redisService.saveToRedis(notification.toObject(), null, "notification-service");
+        ioEmitNotification(notification, `user:${uid}`);
+        console.log(`noti:${notification} user:${uid}`);
     }
 
     return notification;
