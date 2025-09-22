@@ -26,14 +26,14 @@ BoxChatSchema.index({ updated_at: -1 });
 const BoxChat = model('BoxChat', BoxChatSchema);
 
 // Services
-async function createBox({ name, avatar, creatorId, memberIds, boxType }) {
+async function createBox({ name, avatar, creatorId, memberIds, type }) {
   const id = uuidv4();
   const set = new Set(memberIds || []);
   set.add(String(creatorId)); // đảm bảo có creator
   const members = Array.from(set).map(uid => ({
     userId: uid, isAdmin: String(uid) === String(creatorId), addedBy: creatorId
   }));
-  const doc = await BoxChat.create({ _id: id, name_box: name, ava_box: avatar, created_by: creatorId, members, boxType: boxType });
+  const doc = await BoxChat.create({ _id: id, name_box: name, ava_box: avatar, created_by: creatorId, members, boxType: type });
   return doc.toObject();
 }
 
