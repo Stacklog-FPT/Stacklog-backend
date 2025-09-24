@@ -18,7 +18,7 @@ async function listAll(req, res) {
         }
 
         const notifications = await getAllNotifications();
-        res.json({ success: true, data: notifications });
+        res.json(notifications);
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
@@ -35,7 +35,7 @@ async function listByUser(req, res) {
         }
 
         const notifications = await getNotificationsByUser(userId);
-        res.json({ success: true, data: notifications });
+        res.json(notifications);
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

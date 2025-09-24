@@ -89,4 +89,23 @@ async function deleteBox(boxId) {
   return BoxChat.deleteOne({ _id: boxId });
 }
 
-module.exports = { BoxChat, createBox, addMembers, listBoxesByUser, autoCreateBoxFromGroupEvent, deleteBox };
+async function searchBoxesByUserIds(userIds = []) {
+  if (!Array.isArray(userIds) || userIds.length === 0) return [];
+
+  return BoxChat.find({
+    'members.userId': { $all: userIds }
+  })
+    .sort({ updated_at: -1 })
+    .select({
+      _id: 1,
+      name_box: 1,
+      ava_box: 1,
+      boxType: 1,
+      members: 1,
+      created_at: 1,
+      updated_at: 1
+    })
+    .lean();
+}
+
+module.exports = { BoxChat, createBox, addMembers, listBoxesByUser, autoCreateBoxFromGroupEvent, deleteBox, searchBoxesByUserIds };

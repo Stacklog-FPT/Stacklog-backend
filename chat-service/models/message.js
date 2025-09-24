@@ -58,11 +58,9 @@ async function hardDeleteMessage(messageId) {
 }
 
 async function deleteByBoxId(boxId) {
-  const deletedBox = await BoxChat.deleteOne({ _id: boxId });
   const deletedMessages = await ChatMessage.deleteMany({ box_chat_id: boxId });
 
   return {
-    deletedBoxCount: deletedBox.deletedCount,
     deletedMessageCount: deletedMessages.deletedCount
   };
 }
