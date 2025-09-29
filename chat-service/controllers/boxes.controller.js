@@ -8,9 +8,9 @@ exports.create = asyncHandler(async (req, res) => {
   const creatorId = req.user.id;  // <-- lấy từ token
   if (!memberIds.length) return res.status(400).json({ message: 'memberIds required' });
 
-  const box = await searchBoxesByUserIds(memberIds);
+  let box = await searchBoxesByUserIds(memberIds);
 
-  if (box) return res.status(200).json(box);
+  if (box.length > 0) return res.status(200).json(box);
 
   box = await createBox({ name, avatar, creatorId, memberIds, type });
   for (const uid of new Set(memberIds)) {
