@@ -10,7 +10,8 @@ const ChatMessageSchema = new Schema({
   chat_message_attachment:  { type: [Schema.Types.Mixed], default: [] },
   chat_message_send_to:     { type: String, default: null }, // @mention 1-1 (tuỳ bạn, có thể giữ mảng)
   state:                    { type: String, enum: ['SENT','RECALLED','DELETED'], default: 'SENT', index: true },
-  deleted_at:               { type: Date, default: null }
+  deleted_at:               { type: Date, default: null },
+  read_by:                  { type: [String], default: [] }
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'update_at' }, versionKey: false });
 
 ChatMessageSchema.virtual('chat_message_id').get(function(){ return this._id; });

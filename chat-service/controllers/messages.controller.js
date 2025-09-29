@@ -102,3 +102,34 @@ exports.readReset = asyncHandler(async (req, res) => {
   await redisClient.del(unreadKey(boxId, userId));
   res.status(204).end();
 });
+
+exports.markAsRead = asyncHandler(async (req, res) => {
+  const { boxId } = req.params;
+  const userId = req.user.id;
+
+  // lấy tất cả messages chưa có userId trong readBy
+  const messages = await ChatMessage.find({
+    boxId,
+    readBy: { $ne: userId }
+  }).select('_id');
+
+  if (!messages.length) return res.json({ success: true });
+
+  // update messages thêm userId vào readBy
+  await ChatMessage.updateMany(
+    { _id: { $in: messages.map(m => m._id) } },
+    { $push: { readBy: userId } }
+  );
+
+  // reset unread count trong Redis
+  await redisClient.set(unreadKey(boxId, userId), 0);
+
+  // emit socket để các client khác update "đã xem"
+  ioEmit('message:read', { 
+    box_chat_id: boxId, 
+    user_id: userId,
+    last_read_message_id: messages[messages.length - 1]._id
+  }, `box:${boxId}`);
+
+  res.json({ success: true });
+});
