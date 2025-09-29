@@ -11,6 +11,7 @@ const {
 const { BoxChat } = require('../models/box');
 
 const TOPIC_MESSAGE_CREATED = process.env.TOPIC_MESSAGE_CREATED || 'chat-service.message.created';
+const TOPIC_MESSAGE_MENTION = process.env.TOPIC_MESSAGE_MENTION || 'chat-service.message.mention';
 const unreadKey = (boxId, userId) => `unread:${boxId}:${userId}`;
 const lastKey = (boxId) => `lastmsg:${boxId}`;
 
@@ -54,13 +55,14 @@ exports.send = asyncHandler(async (req, res) => {
     await redisClient.incr(unreadKey(boxId, m.userId));
   }
 
-  const payload = { chat_message_id: msgId, box_chat_id: boxId, sender_id: senderId, content, attachment, state: 'SENT' };
+  const payload = { chat_message_id: msgId, box_chat_id: boxId, sender_id: senderId, content, attachment, state: 'SENT', mentionUserIds: mentionUserIds };
   ioEmit('message:new', payload, `box:${boxId}`);
   for (const uid of new Set(mentionUserIds)) {
     ioEmit('notify:mention', { box_chat_id: boxId, chat_message_id: msgId }, `user:${uid}`);
   }
 
   await sendKafkaEvent(TOPIC_MESSAGE_CREATED, payload);
+  await sendKafkaEvent(TOPIC_MESSAGE_MENTION, payload);
   res.status(201).json(payload);
 });
 
