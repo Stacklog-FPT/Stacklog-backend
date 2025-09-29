@@ -57,7 +57,7 @@ async function createNotification(userIds, content, type = "system", meta = {}) 
     // 2. Lưu Redis + emit socket realtime
     for (const uid of userIds) {
         // await redisService.saveToRedis(notification.toObject(), null, "notification-service");
-        ioEmitNotification(notification, `user:${uid}`);
+        ioEmitNotification(notification, `${uid}`);
         console.log(`noti:${notification} user:${uid}`);
     }
 

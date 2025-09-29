@@ -15,7 +15,7 @@ const BoxChatSchema = new Schema({
   name_box: { type: String },
   ava_box: { type: String },
   created_by: { type: String },
-  boxType: { type: String, enum: ['PERSONAL','GROUP'], default: 'GROUP', index: true },
+  boxType: { type: String, enum: ['PERSONAL', 'GROUP'], default: 'GROUP', index: true },
   members: { type: [MemberSchema], default: [] }
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }, versionKey: false });
 
@@ -93,7 +93,8 @@ async function searchBoxesByUserIds(userIds = []) {
   if (!Array.isArray(userIds) || userIds.length === 0) return [];
 
   return BoxChat.find({
-    'members.userId': { $all: userIds }
+    'members.userId': { $all: userIds },
+    $expr: { $eq: [{ $size: "$members" }, userIds.length] }
   })
     .sort({ updated_at: -1 })
     .select({
