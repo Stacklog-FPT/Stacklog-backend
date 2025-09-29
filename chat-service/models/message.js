@@ -8,7 +8,6 @@ const ChatMessageSchema = new Schema({
   created_by:               { type: String, required: true, index: true },
   chat_message_content:     { type: String, default: null },
   chat_message_attachment:  { type: [Schema.Types.Mixed], default: [] },
-  chat_message_send_to:     { type: String, default: null }, // @mention 1-1 (tuỳ bạn, có thể giữ mảng)
   state:                    { type: String, enum: ['SENT','RECALLED','DELETED'], default: 'SENT', index: true },
   deleted_at:               { type: Date, default: null },
   read_by:                  { type: [String], default: [] }
