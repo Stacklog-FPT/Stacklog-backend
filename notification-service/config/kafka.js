@@ -123,6 +123,27 @@ const topicHandlers = {
       );
     }
   },
+
+  [process.env.TOPIC_CHAT_MENTION || "chat-service.message.mention"]: async (payload) => {
+    const {
+      chat_message_id,
+      box_chat_id,
+      sender_id,
+      content,
+      attachment,
+      state,
+      mentionUserIds = [],
+    } = payload;
+
+    if (Array.isArray(mentionUserIds) && mentionUserIds.length > 0) {
+      await createNotification(
+        mentionUserIds,
+        `📢 Bạn được mention trong một tin nhắn: "${content}"`,
+        "chat"
+      );
+    }
+  },
+
 };
 
 const initProducer = async () => {
