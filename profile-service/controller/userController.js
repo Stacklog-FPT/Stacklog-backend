@@ -80,3 +80,14 @@ exports.findById = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 }
+
+exports.findByNameOrEmail = async (req, res) => {
+    const { searchWord } = req.params;
+    try {
+        const users = await User.findByEmailOrFullname(searchWord);
+        if (users.length == 0) return res.status(404).json({ error: `With keyword ${searchWord} not user found` });
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}

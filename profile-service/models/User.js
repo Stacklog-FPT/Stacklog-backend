@@ -28,4 +28,14 @@ UserSchema.statics.findByGroupId = function (groupId) {
     return this.find({ groupId, isDeleted: false });
 }
 
+UserSchema.statics.findByEmailOrFullname = function (keyword) {
+    return this.find({
+        isDeleted: false,
+        $or: [
+            { email: { $regex: keyword, $options: 'i' } },
+            { full_name: { $regex: keyword, $options: 'i' } }
+        ]
+    });
+};
+
 module.exports = mongoose.model('User', UserSchema);

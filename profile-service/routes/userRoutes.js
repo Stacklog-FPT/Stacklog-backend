@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, updateUser, deleteUser, findByEmail, findByGroupId, findByRole, findById } = require('../controller/userController');
+const { createUser, updateUser, deleteUser, findByEmail, findByGroupId, findByRole, findById, findByNameOrEmail } = require('../controller/userController');
 const { validateUser } = require('../middleware/validateUserMiddleware');
 
 const router = express.Router();
@@ -18,6 +18,9 @@ router.delete('/:id', deleteUser);
 
 // find by email
 router.get('/email/:email', findByEmail);
+
+// find by name or email
+router.get('/find/:searchWord', findByNameOrEmail);
 
 // list by role
 router.get('/role/:role', findByRole);
