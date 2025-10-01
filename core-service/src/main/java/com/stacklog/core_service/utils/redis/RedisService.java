@@ -134,27 +134,43 @@ public class RedisService<E> {
     }
 
     public List<E> getAllBySuffix(String token, String nameService, String suffix) {
-        String userId = getCurrentUserId(token);
-        String indexKey = getCustomIndexKey(userId, nameService, suffix);
-        Set<String> keys = redisTemplate.opsForSet().members(indexKey);
-        if (keys == null || keys.isEmpty())
+        // pattern: task-service:Task:index:*:group:{groupId}
+        String pattern = String.format("%s:%s:index:*:%s",
+                nameService, clazz.getSimpleName(), suffix);
+
+        Set<String> indexKeys = redisTemplate.keys(pattern);
+        if (indexKeys == null || indexKeys.isEmpty()) {
             return Collections.emptyList();
-        List<String> keyList = new ArrayList<>(keys);
-        List<String> jsons = redisTemplate.opsForValue().multiGet(keyList);
-        List<E> out = new ArrayList<>();
-        for (int i = 0; i < keyList.size(); i++) {
-            String json = (jsons != null && i < jsons.size()) ? jsons.get(i) : null;
-            if (json == null) {
-                redisTemplate.opsForSet().remove(indexKey, keyList.get(i));
-                continue;
-            }
-            try {
-                out.add(objectMapper.readValue(json, clazz));
-            } catch (Exception ignore) {
-            }
         }
-        redisTemplate.expire(indexKey, ttl);
-        return out;
+
+        List<E> results = new ArrayList<>();
+
+        for (String indexKey : indexKeys) {
+            Set<String> keys = redisTemplate.opsForSet().members(indexKey);
+            if (keys == null || keys.isEmpty())
+                continue;
+
+            List<String> keyList = new ArrayList<>(keys);
+            List<String> jsons = redisTemplate.opsForValue().multiGet(keyList);
+
+            for (int i = 0; i < keyList.size(); i++) {
+                String json = (jsons != null && i < jsons.size()) ? jsons.get(i) : null;
+                if (json == null) {
+                    redisTemplate.opsForSet().remove(indexKey, keyList.get(i));
+                    continue;
+                }
+                try {
+                    results.add(objectMapper.readValue(json, clazz));
+                } catch (Exception ex) {
+                    log.warn("❌ Deserialize fail for key {}: {}", keyList.get(i), ex.getMessage());
+                }
+            }
+
+            // gia hạn TTL cho từng index
+            redisTemplate.expire(indexKey, ttl);
+        }
+
+        return results;
     }
 
     public void saveListToRedisWithSuffix(List<E> list, String token, String nameService, String suffix) {
