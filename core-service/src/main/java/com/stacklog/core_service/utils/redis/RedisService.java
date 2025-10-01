@@ -46,11 +46,11 @@ public class RedisService<E> {
 
     // ===== method tạo indexKey đúng chuẩn =====
     private String getIndexKey(String currentUserId, String nameService) {
-        return String.format("%s:%s:index:%s", nameService, clazz.getSimpleName(), currentUserId);
+        return String.format("%s:%s:index", nameService, clazz.getSimpleName());
     }
 
     public String getCustomIndexKey(String currentUserId, String nameService, String suffix) {
-        return String.format("%s:%s:index:%s:%s", nameService, clazz.getSimpleName(), currentUserId, suffix);
+        return String.format("%s:%s:index:%s", nameService, clazz.getSimpleName(), suffix);
     }
 
     // get and save to redis
