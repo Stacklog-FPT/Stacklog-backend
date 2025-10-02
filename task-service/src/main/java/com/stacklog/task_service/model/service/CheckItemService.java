@@ -80,17 +80,13 @@ public class CheckItemService implements IService<CheckItem> {
 
         e.setCheckItemId(checkItemRepo.save(e).getCheckItemId());
 
-        if (isCreate) {
-            checkItemProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
-        } else {
-            checkItemProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
-        }
+        CheckItem newCheckItem = checkItemRepo.findById(e.getCheckItemId()).orElseThrow();
 
-        redisCheckItemService.saveToRedis(e, token, NAME_SERVICE);
+        redisCheckItemService.saveToRedis(newCheckItem, token, NAME_SERVICE);
+
+        checkItemProducer.sendMessage(newCheckItem, isCreate ? KAFKA_TOPIC_CREATE : KAFKA_TOPIC_UPDATE);
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
-
-        
 
         return e;
     }
