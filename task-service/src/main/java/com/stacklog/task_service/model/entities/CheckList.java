@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.stacklog.core_service.model.entities.CoreEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -26,7 +27,7 @@ public class CheckList extends CoreEntity {
 
     private String checkListName;
 
-    @OneToMany(mappedBy = "checkList")
+    @OneToMany(mappedBy = "checkList", cascade = CascadeType.ALL)
     @JsonManagedReference("checklists-checkItems")
     private List<CheckItem> listItems;
 

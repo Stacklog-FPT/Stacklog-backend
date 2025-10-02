@@ -72,11 +72,14 @@ public class CheckItemService implements IService<CheckItem> {
         boolean isCreate = (e.getCheckItemId() == null || !checkItemRepo.existsById(e.getCheckItemId()));
         e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisCheckItemService.getCurrentUserId(token));
-        if (e.getCheckItemId() == null) {
+        if (isCreate) {
             e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisCheckItemService.getCurrentUserId(token));
             e.setCheckItemId(UUID.randomUUID().toString());
         }
+
+        e.setCheckItemId(checkItemRepo.save(e).getCheckItemId());
+
         if (isCreate) {
             checkItemProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
         } else {
@@ -87,7 +90,7 @@ public class CheckItemService implements IService<CheckItem> {
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
-        e = checkItemRepo.save(e);
+        
 
         return e;
     }

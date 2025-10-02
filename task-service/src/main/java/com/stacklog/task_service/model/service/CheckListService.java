@@ -82,7 +82,7 @@ public class CheckListService implements IService<CheckList> {
         boolean isCreate = (e.getCheckListId() == null || !checkListRepo.existsById(e.getCheckListId()));
         e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisCheckListService.getCurrentUserId(token));
-        if (e.getCheckListId() == null) {
+        if (isCreate) {
             e.setCreatedAt(CommonFunction.getCurrentTime());
             e.setCreatedBy(redisCheckListService.getCurrentUserId(token));
             e.setCheckListId(UUID.randomUUID().toString());
