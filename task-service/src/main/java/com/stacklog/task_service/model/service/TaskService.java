@@ -140,7 +140,7 @@ public class TaskService implements IService<Task> {
     @Transactional
     public Task save(Task e, String token) {
         boolean isCreate = (e.getTaskId() == null || !taskRepo.existsById(e.getTaskId()));
-
+        System.out.println(e.toString());
         e = saveToDB(e, token, isCreate);
 
         if (e.getAssigns() != null && !e.getAssigns().isEmpty()) {

@@ -80,6 +80,7 @@ public class CheckListService implements IService<CheckList> {
     @Override
     public CheckList save(CheckList e, String token) {
         boolean isCreate = (e.getCheckListId() == null || !checkListRepo.existsById(e.getCheckListId()));
+        System.out.println(e.toString());
         e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisCheckListService.getCurrentUserId(token));
         if (isCreate) {

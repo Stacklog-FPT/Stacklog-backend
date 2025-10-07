@@ -85,6 +85,7 @@ public class TaskRestController {
     @PostMapping("/save")
     public ResponseEntity<ResponseTask> saveTask(@RequestHeader("Authorization") String token, @RequestBody TaskDTO e) {
         Task task = new Task();
+        System.out.println(e.toString());
         if (e.getTaskId() != null || !e.getTaskId().isBlank()) {
             task.setTaskId(e.getTaskId());
         }
