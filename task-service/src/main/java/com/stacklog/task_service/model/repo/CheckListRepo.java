@@ -29,4 +29,6 @@ public interface CheckListRepo extends JpaRepository<CheckList, String> {
     @Query("delete from CheckList cl where cl.task.taskId = :taskId and cl.checkListId not in :keepIds")
     public void deleteAllNotIn(String taskId, Set<String> keepIds);
 
+    public List<CheckList> findByTask_TaskId(String taskId);
+
 }
