@@ -70,6 +70,7 @@ public class CheckItemService implements IService<CheckItem> {
     @Transactional
     public CheckItem save(CheckItem e, String token) {
         boolean isCreate = (e.getCheckItemId() == null || !checkItemRepo.existsById(e.getCheckItemId()));
+        System.out.println(e.toString());
         e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisCheckItemService.getCurrentUserId(token));
         if (isCreate) {
