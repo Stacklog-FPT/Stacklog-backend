@@ -27,7 +27,7 @@ public class CheckList extends CoreEntity {
 
     private String checkListName;
 
-    @OneToMany(mappedBy = "checkList", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "checkList", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JsonManagedReference("checklists-checkItems")
     private List<CheckItem> listItems;
 

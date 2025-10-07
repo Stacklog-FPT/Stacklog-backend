@@ -108,9 +108,8 @@ public class TaskAssignService implements IService<TaskAssign> {
 
         if (keepIds == null || keepIds.isEmpty()) {
             taskAssignRepo.deleteAllByTaskId(taskId);
-        } else {
-            taskAssignRepo.deleteAllNotIn(taskId, keepIds);
-        }
+            return;
+        } 
         taskAssignRepo.deleteAllNotIn(taskId, keepIds);
     }
 
