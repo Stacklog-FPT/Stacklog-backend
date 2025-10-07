@@ -116,9 +116,8 @@ public class CheckListService implements IService<CheckList> {
 
         if (keepIds == null || keepIds.isEmpty()) {
             checkListRepo.deleteAllByTaskId(taskId);
-        } else {
-            checkListRepo.deleteAllNotIn(taskId, keepIds);
-        }
+            return;
+        } 
         checkListRepo.deleteAllNotIn(taskId, keepIds);
     }
 

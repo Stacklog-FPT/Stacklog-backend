@@ -99,9 +99,8 @@ public class CheckItemService implements IService<CheckItem> {
 
         if (keepIds == null || keepIds.isEmpty()) {
             checkItemRepo.deleteAllByTaskId(taskId);
-        } else {
-            checkItemRepo.deleteAllNotIn(taskId, keepIds);
-        }
+            return;
+        } 
         checkItemRepo.deleteAllNotIn(taskId, keepIds);
     }
 }

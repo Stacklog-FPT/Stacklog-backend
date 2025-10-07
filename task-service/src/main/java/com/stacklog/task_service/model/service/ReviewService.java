@@ -115,8 +115,7 @@ public class ReviewService implements IService<Review> {
 
         if (keepIds == null || keepIds.isEmpty()) {
             reviewRepo.deleteAllByTaskId(taskId);
-        } else {
-            reviewRepo.deleteAllNotIn(taskId, keepIds);
+            return;
         }
         reviewRepo.deleteAllNotIn(taskId, keepIds);
     }
