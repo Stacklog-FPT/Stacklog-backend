@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.stacklog.task_service.model.entities.CheckItem;
 import com.stacklog.task_service.model.entities.CheckList;
 import com.stacklog.task_service.model.entities.Review;
 import com.stacklog.task_service.model.entities.Task;
@@ -111,6 +112,9 @@ public class TaskRestController {
         }
         for (CheckList checkList : e.getCheckLists()) {
             checkList.setTask(task);
+            for (CheckItem checkItem : checkList.getListItems()) {
+                checkItem.setCheckList(checkList);
+            }
         }
         task.setAssigns(assigns);
         task.setCheckLists(e.getCheckLists());
