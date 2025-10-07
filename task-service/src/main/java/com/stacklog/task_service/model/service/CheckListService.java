@@ -80,7 +80,6 @@ public class CheckListService implements IService<CheckList> {
     @Override
     public CheckList save(CheckList e, String token) {
         boolean isCreate = (e.getCheckListId() == null || !checkListRepo.existsById(e.getCheckListId()));
-        System.out.println(e.toString());
         e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisCheckListService.getCurrentUserId(token));
         if (isCreate) {
@@ -109,17 +108,20 @@ public class CheckListService implements IService<CheckList> {
         return e;
     }
 
+    @Transactional
     public void deleteCheckLists(String taskId, List<CheckList> checkListsFE) {
         Set<String> keepIds = checkListsFE.stream()
                 .map(CheckList::getCheckListId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        if (keepIds == null || keepIds.isEmpty()) {
-            checkListRepo.deleteAllByTaskId(taskId);
-            return;
-        } 
-        checkListRepo.deleteAllNotIn(taskId, keepIds);
+        List<CheckList> existing = checkListRepo.findByTask_TaskId(taskId);
+
+        List<CheckList> toDelete = existing.stream()
+            .filter(cl -> !keepIds.contains(cl.getCheckListId()))
+            .collect(Collectors.toList());
+
+        checkListRepo.deleteAll(toDelete);
     }
 
 }

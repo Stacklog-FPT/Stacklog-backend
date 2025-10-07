@@ -22,11 +22,11 @@ public interface CheckItemRepo extends JpaRepository<CheckItem, String> {
     List<CheckItem> findAllByUserId(@Param("userId") String currentUserId);
 
     @Modifying
-    @Query("delete from CheckItem ct where ct.checkList.task.taskId = :taskId")
-    public void deleteAllByTaskId(String taskId);
+    @Query("delete from CheckItem ct where ct.checkList.checkListId = :checkListId")
+    public void deleteAllByCheckListId(String checkListId);
 
     @Modifying
-    @Query("delete from CheckItem ct where ct.checkList.task.taskId = :taskId and ct.checkItemId not in :keepIds")
-    public void deleteAllNotIn(String taskId, Set<String> keepIds);
+    @Query("delete from CheckItem ct where ct.checkList.checkListId = :checkListId and ct.checkItemId not in :keepIds")
+    public void deleteAllNotIn(String checkListId, Set<String> keepIds);
 
 }
