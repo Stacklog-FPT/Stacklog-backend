@@ -70,7 +70,6 @@ public class CheckItemService implements IService<CheckItem> {
     @Transactional
     public CheckItem save(CheckItem e, String token) {
         boolean isCreate = (e.getCheckItemId() == null || !checkItemRepo.existsById(e.getCheckItemId()));
-        System.out.println(e.toString());
         e.setUpdateAt(CommonFunction.getCurrentTime());
         e.setUpdateBy(redisCheckItemService.getCurrentUserId(token));
         if (isCreate) {
@@ -92,16 +91,16 @@ public class CheckItemService implements IService<CheckItem> {
         return e;
     }
 
-    public void deleteCheckItems(String taskId, List<CheckItem> checkItemsFE) {
+    public void deleteCheckItems(String checkListId, List<CheckItem> checkItemsFE) {
         Set<String> keepIds = checkItemsFE.stream()
                 .map(CheckItem::getCheckItemId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
         if (keepIds == null || keepIds.isEmpty()) {
-            checkItemRepo.deleteAllByTaskId(taskId);
+            checkItemRepo.deleteAllByCheckListId(checkListId);
             return;
         } 
-        checkItemRepo.deleteAllNotIn(taskId, keepIds);
+        checkItemRepo.deleteAllNotIn(checkListId, keepIds);
     }
 }
