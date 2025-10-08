@@ -94,7 +94,7 @@ public class CheckListService implements IService<CheckList> {
             if (!isCreate) {
                 checkItemService.deleteCheckItems(e.getTask().getTaskId(), e.getListItems());
             }
-            e.getListItems().stream().forEach(item -> checkItemService.save(item, token));
+            e.getListItems().stream().forEach(item -> {item.setChecklist(e);checkItemService.save(item, token);});
         }
 
         CheckList newCheckList = checkListRepo.findById(e.getCheckListId()).orElseThrow();
