@@ -21,8 +21,6 @@ import com.stacklog.task_service.model.repo.CheckListRepo;
 @Service
 public class CheckListService implements IService<CheckList> {
 
-    
-
     private static final String NAME_SERVICE = "task-service";
 
     private static final String KAFKA_TOPIC_UPDATE = "task-service.checklist.updated";
@@ -30,7 +28,8 @@ public class CheckListService implements IService<CheckList> {
 
     @Autowired
     CheckListRepo checkListRepo;
-    @Autowired private CheckItemService checkItemService;
+    @Autowired
+    private CheckItemService checkItemService;
 
     @Autowired
     KafkaProducer<CheckList> checkListProducer;
@@ -94,7 +93,10 @@ public class CheckListService implements IService<CheckList> {
             if (!isCreate) {
                 checkItemService.deleteCheckItems(e.getTask().getTaskId(), e.getListItems());
             }
-            e.getListItems().stream().forEach(item -> {item.setChecklist(e);checkItemService.save(item, token);});
+            e.getListItems().stream().forEach(item -> {
+                item.setCheckList(e);
+                checkItemService.save(item, token);
+            });
         }
 
         CheckList newCheckList = checkListRepo.findById(e.getCheckListId()).orElseThrow();
@@ -118,8 +120,8 @@ public class CheckListService implements IService<CheckList> {
         List<CheckList> existing = checkListRepo.findByTask_TaskId(taskId);
 
         List<CheckList> toDelete = existing.stream()
-            .filter(cl -> !keepIds.contains(cl.getCheckListId()))
-            .collect(Collectors.toList());
+                .filter(cl -> !keepIds.contains(cl.getCheckListId()))
+                .collect(Collectors.toList());
 
         checkListRepo.deleteAll(toDelete);
     }
