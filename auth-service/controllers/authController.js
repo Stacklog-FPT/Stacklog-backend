@@ -2,7 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const redisClient = require('../config/redis');
 const { sendKafkaEvent } = require('../config/kafka');
-const decodedTokenGoogle = require('../utils/helperMethod');
+const { decodedTokenGoogle } = require('../utils/helperMethod');
 const generateToken = (user) => {
   return jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET, {
     expiresIn: '1d',
@@ -88,7 +88,7 @@ const loginGoogle = async (req, res) => {
 
     if (!payload?.email) return res.status(400).json({ errMsg: 'Invalid Google Token!' });
 
-    let user = await User.findOne({ email: payload.email });
+    let user = await User.findOne({ email: payload.email }).lean();
     if (!user) {
       user = await User.create({
         name: payload.name,
@@ -126,7 +126,8 @@ const loginGoogle = async (req, res) => {
       token,
     });
   } catch (e) {
-    return res.status(500).send({ errMsg: 'Something is wrong!' });
+    console.log(e);
+    return res.status(500).send({ errMsg: e });
   }
 };
 

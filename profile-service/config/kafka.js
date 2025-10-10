@@ -1,6 +1,6 @@
 const { Kafka } = require('kafkajs');
 const mongoose = require('mongoose');
-const User = require('./models/User'); // đường dẫn tới file schema bạn dán ở trên
+const User = require('../models/User'); 
 const { extractWorkId } = require('../utils/helperMethod');
 
 const kafka = new Kafka({
