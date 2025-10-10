@@ -77,6 +77,7 @@ public class CheckListService implements IService<CheckList> {
     }
 
     @Override
+    @Transactional
     public CheckList save(CheckList e, String token) {
         boolean isCreate = (e.getCheckListId() == null || !checkListRepo.existsById(e.getCheckListId()));
         e.setUpdateAt(CommonFunction.getCurrentTime());
@@ -91,7 +92,7 @@ public class CheckListService implements IService<CheckList> {
 
         if (e.getListItems() != null && !e.getListItems().isEmpty()) {
             if (!isCreate) {
-                checkItemService.deleteCheckItems(e.getTask().getTaskId(), e.getListItems());
+                checkItemService.deleteCheckItems(e.getCheckListId(), e.getListItems());
             }
             e.getListItems().stream().forEach(item -> {
                 item.setCheckList(e);
