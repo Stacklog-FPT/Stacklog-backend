@@ -1,6 +1,7 @@
 const { Kafka } = require('kafkajs');
 const mongoose = require('mongoose');
 const User = require('./models/User'); // đường dẫn tới file schema bạn dán ở trên
+const { extractWorkId } = require('../utils/helperMethod');
 
 const kafka = new Kafka({
   clientId: process.env.KAFKA_CLIENT_ID || 'profile-service',
@@ -64,11 +65,12 @@ const handleUserCreated = async (data) => {
     }
 
     const newUser = new User({
+      _id: data.id,
       full_name: data.name,
       email: data.email,
       avatar_link: data.avatar || null,
       role: data.role || 'STUDENT',
-      work_id: data.email.split('@')[0],
+      work_id: extractWorkId(data.email),
     });
 
     await newUser.save();
