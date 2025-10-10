@@ -1,13 +1,18 @@
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
-const redisClient = require('../config/redis');
-const { sendKafkaEvent } = require('../config/kafka');
+const User = require("../models/User");
+const jwt = require("jsonwebtoken");
+const redisClient = require("../config/redis");
+const { sendKafkaEvent } = require("../config/kafka");
 const { decodedTokenGoogle } = require('../utils/helperMethod');
+
 const generateToken = (user) => {
-  return jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET, {
-    expiresIn: '1d',
-  });
+  return jwt.sign(
+    { id: user._id, username: user.username, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
+  );
 };
+
+
 
 // Đăng nhập người dùng
 const login = async (req, res) => {
@@ -16,67 +21,67 @@ const login = async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const token = generateToken(user);
 
     // Lưu token vào Redis với TTL 1 ngày
-    await redisClient.setEx(`currentuser`, process.env.SESSION_EXPIRY, token);
+    await redisClient.setEx(`auth:session:${user._id}:web`, process.env.SESSION_EXPIRY, token);
     console.log(JSON.stringify(user));
 
     // Gửi event người dùng đăng nhập vào kafka
-    await sendKafkaEvent('auth-service.user.loginned', {
-      email: user.email,
-      role: user.role,
-      timestamp: Date.now(),
-    });
+    await sendKafkaEvent("auth-service.user.loginned", { email: user.email, role: user.role, timestamp: Date.now() });
 
     return res.json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      token,
+      _id: user._id, username: user.username, email: user.email, role: user.role, token
     });
+
   } catch (error) {
-    console.error('Login Error:', error);
-    res.status(500).json({ message: 'Server error', error });
+    console.error("Login Error:", error);
+    res.status(500).json({ message: "Server error", error });
   }
 };
 
 const logout = async (req, res) => {
   try {
-    await redisClient.del(`session:${req.user.id}`);
 
-    sendKafkaEvent('UserLoggedOut', { email: decoded.email, timestamp: Date.now() });
+    const token = req.headers["authorization"]?.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const id = decoded.id;
+    console.log(id)
+    await redisClient.del(`auth:session:${id}:web`);
 
-    res.json({ message: 'Logged out successfully' });
+    sendKafkaEvent("UserLoggedOut", { email: decoded.email, timestamp: Date.now() });
+
+    res.json({ message: "Logged out successfully" });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: "Server error", error });
   }
 };
 
 // validate token
 const validate = async (req, res) => {
-  console.log(req.headers['authorization']?.split(' ')[1]);
-  const token = req.headers['authorization']?.split(' ')[1];
-
+  console.log(req.headers["Authorization"]?.split(" ")[1]);
+  const token = req.headers["Authorization"]?.split(" ")[1];
+  console.log(token)
   if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userRole = User[decoded.email]?.role || 'guest';
+    const userRole = User[decoded.email]?.role || "guest";
 
-    res.setHeader('X-User-Role', userRole);
-    res.setHeader('Content-Length', '0'); // Đảm bảo không có body trả về
+    res.setHeader("X-User-Role", userRole);
+    res.setHeader("Content-Length", "0"); // Đảm bảo không có body trả về
     return res.sendStatus(200);
   } catch (err) {
     console.log(err);
-    return res.status(402).json({ message: 'Invalid Token' });
+    return res.status(402).json({ message: "Invalid Token" });
   }
-};
+}
 
 // Login Google
 const loginGoogle = async (req, res) => {
@@ -88,7 +93,7 @@ const loginGoogle = async (req, res) => {
 
     if (!payload?.email) return res.status(400).json({ errMsg: 'Invalid Google Token!' });
 
-    let user = await User.findOne({ email: payload.email }).lean();
+    let user = await User.findOne({ email: payload.email });
     if (!user) {
       user = await User.create({
         name: payload.name,
@@ -98,7 +103,6 @@ const loginGoogle = async (req, res) => {
       });
 
       await sendKafkaEvent('auth-service.user.created', {
-        id: user._id,
         email: user.email,
         name: user.name,
         avatar: user.avatar,
@@ -109,7 +113,7 @@ const loginGoogle = async (req, res) => {
     }
     const token = generateToken(user);
 
-    await redisClient.setEx(`currentuser`, process.env.SESSION_EXPIRY, token);
+    await redisClient.setEx(`auth:session:${user._id}:web`, process.env.SESSION_EXPIRY, token);
 
     console.log(JSON.stringify(user));
 
@@ -120,15 +124,11 @@ const loginGoogle = async (req, res) => {
     });
 
     return res.json({
-      _id: user._id,
-      username: user.username,
-      email: user.email,
-      token,
+      _id: user._id, username: user.username, email: user.email, role: user.role, token
     });
   } catch (e) {
-    console.log(e);
-    return res.status(500).send({ errMsg: e });
+    return res.status(500).send({ errMsg: 'Something is wrong!' });
   }
 };
 
-module.exports = { logout, login, loginGoogle, validate };
+module.exports = { logout, login, validate, loginGoogle };
