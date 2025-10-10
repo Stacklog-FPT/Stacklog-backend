@@ -98,6 +98,7 @@ const loginGoogle = async (req, res) => {
       });
 
       await sendKafkaEvent('auth-service.user.created', {
+        id: user._id,
         email: user.email,
         name: user.name,
         avatar: user.avatar,
