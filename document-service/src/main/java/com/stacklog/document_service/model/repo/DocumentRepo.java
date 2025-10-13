@@ -13,7 +13,10 @@ import io.lettuce.core.dynamic.annotation.Param;
 @Repository
 public interface DocumentRepo extends JpaRepository<Document, String> {
 
-    @Query(value = "SELECT d FROM Document d WHERE d.create_by = :userId", nativeQuery = true)
-    List<Document> findByUserId(@Param("userId") String userId);
+    Document findByDocumentId(String documentId);
+
+
+    @Query("SELECT da.document FROM DocumentAccess da WHERE da.documentAccessBy = :userId OR da.document.createdBy = :userId")
+    public List<Document> findByUserId(@Param("userId") String userId);
     
 }

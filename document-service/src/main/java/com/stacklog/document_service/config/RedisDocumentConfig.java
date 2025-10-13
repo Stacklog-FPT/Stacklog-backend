@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stacklog.core_service.utils.jwt.JwtDecoder;
 import com.stacklog.core_service.utils.redis.RedisService;
 import com.stacklog.document_service.model.entities.Document;
+import com.stacklog.document_service.model.entities.DocumentAccess;
 
 @Configuration
 public class RedisDocumentConfig {
@@ -19,6 +20,14 @@ public class RedisDocumentConfig {
             ObjectMapper objectMapper,
             JwtDecoder jwtDecoder) {
         return new RedisService<>(Document.class, jwtDecoder, Document::getDocumentId);
+    }
+
+    @Bean
+    public RedisService<DocumentAccess> redisDocumentAccessService(
+            RedisTemplate<String, String> redisTemplate,
+            ObjectMapper objectMapper,
+            JwtDecoder jwtDecoder) {
+        return new RedisService<>(DocumentAccess.class, jwtDecoder, DocumentAccess::getDocumentAccessId);
     }
 
 }
