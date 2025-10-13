@@ -1,5 +1,7 @@
 package com.stacklog.document_service.model.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.stacklog.core_service.model.entities.CoreEntity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -15,15 +17,16 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class DocumentLocation {
+public class DocumentAccess extends CoreEntity {
     
     @Id
-    private String documentLocationId;
+    private String documentAccessId;
 
-    private String groupId;
+    private String documentAccessBy;
 
     @ManyToOne
-    @JoinColumn(name = "document_id")
+    @JoinColumn(name = "documentId")
+    @JsonBackReference("document-access")
     private Document document;
 
 }

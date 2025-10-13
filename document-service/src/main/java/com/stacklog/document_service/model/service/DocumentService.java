@@ -1,16 +1,11 @@
 package com.stacklog.document_service.model.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.stacklog.core_service.model.service.IService;
 import com.stacklog.core_service.utils.CommonFunction;
@@ -18,6 +13,7 @@ import com.stacklog.core_service.utils.kafka.KafkaProducer;
 import com.stacklog.core_service.utils.redis.RedisService;
 import com.stacklog.document_service.model.entities.Document;
 import com.stacklog.document_service.model.repo.DocumentRepo;
+import jakarta.transaction.Transactional;
 
 @Service
 public class DocumentService implements IService<Document> {
@@ -27,32 +23,42 @@ public class DocumentService implements IService<Document> {
     private static final String KAFKA_TOPIC_UPDATE = "document-service.document.updated";
     private static final String KAFKA_TOPIC_CREATE = "document-service.document.created";
 
-    private static final String LOCATION_DIRECTORY = "Storage-Files";
+    @Autowired
+    private DocumentRepo documentRepo;
 
     @Autowired
-    DocumentRepo documentRepo;
+    private DocumentAccessService documentAccessService;
 
     @Autowired
-    KafkaProducer<Document> kafkaDocumentProducer;
+    private KafkaProducer<Document> kafkaDocumentProducer;
 
-    @Autowired
-    RedisService<Document> redisDocumentService;
+    private final RedisService<Document> redisDocumentService;
 
-    public DocumentService(RedisService<Document> redisDocumentService) {
-        this.redisDocumentService = redisDocumentService;
+    public DocumentService(RedisService<Document> redisService, DocumentRepo documentRepo) {
+        this.redisDocumentService = redisService;
+        this.documentRepo = documentRepo;
     }
 
     @Override
     public Document delete(String id, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+        Document document = documentRepo.findById(id).orElseThrow();
+        String userId = redisDocumentService.getCurrentUserId(token);
+
+        documentRepo.deleteById(id);
+
+        // Rebuild cache theo user
+        List<Document> byUser = documentRepo.findByUserId(userId);
+        redisDocumentService.saveListToRedis(byUser, token, NAME_SERVICE);
+
+        return document;
     }
 
     @Override
     public List<Document> getAllByUserId(String token) {
         List<Document> documents = redisDocumentService.getAll(token, NAME_SERVICE);
-        if (documents == null || documents.isEmpty()) {
-            documents = documentRepo.findByUserId(redisDocumentService.getCurrentUserId(token));
+        if (documents.isEmpty()) {
+            String userId = redisDocumentService.getCurrentUserId(token);
+            documents = documentRepo.findByUserId(userId);
             redisDocumentService.saveListToRedis(documents, token, NAME_SERVICE);
         }
         return documents;
@@ -60,25 +66,25 @@ public class DocumentService implements IService<Document> {
 
     @Override
     public Document getById(String id, String token) {
-        Document document = redisDocumentService.getById(id, token, NAME_SERVICE);
-        if (document == null) {
-            document = documentRepo.findById(id).orElseThrow();
-            redisDocumentService.saveToRedis(document, token, NAME_SERVICE);
-        }
-        return null;
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getById'");
     }
 
     @Override
     @Transactional
     public Document save(Document e, String token) {
         boolean isCreate = (e.getDocumentId() == null || !documentRepo.existsById(e.getDocumentId()));
-        e.setUpdateAt(CommonFunction.getCurrentTime());
-        e.setUpdateBy(redisDocumentService.getCurrentUserId(token));
-        if (e.getDocumentId() == null) {
-            e.setCreatedAt(CommonFunction.getCurrentTime());
-            e.setCreatedBy(redisDocumentService.getCurrentUserId(token));
-            e.setDocumentId(UUID.randomUUID().toString());
+        e = saveToDB(e, token, isCreate);
+
+        if (e.getDocumentAccesses() != null && !e.getDocumentAccesses().isEmpty()) {
+            if (!isCreate) {
+                documentAccessService.deleteDocumentAccess(e.getDocumentId(), e.getDocumentAccesses());
+            }
+            e.getDocumentAccesses().stream().forEach(a -> documentAccessService.save(a, token));
         }
+
+        Document newDocument = documentRepo.findByDocumentId(e.getDocumentId());
+
         if (isCreate) {
             kafkaDocumentProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
         } else {
@@ -87,25 +93,24 @@ public class DocumentService implements IService<Document> {
 
         redisDocumentService.saveToRedis(e, token, NAME_SERVICE);
 
-        return e;
+        return newDocument;
     }
 
     @Transactional
-    public Document saveFile(MultipartFile file, Document d, String token) {
-        File newFile = new File(LOCATION_DIRECTORY + File.separator + file.getOriginalFilename());
-        try {
-            Files.copy(file.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    private Document saveToDB(Document e, String token, boolean isCreate) {
+        LocalDateTime now = CommonFunction.getCurrentTime();
+        String currentUserId = redisDocumentService.getCurrentUserId(token);
 
-            String documentId = d.getDocumentId() == null ? d.getDocumentId() : null;
-
-            Document document = new Document(documentId, file.getOriginalFilename(),
-                    "/document-service/downloadFile/" + documentId, file.getContentType(), newFile.getPath(),
-                    d.getDocumentLocations());
-            return save(document, token);
-        } catch (IOException e) {
-            e.printStackTrace();
+        e.setUpdateAt(now);
+        e.setUpdateBy(currentUserId);
+        if (isCreate) {
+            e.setCreatedAt(now);
+            e.setCreatedBy(currentUserId);
+            e.setDocumentId(UUID.randomUUID().toString());
         }
-        return null;
+
+        e.setDocumentId(documentRepo.save(e).getDocumentId());
+        return e;
     }
 
 }
