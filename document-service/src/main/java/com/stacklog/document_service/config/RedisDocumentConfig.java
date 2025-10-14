@@ -3,6 +3,7 @@ package com.stacklog.document_service.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stacklog.core_service.utils.jwt.JwtDecoder;
