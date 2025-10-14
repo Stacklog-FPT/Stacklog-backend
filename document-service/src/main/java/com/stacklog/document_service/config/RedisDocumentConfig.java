@@ -13,6 +13,10 @@ import com.stacklog.document_service.model.entities.DocumentAccess;
 @Configuration
 public class RedisDocumentConfig {
     
+    @Bean
+    public LettuceConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory("redis", 6379);
+    }
 
     @Bean
     public RedisService<Document> redisDocumentService(

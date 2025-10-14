@@ -24,7 +24,7 @@ public class DocumentController {
     @Autowired
     DocumentService documentService;
 
-    @GetMapping("")
+    @GetMapping(value = {"", "/"})
     public ResponseEntity<List<Document>> getDocument(@RequestHeader("Authorization") String token) {
         List<Document> lists = documentService.getAllByUserId(token);
 

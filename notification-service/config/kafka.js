@@ -68,6 +68,8 @@ const topicHandlers = {
 
     const memberIds = getMemberIdsFromAssigns(payload);
 
+    console.log(payload);
+
     // Fallback: nếu không có assigns, bạn có thể chọn gửi broadcast cho group
     // hoặc bỏ qua. Ở đây mình chỉ gửi khi có memberIds.
     if (memberIds.length) {
@@ -76,6 +78,7 @@ const topicHandlers = {
         `Task mới: ${taskTitle}`,
         "task"
       );
+      
     }
 
     // Nếu bạn muốn emit thêm thông tin (groupId, taskId) -> thêm vào content
@@ -134,6 +137,8 @@ const topicHandlers = {
       state,
       mentionUserIds = [],
     } = payload;
+
+    console.log(payload);
 
     if (Array.isArray(mentionUserIds) && mentionUserIds.length > 0) {
       await createNotification(
