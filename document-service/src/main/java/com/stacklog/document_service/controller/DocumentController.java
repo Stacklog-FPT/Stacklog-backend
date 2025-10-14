@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping(path = "")
 public class DocumentController {
-    
+
     @Autowired
     DocumentService documentService;
 
-    @GetMapping(value = {"", "/"})
+    @GetMapping(value = { "", "/" })
     public ResponseEntity<List<Document>> getDocument(@RequestHeader("Authorization") String token) {
         List<Document> lists = documentService.getAllByUserId(token);
 
@@ -34,15 +34,26 @@ public class DocumentController {
         return ResponseEntity.ok().body(lists);
     }
 
+    @GetMapping("/groups/{gId}")
+    public ResponseEntity<List<Document>> getDocumentByGroupId(@RequestHeader("Authorization") String token,
+            @PathVariable(name = "gId", required = false) String gId) {
+        List<Document> lists = documentService.getByGroupId(gId, token);
+        if (lists.isEmpty() || lists == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().body(lists);
+    }
+
     @PostMapping("/save")
-    public ResponseEntity<Document> postMethodName(@RequestHeader("Authorization") String token, @RequestBody Document e) {
+    public ResponseEntity<Document> postMethodName(@RequestHeader("Authorization") String token,
+            @RequestBody Document e) {
         Document document = documentService.save(e, token);
         if (document == null) {
             return ResponseEntity.badRequest().body(null);
         }
         return ResponseEntity.ok().body(document);
     }
-    
+
     @DeleteMapping("/delete/{dId}")
     public ResponseEntity<String> removeDocument(@RequestHeader("Authorization") String token,
             @PathVariable(name = "dId", required = false) String dId) {

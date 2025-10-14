@@ -17,16 +17,16 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class DocumentAccess extends CoreEntity {
+public class DocumentLocation extends CoreEntity {
     
     @Id
-    private String documentAccessId;
+    private String documentLocationId;
 
-    private String documentAccessBy;
+    private String groupId;
 
     @ManyToOne
     @JoinColumn(name = "documentId")
-    @JsonBackReference("document-access")
+    @JsonBackReference("document-location")
     private Document document;
 
 }

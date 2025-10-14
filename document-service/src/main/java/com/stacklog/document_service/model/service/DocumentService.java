@@ -27,7 +27,7 @@ public class DocumentService implements IService<Document> {
     private DocumentRepo documentRepo;
 
     @Autowired
-    private DocumentAccessService documentAccessService;
+    private DocumentLocationService documentLocationService;
 
     @Autowired
     private KafkaProducer<Document> kafkaDocumentProducer;
@@ -55,13 +55,14 @@ public class DocumentService implements IService<Document> {
 
     @Override
     public List<Document> getAllByUserId(String token) {
-        List<Document> documents = redisDocumentService.getAll(token, NAME_SERVICE);
-        if (documents.isEmpty()) {
-            String userId = redisDocumentService.getCurrentUserId(token);
-            documents = documentRepo.findByUserId(userId);
-            redisDocumentService.saveListToRedis(documents, token, NAME_SERVICE);
-        }
-        return documents;
+        // List<Document> documents = redisDocumentService.getAll(token, NAME_SERVICE);
+        // if (documents.isEmpty()) {
+        //     String userId = redisDocumentService.getCurrentUserId(token);
+        //     documents = documentRepo.findByUserId(userId);
+        //     redisDocumentService.saveListToRedis(documents, token, NAME_SERVICE);
+        // }
+        // return documents;
+        return null;
     }
 
     @Override
@@ -70,17 +71,21 @@ public class DocumentService implements IService<Document> {
         throw new UnsupportedOperationException("Unimplemented method 'getById'");
     }
 
+    public List<Document> getByGroupId(String groupId, String token) {
+        return documentRepo.findAllByDocumentLocationGroupId(groupId);
+    }
+
     @Override
     @Transactional
     public Document save(Document e, String token) {
         boolean isCreate = (e.getDocumentId() == null || !documentRepo.existsById(e.getDocumentId()));
         e = saveToDB(e, token, isCreate);
 
-        if (e.getDocumentAccesses() != null && !e.getDocumentAccesses().isEmpty()) {
+        if (e.getDocumentLocations() != null && !e.getDocumentLocations().isEmpty()) {
             if (!isCreate) {
-                documentAccessService.deleteDocumentAccess(e.getDocumentId(), e.getDocumentAccesses());
+                documentLocationService.deleteDocumentLocation(e.getDocumentId(), e.getDocumentLocations());
             }
-            e.getDocumentAccesses().stream().forEach(a -> documentAccessService.save(a, token));
+            e.getDocumentLocations().stream().forEach(a -> documentLocationService.save(a, token));
         }
 
         Document newDocument = documentRepo.findByDocumentId(e.getDocumentId());

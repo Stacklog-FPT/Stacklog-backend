@@ -40,8 +40,8 @@ public class Document extends CoreEntity {
     private String documentPath;
 
     @OneToMany(mappedBy = "document", cascade = CascadeType.REMOVE)
-    @JsonManagedReference("document-access")
-    private List<DocumentAccess> documentAccesses;
+    @JsonManagedReference("document-location")
+    private List<DocumentLocation> documentLocations;
 
 
 }
