@@ -60,6 +60,7 @@ const topicHandlers = {
         memberIds,
         `Nhóm ${groupName} đã được tạo`,
         "system",
+        {},
         path
       );
     }
@@ -82,6 +83,7 @@ const topicHandlers = {
         memberIds,
         `Task mới: ${taskTitle}`,
         "task",
+        {},
         path
       );
       
@@ -131,6 +133,7 @@ const topicHandlers = {
         memberIds,
         `⏰ Task "${taskTitle}" sắp đến hạn (${deadlineText})`,
         "task",
+        {},
         path
       );
     }
@@ -156,6 +159,7 @@ const topicHandlers = {
         mentionUserIds,
         `📢 Bạn được mention trong một tin nhắn: "${content}"`,
         "chat",
+        {},
         path
       );
     }
