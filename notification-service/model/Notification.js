@@ -11,6 +11,7 @@ const NotificationSchema = new Schema({
   type: { type: String, enum: ["system", "chat", "task"], default: "system" },
   receivers: [ReceiverSchema],
   createdAt: { type: Date, default: Date.now },
+  path: { type: String, required: false }
 });
 
 const Notification = model("Notification", NotificationSchema);
