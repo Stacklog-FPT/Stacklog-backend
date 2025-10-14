@@ -41,7 +41,7 @@ async function listByUser(req, res) {
     }
 }
 
-async function createNotification(userIds, content, type = "system", meta = {}) {
+async function createNotification(userIds, content, type = "system", meta = {}, path) {
     if (!Array.isArray(userIds) || userIds.length === 0) {
         throw new Error("userIds required");
     }
@@ -52,6 +52,7 @@ async function createNotification(userIds, content, type = "system", meta = {}) 
         type,
         receivers: userIds.map((uid) => ({ userId: uid })),
         meta,
+        path,
     });
 
     // 2. Lưu Redis + emit socket realtime

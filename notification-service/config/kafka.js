@@ -50,6 +50,8 @@ const topicHandlers = {
     const groupName = payload.groupName || "Nhóm";
     const groupId = payload.groupId;
 
+    const path = `/tasks/${groupId}`
+
     // Nếu bạn có autoCreateBoxFromGroupEvent thì gọi ở đây
     // await autoCreateBoxFromGroupEvent(payload);
 
@@ -57,7 +59,8 @@ const topicHandlers = {
       await createNotification(
         memberIds,
         `Nhóm ${groupName} đã được tạo`,
-        "system"
+        "system",
+        path
       );
     }
   },
@@ -68,6 +71,8 @@ const topicHandlers = {
 
     const memberIds = getMemberIdsFromAssigns(payload);
 
+    const path = `/tasks/${groupId}`
+
     console.log(payload);
 
     // Fallback: nếu không có assigns, bạn có thể chọn gửi broadcast cho group
@@ -76,7 +81,8 @@ const topicHandlers = {
       await createNotification(
         memberIds,
         `Task mới: ${taskTitle}`,
-        "task"
+        "task",
+        path
       );
       
     }
@@ -118,11 +124,14 @@ const topicHandlers = {
     const deadlineText = toReadable(taskDueDate); // ví dụ: 2025-09-26 01:35 (UTC)
     const memberIds = getMemberIdsFromAssigns(payload);
 
+    const path = `/tasks/${groupId}`
+
     if (memberIds.length) {
       await createNotification(
         memberIds,
         `⏰ Task "${taskTitle}" sắp đến hạn (${deadlineText})`,
-        "task"
+        "task",
+        path
       );
     }
   },
@@ -140,11 +149,14 @@ const topicHandlers = {
 
     console.log(payload);
 
+    const path = `/chatbox/${box_chat_id}`
+
     if (Array.isArray(mentionUserIds) && mentionUserIds.length > 0) {
       await createNotification(
         mentionUserIds,
         `📢 Bạn được mention trong một tin nhắn: "${content}"`,
-        "chat"
+        "chat",
+        path
       );
     }
   },
