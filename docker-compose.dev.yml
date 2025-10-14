@@ -176,24 +176,25 @@ services:
       # - kafka-3
       - redis
     restart: on-failure
-            # # --- Document Service ---
-  # documentservice:
-  #   build:
-  #     context: .
-  #     dockerfile: document-service/Dockerfile
-  #   volumes:
-  #     - ~/.m2:/root/.m2
-  #   container_name: documentservice
-  #   ports:
-  #     - "2005:2005"
-  #   restart: on-failure
-  #   networks:
-  #     - app-network
-  #   depends_on:
-  #     - kafka-1
-  #     # - kafka-2
-  #     # - kafka-3
-  #     - redis
+            
+        # --- Document Service ---
+  documentservice:
+    build:
+      context: .
+      dockerfile: document-service/Dockerfile
+    volumes:
+      - ~/.m2:/root/.m2
+    container_name: documentservice
+    ports:
+      - "2005:2005"
+    restart: on-failure
+    networks:
+      - app-network
+    depends_on:
+      - kafka-1
+      # - kafka-2
+      # - kafka-3
+      - redis
 
                 # # --- Notification Service ---
   notificationservice:
