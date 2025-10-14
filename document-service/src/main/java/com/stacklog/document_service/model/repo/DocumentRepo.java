@@ -15,6 +15,7 @@ public interface DocumentRepo extends JpaRepository<Document, String> {
 
     Document findByDocumentId(String documentId);
 
+    @Query("SELECT DISTINCT d FROM Document d JOIN d.documentLocations dl WHERE dl.groupId = :groupId")
     List<Document> findAllByDocumentLocationGroupId(String groupId);
 
     @Query("SELECT d FROM Document d WHERE d.createdBy = :userId OR d.updateBy = :userId")
