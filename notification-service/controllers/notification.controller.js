@@ -51,8 +51,9 @@ async function createNotification(userIds, content, type = "system", meta = {}, 
         content,
         type,
         receivers: userIds.map((uid) => ({ userId: uid })),
-        meta,
         path,
+        meta,
+        
     });
 
     // 2. Lưu Redis + emit socket realtime
