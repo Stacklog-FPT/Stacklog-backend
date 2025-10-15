@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import com.stacklog.document_service.model.entities.Document;
 
-
 @Repository
 public interface DocumentRepo extends JpaRepository<Document, String> {
 
@@ -20,5 +19,13 @@ public interface DocumentRepo extends JpaRepository<Document, String> {
 
     @Query("SELECT d FROM Document d WHERE d.createdBy = :userId OR d.updateBy = :userId")
     List<Document> findByUserId(@Param("userId") String userId);
-    
+
+    @Query("""
+            select distinct d
+            from Document d
+            join fetch d.documentLocations dl
+            where dl.groupId in :groupIds
+                """)
+    List<Document> findUserDocumentByGroupIds(@Param("groupIds") List<String> groupIds);
+
 }
