@@ -17,7 +17,7 @@ public interface DocumentLocationRepo extends JpaRepository<DocumentLocation, St
     void deleteAllByDocumentId(String documentId);
 
     @Modifying
-    @Query("delete from DocumentLocation dl where dl.document.documentId = :documentId and dl.groupId not in :keepIds")
+    @Query("delete from DocumentLocation dl where dl.document.documentId = :documentId and dl.documentLocationId not in :keepIds")
     void deleteAllNotIn(String documentId, Set<String> keepIds);
 
     DocumentLocation findByDocumentDocumentIdAndGroupId(String documentId, String groupId);
