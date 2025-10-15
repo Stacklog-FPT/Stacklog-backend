@@ -98,6 +98,8 @@ public class DocumentService implements IService<Document> {
 
         redisDocumentService.saveToRedis(e, token, NAME_SERVICE);
 
+        newDocument.setDocumentLocations(e.getDocumentLocations());
+
         return newDocument;
     }
 
