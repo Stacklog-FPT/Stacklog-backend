@@ -212,23 +212,23 @@ services:
     restart: on-failure
 
                 # # --- Score Service ---
-  # scoreservice:
-  #   build:
-  #     context: .
-  #     dockerfile: score-service/Dockerfile
-  #   volumes:
-  #     - ~/.m2:/root/.m2
-  #   container_name: scoreservice
-  #   ports:
-  #     - "2008:2008"
-  #   restart: on-failure
-  #   networks:
-  #     - app-network
-  #   depends_on:
-  #     - kafka-1
-  #     # - kafka-2
-  #     # - kafka-3
-  #     - redis
+  scoreservice:
+    build:
+      context: .
+      dockerfile: score-service/Dockerfile
+    volumes:
+      - ~/.m2:/root/.m2
+    container_name: scoreservice
+    ports:
+      - "2008:2008"
+    restart: on-failure
+    networks:
+      - app-network
+    depends_on:
+      - kafka-1
+      # - kafka-2
+      # - kafka-3
+      - redis
 
   scheduleservice:
     build:
