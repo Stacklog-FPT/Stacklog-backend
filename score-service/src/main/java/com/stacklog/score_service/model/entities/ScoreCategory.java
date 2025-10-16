@@ -25,7 +25,11 @@ public class ScoreCategory extends CoreEntity {
     private String scoreCategoryId;
 
     private String scoreCategoryName;
+    private Double scoreCategoryWeight;
+    private Double scoreCategoryComment;
     private String classId;
+    private Boolean isVisualize = false;
+    private Boolean isFinal = false;
 
     private Boolean isReusable = true;
 
