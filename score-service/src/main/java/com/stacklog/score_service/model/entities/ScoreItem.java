@@ -27,6 +27,8 @@ public class ScoreItem extends CoreEntity {
 
     private String userId;
 
+    private String groupId;
+
     @ManyToOne
     @JoinColumn(name = "scoreCategoryId")
     @JsonBackReference("category-item")

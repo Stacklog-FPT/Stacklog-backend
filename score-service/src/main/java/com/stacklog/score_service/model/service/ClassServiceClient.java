@@ -9,10 +9,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@FeignClient(name = "class-service", url = "http://classservice:2003/group", path = "")
+@FeignClient(name = "class-service", url = "http://classservice:2003", path = "")
 public interface ClassServiceClient {
-    @GetMapping("")
-    List<Groupss> getGroupByUserId(@RequestHeader("Authorization") String token);
 
     @GetMapping("/groupstudent/find/{groupId}")
     List<GroupStudent> getGroupStudent(@RequestHeader("Authorization") String token,
