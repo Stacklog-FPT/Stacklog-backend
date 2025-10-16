@@ -16,7 +16,7 @@ public interface ScoreItemRepo extends JpaRepository<ScoreItem, String> {
     @Query("""
             select distinct st
             from ScoreItem st
-            where st.userId in :userIds;
+            where st.userId in :userIds
             """)
     List<ScoreItem> findScoreItemByUserIds(List<String> userIds);
     

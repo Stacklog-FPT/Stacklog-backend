@@ -23,12 +23,7 @@ public class ScoreItem extends CoreEntity {
     private String scoreItemId;
 
     private String scoreItemName;
-    private Double scoreItemWeight;
     private Double scoreItemValue = 0.00;
-    private String scoreItemComment;
-
-    private Boolean isVisualize = false;
-    private Boolean isFinal = false;
 
     private String userId;
 
