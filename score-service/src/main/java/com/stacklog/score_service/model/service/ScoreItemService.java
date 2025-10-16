@@ -59,7 +59,7 @@ public class ScoreItemService implements IService<ScoreItem> {
         if (userIds.isEmpty())
             return List.of();
 
-        List<ScoreItem> scoreItems = scoreItemRepo.findScoreItemByUserIds(userIds);
+        List<ScoreItem> scoreItems = scoreItemRepo.findScoreItemByUserIds(groupId, userIds);
 
         redisScoreItemService.saveListToRedis(scoreItems, token, "score-service");
         return scoreItems;
