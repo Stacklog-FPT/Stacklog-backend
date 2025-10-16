@@ -72,6 +72,10 @@ public class GroupsStudentService implements IService<GroupStudent> {
                         "GroupStudent not found for groupId=" + groupId + " and userId=" + userId));
     }
 
+    public List<GroupStudent> getByGroupIdNhat(String groupId, String token) {
+        return groupsStudentRepo.findAllByGroupGroupId(groupId);
+    }
+
     @Override
     public GroupStudent getById(String id, String token) {
         GroupStudent groupStudent = redisGroupStudentService.getById(id, token, NAME_SERVICE);
