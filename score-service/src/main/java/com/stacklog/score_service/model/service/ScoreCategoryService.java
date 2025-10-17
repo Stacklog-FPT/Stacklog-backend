@@ -43,10 +43,11 @@ public class ScoreCategoryService implements IService<ScoreCategory> {
     }
 
     public List<ScoreCategory> getAllByClassId(String classId, String token) {
-        List<ScoreCategory> lists = redisScoreCategoryService.getAll(token, NAME_SERVICE);
+        String suffix = "class:" + classId;
+        List<ScoreCategory> lists = redisScoreCategoryService.getAllBySuffix(token, NAME_SERVICE, suffix);
         if (lists == null || lists.isEmpty()) {
             lists = scoreCategoryRepo.findAllByClassId(classId);
-            redisScoreCategoryService.saveListToRedis(lists, token, NAME_SERVICE);
+            redisScoreCategoryService.saveListToRedisWithSuffix(lists, token, NAME_SERVICE, suffix);
         }
         return lists;
     }
