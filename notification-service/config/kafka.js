@@ -165,6 +165,25 @@ const topicHandlers = {
     }
   },
 
+  [TOPIC_CHATBOX_KICKED = process.env.TOPIC_MESSAGE_CREATED || 'chat-service.boxchat.kicked']: async (payload) => {
+    const {
+      userId,
+      box
+    } = payload;
+
+    console.log(payload);
+
+    const path = `/chatbox/${box.box_chat_id}`;
+
+    await createNotification(
+      userId,
+      `📢 Bạn đã bị xóa khỏi nhóm: "${box.name_box}"`,
+      "chat",
+      {},
+      path
+    );
+  },
+
 };
 
 const initProducer = async () => {

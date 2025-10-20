@@ -4,6 +4,7 @@ const auth = require('../middleware/auth');
 
 router.post('/', auth, ctrl.create);
 router.post('/:boxId/members', auth, ctrl.addMembers);
+router.delete('/:boxId/delete/:userId', auth, ctrl.deleteMember);
 router.get('/', auth, ctrl.listByUser);
 router.delete('/:boxId', auth, ctrl.delete);
 

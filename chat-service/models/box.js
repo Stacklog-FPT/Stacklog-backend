@@ -109,4 +109,16 @@ async function searchBoxesByUserIds(userIds = []) {
     .lean();
 }
 
-module.exports = { BoxChat, createBox, addMembers, listBoxesByUser, autoCreateBoxFromGroupEvent, deleteBox, searchBoxesByUserIds };
+async function deleteMemberSchema(userId, boxId) {
+  if (!userId || !boxId) throw new Error("userId and boxId are required");
+
+  // Xóa member khỏi danh sách members trong BoxChat
+  const result = await BoxChat.updateOne(
+    { _id: boxId },
+    { $pull: { members: { userId: userId } } }
+  );
+
+  return result;
+}
+
+module.exports = { BoxChat, createBox, addMembers, listBoxesByUser, autoCreateBoxFromGroupEvent, deleteBox, searchBoxesByUserIds, deleteMemberSchema };
