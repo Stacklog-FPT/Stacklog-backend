@@ -24,6 +24,7 @@ public class ScoreItem extends CoreEntity {
 
     private String scoreItemName;
     private Double scoreItemValue = 0.00;
+    private Boolean isVisualize = false;
 
     private String userId;
 
