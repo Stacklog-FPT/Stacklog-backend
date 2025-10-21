@@ -52,6 +52,15 @@ public class ScoreCategoryService implements IService<ScoreCategory> {
         return lists;
     }
 
+    public List<ScoreCategory> getAllByReused(String token) {
+        List<ScoreCategory> list = redisScoreCategoryService.getAll(token, NAME_SERVICE);
+        if (list == null || list.isEmpty()) {
+            list = scoreCategoryRepo.findAllByIsReusable(true);
+            redisScoreCategoryService.saveListToRedis(list, token, NAME_SERVICE);
+        }
+        return list;
+    }
+
     @Override
     public ScoreCategory getById(String id, String token) {
         // TODO Auto-generated method stub

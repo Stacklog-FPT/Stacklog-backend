@@ -34,6 +34,15 @@ public class ScoreCategoryController {
         return ResponseEntity.ok(list);
     }
 
+    @GetMapping("/isreuse")
+    public ResponseEntity<List<ScoreCategory>> getByReused(@RequestHeader("Authorization") String token) {
+        List<ScoreCategory> list = scoreCategoryService.getAllByReused(token);
+        if (list.isEmpty() || list == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(list);
+    }
+
     @PostMapping("/save")
     public ResponseEntity<ScoreCategory> saveScoreCategory(@RequestHeader("Authorization") String token,
             @RequestBody ScoreCategory e) {
@@ -47,7 +56,7 @@ public class ScoreCategoryController {
     @DeleteMapping("/delete/{scId}")
     public ResponseEntity<ScoreCategory> deleteScoreCategory(@RequestHeader("Authorization") String token,
             @PathVariable(name = "scId") String scId) {
-        
+
         ScoreCategory sc = scoreCategoryService.delete(scId, token);
         if (sc == null) {
             return ResponseEntity.badRequest().build();
