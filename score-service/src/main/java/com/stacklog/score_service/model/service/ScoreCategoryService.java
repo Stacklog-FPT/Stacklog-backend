@@ -58,7 +58,7 @@ public class ScoreCategoryService implements IService<ScoreCategory> {
             list = scoreCategoryRepo.findAllByIsReusable(true);
             redisScoreCategoryService.saveListToRedis(list, token, NAME_SERVICE);
         } else {
-            list = list.stream().filter(sc -> sc.isReuse == true);
+            list = list.stream().filter(sc -> sc.getIsReusable() == true).toList();
         }
         return list;
     }
