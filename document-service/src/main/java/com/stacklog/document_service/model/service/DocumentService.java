@@ -30,6 +30,9 @@ public class DocumentService implements IService<Document> {
     private DocumentLocationService documentLocationService;
 
     @Autowired
+    private ClassServiceClient classServiceClient;
+
+    @Autowired
     private KafkaProducer<Document> kafkaDocumentProducer;
 
     private final RedisService<Document> redisDocumentService;
@@ -58,8 +61,19 @@ public class DocumentService implements IService<Document> {
         List<Document> list = redisDocumentService.getAll(token, NAME_SERVICE);
         if (list == null || list.isEmpty()) {
             list = documentRepo.findByUserId(redisDocumentService.getCurrentUserId(token));
+            List<String> groupIds = classServiceClient.getGroupByUserId(token)
+                    .stream()
+                    .map(Groupss::getGroupsId)
+                    .filter(id -> id != null && !id.isBlank())
+                    .toList();
+
+            if (groupIds.isEmpty())
+                return List.of();
+            
+            list.addAll(documentRepo.findUserDocumentByGroupIds(groupIds));
             redisDocumentService.saveListToRedis(list, token, NAME_SERVICE);
         }
+
         return list;
     }
 
