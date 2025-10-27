@@ -99,8 +99,8 @@ public class ScoreCategoryService implements IService<ScoreCategory> {
             e.setCreatedBy(currentUserId);
             e.setScoreCategoryId(UUID.randomUUID().toString());
         }
-
-        e.setScoreCategoryId(scoreCategoryRepo.save(e).getScoreCategoryId());
+        e = scoreCategoryRepo.save(e);
+        
         return e;
     }
 
