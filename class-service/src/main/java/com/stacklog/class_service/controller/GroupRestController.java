@@ -179,10 +179,13 @@ public class GroupRestController {
     }
 
     @DeleteMapping("/{groupsId}")
-    public ResponseEntity<Groupss> deleteGroupss(@RequestHeader("Authorization") String token,
+    public ResponseEntity<String> deleteGroupss(@RequestHeader("Authorization") String token,
             @PathVariable(name = "groupsId") String groupsId) {
-
-        return ResponseEntity.ok().body(null);
+        Groupss groupss = groupService.delete(groupsId, token);
+        if (groupss == null) {
+            return ResponseEntity.badRequest().body("Delete failed");
+        }
+        return ResponseEntity.ok().body("Delete success");
     }
 
 }

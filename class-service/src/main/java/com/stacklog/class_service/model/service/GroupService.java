@@ -39,8 +39,15 @@ public class GroupService implements IService<Groupss> {
     }
 
     @Override
+    @Transactional
     public Groupss delete(String id, String token) {
-        return null;
+        Groupss groupss = redisGroupsService.getById(id, token, NAME_SERVICE);
+        if (groupss == null) {
+            groupss = groupsRepo.findById(id).orElseThrow();
+        }
+        groupsRepo.delete(groupss);
+        redisGroupsService.deleteAllByUserId(token, NAME_SERVICE);
+        return groupss;
     }
 
     @Override
