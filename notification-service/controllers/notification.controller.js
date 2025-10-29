@@ -6,7 +6,7 @@ const {
 
 const { redisService } = require("../config/redis");
 const { ioEmitNotification } = require('../config/socket');
-const { sendEmail } = require("../config/nodemailer");
+const { sendEmail } = require("../config/email");
 const { getStudentEmails } = require("../helper/api.service");
 
 /**
@@ -70,28 +70,25 @@ async function createNotification(userIds, content, type = "system", meta = {}, 
 
 async function sendNotification(req, res) {
     try {
-        const classIds = req.listClassId;
-
+        const classIds = req.body.listClassId;
+        const authHeader = req.headers['authorization'];
+        const token = authHeader.split(' ')[1];
         // Gọi API để lấy danh sách học viên từ các nhóm thuộc các classIds
-        let studentEmails = [];
+        const emails = await getStudentEmails(classIds, token); // Giả sử hàm này sẽ trả về danh sách email của học viên trong lớp
 
-        // Lặp qua các classId và lấy email của học viên
-        for (let classId of classIds) {
-            const emails = await getStudentEmails(classId); // Giả sử hàm này sẽ trả về danh sách email của học viên trong lớp
-            studentEmails = [...studentEmails, ...emails];
-        }
 
         // Kiểm tra nếu không có email nào để gửi
-        if (studentEmails.length === 0) {
+        if (emails.length === 0) {
             return res.status(400).json({ message: 'No students found to send notification.' });
         }
 
         // Tiến hành gửi email cho tất cả học viên
-        const subject = req.subject;  // Tiêu đề email
-        const text = req.content;  // Nội dung email
+        const subject = req.body.subject;  // Tiêu đề email
+        const text = req.body.content;  // Nội dung email
 
-        for (const email of studentEmails) {
+        for (const email of emails) {
             await sendEmail(
+                "chumlu2102@gmail.com",
                 email,                   // Địa chỉ email người nhận
                 subject,                 // Tiêu đề
                 text                     // Nội dung email
