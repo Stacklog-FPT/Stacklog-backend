@@ -6,6 +6,7 @@ const {
 
 const { redisService } = require("../config/redis");
 const { ioEmitNotification } = require('../config/socket');
+const { sendEmail } = require("../config/nodemailer");
 
 /**
  * GET /api/notifications (tất cả hệ thống - chỉ admin mới nên dùng)
@@ -53,7 +54,7 @@ async function createNotification(userIds, content, type = "system", meta = {}, 
         receivers: userIds.map((uid) => ({ userId: uid })),
         path,
         meta,
-        
+
     });
 
     // 2. Lưu Redis + emit socket realtime
@@ -66,8 +67,48 @@ async function createNotification(userIds, content, type = "system", meta = {}, 
     return notification;
 }
 
+async function sendNotification(req, res) {
+    try {
+        const classIds = req.listClassId;
+
+        // Gọi API để lấy danh sách học viên từ các nhóm thuộc các classIds
+        let studentEmails = [];
+
+        // Lặp qua các classId và lấy email của học viên
+        for (let classId of classIds) {
+            const emails = await getStudentEmails(classId); // Giả sử hàm này sẽ trả về danh sách email của học viên trong lớp
+            studentEmails = [...studentEmails, ...emails];
+        }
+
+        // Kiểm tra nếu không có email nào để gửi
+        if (studentEmails.length === 0) {
+            return res.status(400).json({ message: 'No students found to send notification.' });
+        }
+
+        // Tiến hành gửi email cho tất cả học viên
+        const subject = "Notification from Class System";  // Tiêu đề email
+        const text = "This is a notification email to all students.";  // Nội dung email
+
+        for (const email of studentEmails) {
+            await sendEmail(
+                email,                   // Địa chỉ email người nhận
+                subject,                 // Tiêu đề
+                text                     // Nội dung email
+            );
+        }
+
+        // Trả về kết quả thành công
+        res.status(200).json({ message: 'Emails sent successfully' });
+
+    } catch (err) {
+        console.error('Error sending notifications:', err);
+        res.status(500).json({ message: 'Send mail failed' });
+    }
+}
+
 module.exports = {
     listAll,
     listByUser,
-    createNotification
+    createNotification,
+    sendNotification
 };
