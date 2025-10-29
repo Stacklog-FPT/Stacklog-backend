@@ -7,6 +7,7 @@ const {
 const { redisService } = require("../config/redis");
 const { ioEmitNotification } = require('../config/socket');
 const { sendEmail } = require("../config/nodemailer");
+const { getStudentEmails } = require("../helper/api.service");
 
 /**
  * GET /api/notifications (tất cả hệ thống - chỉ admin mới nên dùng)
@@ -86,8 +87,8 @@ async function sendNotification(req, res) {
         }
 
         // Tiến hành gửi email cho tất cả học viên
-        const subject = "Notification from Class System";  // Tiêu đề email
-        const text = "This is a notification email to all students.";  // Nội dung email
+        const subject = req.subject;  // Tiêu đề email
+        const text = req.content;  // Nội dung email
 
         for (const email of studentEmails) {
             await sendEmail(
