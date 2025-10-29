@@ -73,7 +73,7 @@ public class DocumentService implements IService<Document> {
             list.addAll(documentRepo.findUserDocumentByGroupIds(groupIds));
             redisDocumentService.saveListToRedis(list, token, NAME_SERVICE);
         }
-
+        list.sort((d1,d2) -> d1.getCreatedAt().compareTo(d2.getCreatedAt()));
         return list;
     }
 
