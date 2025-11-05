@@ -9,7 +9,14 @@ const GROUP_ID = process.env.KAFKA_GROUP_ID || "notification-group";
 
 const kafka = new Kafka({ clientId: CLIENT_ID, brokers: [KAFKA_BROKER] });
 const producer = kafka.producer();
-const consumer = kafka.consumer({ groupId: GROUP_ID });
+const consumer = kafka.consumer({ groupId: GROUP_ID,
+  sessionTimeout: 45000,        
+  heartbeatInterval: 3000,      
+  rebalanceTimeout: 60000,      
+  retry: {
+    retries: 10,
+    initialRetryTime: 3000, 
+  }, });
 
 // --- Helpers ---
 const pad2 = (n) => (n < 10 ? `0${n}` : `${n}`);
