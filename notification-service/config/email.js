@@ -14,7 +14,7 @@ async function sendEmail(from, to, subject, text, attachments = []) {
 
     // Định nghĩa email bạn muốn gửi
     let mailOptions = {
-      from: process.env.EMAIL_STACKLOG_USER,
+      from: "chumlu2102@gmail.com",
       to: to,
       subject: subject,
       text: text,
