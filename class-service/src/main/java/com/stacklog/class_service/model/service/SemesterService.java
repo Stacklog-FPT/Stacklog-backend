@@ -107,4 +107,8 @@ public class SemesterService implements IService<Semester> {
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
 
+    public List<Semester> getAll() {
+        return semesterRepo.findAll();
+    }
+
 }

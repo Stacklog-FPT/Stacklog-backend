@@ -40,9 +40,18 @@ public class SemesterRestController {
         }
         return ResponseEntity.ok().body(semesters);
     }
+
+    @GetMapping("/getall")
+    public ResponseEntity<List<Semester>> getAllSemesters(@RequestHeader("Authorization") String token) {
+        List<Semester> semesters = semesterService.getAll();
+        if (semesters == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        return ResponseEntity.ok().body(semesters);
+    }
     
 
-    @PostMapping("")
+    @PostMapping("/save")
     public ResponseEntity<Semester> saveSemester(@RequestHeader("Authorization") String token,
             @RequestBody SemesterDTO semesterDTO) {
         Semester semester = new Semester();
@@ -59,7 +68,7 @@ public class SemesterRestController {
         return ResponseEntity.ok().body(semester);
     }
 
-    @DeleteMapping("")
+    @DeleteMapping("/delete")
     public ResponseEntity<String> deleteSemester(@RequestHeader("Authorization") String token,
             @RequestParam(name = "semesterId", required = false) String semesterId) {
         if (semesterId == null || semesterId.isBlank()) {
