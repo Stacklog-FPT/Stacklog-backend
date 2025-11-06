@@ -5,16 +5,16 @@ const { validateUser } = require('../middleware/validateUserMiddleware');
 const router = express.Router();
 
 // Create User (with validation middleware)
-router.post('/', createUser);
+router.post('/save', createUser);
 
 // get user by id
 router.get('/:userId', findById);
 
 // Update User
-router.put('/:id', updateUser);
+router.put('/update/:id', updateUser);
 
 // Soft Delete User
-router.delete('/:id', deleteUser);
+router.delete('/delete/:id', deleteUser);
 
 // find by email
 router.get('/email/:email', findByEmail);
