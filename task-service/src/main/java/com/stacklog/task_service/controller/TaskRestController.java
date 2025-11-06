@@ -21,7 +21,9 @@ import com.stacklog.task_service.model.entities.TaskAssign;
 import com.stacklog.task_service.model.entities.Task.Priority;
 import com.stacklog.task_service.model.service.StatusTaskService;
 import com.stacklog.task_service.model.service.TaskAssignService;
+import com.stacklog.task_service.model.service.TaskDashboardService;
 import com.stacklog.task_service.model.service.TaskService;
+import com.stacklog.task_service.payload.ResponseOverall;
 import com.stacklog.task_service.payload.ResponseTask;
 
 import lombok.Getter;
@@ -47,6 +49,9 @@ public class TaskRestController {
 
     @Autowired
     StatusTaskService statusTaskService;
+
+    @Autowired
+    TaskDashboardService taskDashboardService;
 
     @GetMapping("/{groupId}")
     public ResponseEntity<List<ResponseTask>> getTasksByGroupId(@RequestHeader("Authorization") String token,
@@ -80,6 +85,17 @@ public class TaskRestController {
                         Collectors.mapping(ResponseTask::new, Collectors.toList())));
 
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/overall/{groupId}")
+    public ResponseEntity<ResponseOverall> getTaskDashboard(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(name = "groupId", required = false) String groupId) {
+        ResponseOverall responseOverall = taskDashboardService.getOverallStatistics(groupId);
+        if (responseOverall == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        return ResponseEntity.ok(responseOverall);
     }
 
     @PostMapping("/save")
@@ -122,7 +138,6 @@ public class TaskRestController {
         task.setReviews(e.getReviews());
         task.setSubtasks(e.getSubTasks());
         task = taskService.save(task, token);
-        
 
         if (task == null) {
             return ResponseEntity.badRequest().build();
@@ -142,7 +157,8 @@ public class TaskRestController {
     }
 
     @PostMapping("/subtask/save")
-    public ResponseEntity<ResponseTask> saveSubTask(@RequestHeader("Authorization") String token, @RequestBody SubTaskDTO e) {
+    public ResponseEntity<ResponseTask> saveSubTask(@RequestHeader("Authorization") String token,
+            @RequestBody SubTaskDTO e) {
         Task task = new Task();
         if (e.getTaskId() != null || !e.getTaskId().isBlank()) {
             task.setTaskId(e.getTaskId());
@@ -177,7 +193,6 @@ public class TaskRestController {
         }
         return ResponseEntity.ok().body(new ResponseTask(task));
     }
-    
 
 }
 
@@ -216,4 +231,3 @@ class SubTaskDTO {
     private List<String> listUserAssign;
     private String parentTaskId;
 }
-
