@@ -40,29 +40,35 @@ public class TaskDashboardService {
         // ====== 1️⃣ Lấy dữ liệu gốc ======
         List<Task> allTasks = taskRepository.findByGroupId(groupId);
         List<StatusTask> statusTasks = statusTaskRepository.findAllByGroupId(groupId);
-        List<TaskAssign> assigns = taskAssignRepository.findAll();
+        List<TaskAssign> assigns = taskAssignRepository.findAll().stream()
+                .filter(a -> a.getTask() != null && allTasks.contains(a.getTask()))
+                .toList();
 
         double totalTasks = allTasks.size();
 
         // ====== 2️⃣ Tính phần trăm theo trạng thái ======
         Map<String, Double> completionRate = new LinkedHashMap<>();
 
-        // Đếm tổng task theo từng trạng thái
+        // Gom nhóm task theo statusTaskId (đảm bảo chính xác hơn so với name)
         Map<String, Long> statusCountMap = allTasks.stream()
                 .filter(t -> t.getStatusTask() != null)
                 .collect(Collectors.groupingBy(
-                        t -> t.getStatusTask().getStatusTaskName(),
+                        t -> t.getStatusTask().getStatusTaskId(),
                         Collectors.counting()));
 
-        // Duyệt qua danh sách statusTask từ DB để đảm bảo thứ tự đúng
+        // Duyệt qua danh sách statusTask trong cùng group để đảm bảo thứ tự và đồng bộ
+        // màu
         for (StatusTask status : statusTasks) {
+            String statusId = status.getStatusTaskId();
             String name = status.getStatusTaskName();
-            long count = statusCountMap.getOrDefault(name, 0L);
+            long count = statusCountMap.getOrDefault(statusId, 0L);
             completionRate.put(name, percent(count, totalTasks));
         }
 
-        // Nếu muốn thêm các trạng thái chưa tồn tại (VD: null, chưa có status)
-        long noStatus = allTasks.stream().filter(t -> t.getStatusTask() == null).count();
+        // Nếu tồn tại task chưa gán statusTaskId (null)
+        long noStatus = allTasks.stream()
+                .filter(t -> t.getStatusTask() == null)
+                .count();
         if (noStatus > 0) {
             completionRate.put("Unassigned", percent(noStatus, totalTasks));
         }
