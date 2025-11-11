@@ -40,7 +40,7 @@ public class TaskDashboardService {
         // ====== 1️⃣ Lấy dữ liệu gốc ======
         List<Task> allTasks = taskRepository.findByGroupId(groupId);
         List<StatusTask> statusTasks = statusTaskRepository.findAllByGroupId(groupId);
-        List<TaskAssign> assigns = taskAssignRepository.findAllByGroupId(groupId);
+        List<TaskAssign> assigns = taskAssignRepository.findAllByTaskGroupId(groupId);
 
         double totalTasks = allTasks.size();
 
