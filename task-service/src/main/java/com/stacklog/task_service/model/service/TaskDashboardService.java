@@ -1,11 +1,7 @@
 package com.stacklog.task_service.model.service;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +14,8 @@ import com.stacklog.task_service.model.repo.StatusTaskRepo;
 import com.stacklog.task_service.model.repo.TaskAssignRepo;
 import com.stacklog.task_service.model.repo.TaskRepo;
 import com.stacklog.task_service.payload.ResponseOverall;
-import com.stacklog.task_service.payload.ResponseOverall.AssigneeStatistic;
-import com.stacklog.task_service.payload.ResponseOverall.CompletionTrend;
-import com.stacklog.task_service.payload.ResponseOverall.SectionStatistic;
 import com.stacklog.task_service.payload.ResponseOverall.UserOverview;
+import com.stacklog.task_service.payload.ResponseOverall.UpcomingDeadline;
 
 @Service
 public class TaskDashboardService {
@@ -41,84 +35,68 @@ public class TaskDashboardService {
         List<Task> allTasks = taskRepository.findByGroupId(groupId);
         List<StatusTask> statusTasks = statusTaskRepository.findAllByGroupId(groupId);
         List<TaskAssign> assigns = taskAssignRepository.findAllByTaskGroupId(groupId);
-
         double totalTasks = allTasks.size();
 
-        // ====== 2️⃣ Tính phần trăm theo trạng thái ======
-        Map<String, Double> completionRate = new LinkedHashMap<>();
-
-        // Gom nhóm task theo statusTaskId (đảm bảo chính xác hơn so với name)
+        // ====== 2️⃣ Tính % task theo trạng thái ======
+        Map<String, Double> statusPercentMap = new LinkedHashMap<>();
         Map<String, Long> statusCountMap = allTasks.stream()
                 .filter(t -> t.getStatusTask() != null)
                 .collect(Collectors.groupingBy(
                         t -> t.getStatusTask().getStatusTaskId(),
                         Collectors.counting()));
 
-        // Duyệt qua danh sách statusTask trong cùng group để đảm bảo thứ tự và đồng bộ
-        // màu
         for (StatusTask status : statusTasks) {
             String statusId = status.getStatusTaskId();
             String name = status.getStatusTaskName();
             long count = statusCountMap.getOrDefault(statusId, 0L);
-            completionRate.put(name, percent(count, totalTasks));
+            statusPercentMap.put(name, percent(count, totalTasks));
         }
 
-        // Nếu tồn tại task chưa gán statusTaskId (null)
+        // Nếu có task chưa gán trạng thái
         long noStatus = allTasks.stream()
                 .filter(t -> t.getStatusTask() == null)
                 .count();
         if (noStatus > 0) {
-            completionRate.put("Unassigned", percent(noStatus, totalTasks));
+            statusPercentMap.put("Unassigned", percent(noStatus, totalTasks));
         }
 
-        // ====== 3️⃣ Thống kê theo section ======
-        // (Giả định task có chứa keyword phân loại, ví dụ title chứa “Hiring”,
-        // “Interviews”)
-        Map<String, Long> sectionMap = allTasks.stream()
-                .collect(Collectors.groupingBy(t -> detectSection(t.getTaskTitle()),
-                        Collectors.counting()));
+        // ====== 3️⃣ Tính % đóng góp task của từng thành viên ======
+        Map<String, Long> taskByMember = assigns.stream()
+                .collect(Collectors.groupingBy(TaskAssign::getAssignTo, Collectors.counting()));
 
-        List<SectionStatistic> sectionStats = sectionMap.entrySet().stream()
-                .map(e -> SectionStatistic.builder()
-                        .sectionName(e.getKey())
-                        .incompleteCount(e.getValue())
-                        .build())
+        Map<String, Double> memberContribution = new LinkedHashMap<>();
+        for (Map.Entry<String, Long> e : taskByMember.entrySet()) {
+            memberContribution.put(e.getKey(), percent(e.getValue(), assigns.size()));
+        }
+
+        // ====== 4️⃣ Điểm trung bình theo nhóm ======
+        // (Tính trung bình completion rate của tất cả user)
+        double groupAverageScore = allTasks.stream()
+                .filter(t -> t.getStatusTask() != null)
+                .mapToDouble(t -> t.getStatusTask().getStatusTaskName().equalsIgnoreCase("Completed") ? 1 : 0)
+                .average()
+                .orElse(0.0) * 100.0;
+
+        // ====== 5️⃣ Upcoming Deadline (7 ngày tới) ======
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nextWeek = now.plusDays(7);
+
+        List<Task> upcomingTasks = allTasks.stream()
+                .filter(t -> t.getTaskDueDate() != null)
+                .filter(t -> !t.getTaskDueDate().isBefore(now) && !t.getTaskDueDate().isAfter(nextWeek))
                 .toList();
 
-        // ====== 4️⃣ Thống kê theo người phụ trách (assignee) ======
-        // Tính trung bình mỗi tháng số task & task hoàn thành
-        List<AssigneeStatistic> assigneeStats = new ArrayList<>();
-        for (int i = 1; i <= 12; i++) {
-            final int monthIdx = i;
-            String month = LocalDate.of(2025, monthIdx, 1).getMonth().name().substring(0, 3);
-            long totalMonth = assigns.stream().filter(a -> a.getCreatedAt().getMonthValue() == monthIdx)
-                    .count();
-            long completedMonth = assigns.stream()
-                    .filter(a -> a.getCreatedAt().getMonthValue() == monthIdx &&
-                            a.getTask() != null &&
-                            a.getTask().getStatusTask() != null &&
-                            a.getTask().getStatusTask().getStatusTaskName()
-                                    .equalsIgnoreCase("Completed"))
-                    .count();
+        // Gom nhóm theo ngày
+        Map<LocalDateTime, Long> deadlineCountMap = upcomingTasks.stream()
+                .collect(Collectors.groupingBy(Task::getTaskDueDate, Collectors.counting()));
 
-            assigneeStats.add(
-                    AssigneeStatistic.builder()
-                            .month(month)
-                            .totalTask(totalMonth)
-                            .completedTask(completedMonth)
-                            .build());
-        }
-
-        // ====== 5️⃣ Biểu đồ xu hướng hoàn thành theo thời gian ======
-        List<CompletionTrend> trends = new ArrayList<>();
-        for (int i = 1; i <= 24; i++) { // giả lập 24 ngày
-            double value = 3.5 + Math.random() * 1.0; // tạo dữ liệu mô phỏng
-            trends.add(
-                    CompletionTrend.builder()
-                            .date("12/" + i)
-                            .completedRate(value)
-                            .build());
-        }
+        List<UpcomingDeadline> upcoming = deadlineCountMap.entrySet().stream()
+                .map(e -> UpcomingDeadline.builder()
+                        .day(e.getKey().toString())
+                        .totalTask(e.getValue().intValue())
+                        .build())
+                .sorted(Comparator.comparing(UpcomingDeadline::getDay))
+                .toList();
 
         // ====== 6️⃣ Thống kê người dùng cụ thể ======
         Map<String, List<TaskAssign>> assignByUser = assigns.stream()
@@ -149,13 +127,13 @@ public class TaskDashboardService {
                     .build();
         }).toList();
 
-        // ====== 7️⃣ Build ResponseOverall ======
+        // ====== 7️⃣ Trả về kết quả tổng hợp ======
         return ResponseOverall.builder()
                 .totalTask(totalTasks)
-                .taskCompletionRate(completionRate)
-                .sectionStatistics(sectionStats)
-                .assigneeStatistics(assigneeStats)
-                .completionTrends(trends)
+                .taskCompletionRate(statusPercentMap)
+                .memberContribution(memberContribution)
+                .groupAverageScore(groupAverageScore)
+                .upcomingDeadlines(upcoming)
                 .userOverviews(userOverviews)
                 .build();
     }
@@ -163,20 +141,4 @@ public class TaskDashboardService {
     private static Double percent(long part, double total) {
         return total == 0 ? 0 : Math.round((part / total) * 10000.0) / 100.0;
     }
-
-    private static String detectSection(String title) {
-        if (title == null)
-            return "Other";
-        String lower = title.toLowerCase();
-        if (lower.contains("hire"))
-            return "Hiring";
-        if (lower.contains("interview"))
-            return "Interviews";
-        if (lower.contains("shortlist"))
-            return "Shortlisting";
-        if (lower.contains("contract"))
-            return "Contracts";
-        return "Next task";
-    }
-
 }

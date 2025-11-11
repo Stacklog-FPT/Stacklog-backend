@@ -18,17 +18,10 @@ public class ResponseOverall {
 
     // === Tổng quan toàn hệ thống ===
     private Double totalTask; // tổng số task (vd: 66.577)
-    private Map<String, Double> taskCompletionRate;
-
-    // === Thống kê theo khu vực/section ===
-    private List<SectionStatistic> sectionStatistics;
-    // vd: hiring/interview/shortlisting/contracts/nextTask
-
-    // === Thống kê theo người phụ trách ===
-    private List<AssigneeStatistic> assigneeStatistics;
-
-    // === Biểu đồ hoàn thành theo thời gian ===
-    private List<CompletionTrend> completionTrends;
+    private Map<String, Double> taskCompletionRate; // Tỉ lệ phần trăm các status của task
+    private Map<String, Double> memberContribution; // % đóng góp của từng thành viên
+    private Double groupAverageScore; // Điểm trung bình của nhóm
+    private List<UpcomingDeadline> upcomingDeadlines; // Các task có deadline sắp tới
 
     // === Tổng hợp cá nhân cho dashboard trên cùng ===
     private List<UserOverview> userOverviews;
@@ -71,6 +64,15 @@ public class ResponseOverall {
         private int remainingTask; // số task còn lại
         private double completionPercent; // 80%
         private String colorCode; // vd: #FF9F43 (cho biểu đồ ring)
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpcomingDeadline {
+        private String day; // ngày deadline, ví dụ "2025-11-12"
+        private int totalTask; // tổng số task có deadline trong ngày này
     }
 
 }
