@@ -29,6 +29,7 @@ public interface TaskAssignRepo extends JpaRepository<TaskAssign, String> {
         @Query("delete from TaskAssign ta where ta.task.taskId = :taskId and ta.assignTo not in :keepIds")
         public void deleteAllNotIn(String taskId, Set<String> keepIds);
 
+        @Query("select ta from TaskAssign ta where ta.task.groupId = :groupId")
         List<TaskAssign> findAllByTaskGroupId(String groupId);
 
 }
