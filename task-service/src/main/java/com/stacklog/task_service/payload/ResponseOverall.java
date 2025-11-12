@@ -18,7 +18,7 @@ public class ResponseOverall {
 
     // === Tổng quan toàn hệ thống ===
     private Double totalTask; // tổng số task (vd: 66.577)
-    private Map<String, Double> taskCompletionRate; // Tỉ lệ phần trăm các status của task
+    private List<StatusTaskRate> taskCompletionRate; // Tỉ lệ phần trăm các status của task
     private Map<String, Double> memberContribution; // % đóng góp của từng thành viên
     private Double groupAverageScore; // Điểm trung bình của nhóm
     private List<UpcomingDeadline> upcomingDeadlines; // Các task có deadline sắp tới
@@ -30,29 +30,14 @@ public class ResponseOverall {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class SectionStatistic {
-        private String sectionName;
-        private Long incompleteCount; // số task chưa xong
+    public static class StatusTaskRate {
+        private String statusTaskId;
+        private String statusTaskName;
+        private String colorCode;
+        private Double taskCompletionRate; 
+        
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class AssigneeStatistic {
-        private String month; // vd: "Jan", "Feb"
-        private Long totalTask;
-        private Long completedTask;
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CompletionTrend {
-        private String date; // vd: "12/01"
-        private Double completedRate; // tỉ lệ hoàn thành theo thời gian
-    }
 
     @Data
     @Builder
@@ -75,5 +60,7 @@ public class ResponseOverall {
         private int totalTask; // tổng số task có deadline trong ngày này
         private int taskCompleted;
     }
+
+
 
 }
