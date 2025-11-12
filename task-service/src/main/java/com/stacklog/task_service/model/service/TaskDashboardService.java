@@ -15,6 +15,7 @@ import com.stacklog.task_service.model.repo.TaskAssignRepo;
 import com.stacklog.task_service.model.repo.TaskRepo;
 import com.stacklog.task_service.payload.ResponseOverall;
 import com.stacklog.task_service.payload.ResponseOverall.UserOverview;
+import com.stacklog.task_service.payload.ResponseOverall.StatusTaskRate;
 import com.stacklog.task_service.payload.ResponseOverall.UpcomingDeadline;
 
 @Service
@@ -38,26 +39,29 @@ public class TaskDashboardService {
         double totalTasks = allTasks.size();
 
         // ====== 2️⃣ Tính % task theo trạng thái ======
-        Map<String, Double> statusPercentMap = new LinkedHashMap<>();
         Map<String, Long> statusCountMap = allTasks.stream()
                 .filter(t -> t.getStatusTask() != null)
                 .collect(Collectors.groupingBy(
                         t -> t.getStatusTask().getStatusTaskId(),
                         Collectors.counting()));
 
-        for (StatusTask status : statusTasks) {
-            String statusId = status.getStatusTaskId();
-            String name = status.getStatusTaskName();
-            long count = statusCountMap.getOrDefault(statusId, 0L);
-            statusPercentMap.put(name, percent(count, totalTasks));
-        }
+        List<StatusTaskRate> statusTaskRates = statusTasks.stream()
+                .map(status -> {
+                    String statusId = status.getStatusTaskId();
+                    String name = status.getStatusTaskName();
+                    String color = status.getStatusTaskColor();
+                    long count = statusCountMap.getOrDefault(statusId, 0L);
+                    double taskCompletionRate = percent(count, totalTasks);
+                    return new StatusTaskRate(statusId, name, color, taskCompletionRate);
+                })
+                .collect(Collectors.toList());
 
         // Nếu có task chưa gán trạng thái
         long noStatus = allTasks.stream()
                 .filter(t -> t.getStatusTask() == null)
                 .count();
         if (noStatus > 0) {
-            statusPercentMap.put("Unassigned", percent(noStatus, totalTasks));
+            statusTaskRates.add(new StatusTaskRate("Unassigned", "Unassigned", "#FF0000", percent(noStatus, totalTasks)));
         }
 
         // ====== 3️⃣ Tính % đóng góp task của từng thành viên ======
@@ -89,10 +93,15 @@ public class TaskDashboardService {
                 .collect(Collectors.groupingBy(Task::getTaskDueDate, Collectors.counting()));
 
         List<UpcomingDeadline> upcoming = deadlineCountMap.entrySet().stream()
-                .map(e -> UpcomingDeadline.builder()
-                        .day(e.getKey().toString())
-                        .totalTask(e.getValue().intValue())
-                        .build())
+                .map(e -> {
+                    // Lấy số lượng task đã hoàn thành cho mỗi ngày
+                    int taskCompleted = (int) upcomingTasks.stream()
+                            .filter(t -> t.getTaskDueDate().equals(e.getKey()) && 
+                                        t.getStatusTask() != null &&
+                                        t.getStatusTask().getStatusTaskName().equalsIgnoreCase("Completed"))
+                            .count();
+                    return new UpcomingDeadline(e.getKey().toString(), e.getValue().intValue(), taskCompleted);
+                })
                 .sorted(Comparator.comparing(UpcomingDeadline::getDay))
                 .toList();
 
@@ -129,7 +138,7 @@ public class TaskDashboardService {
         return ResponseOverall.builder()
                 .groupId(groupId)
                 .totalTask(totalTasks)
-                .taskCompletionRate(statusPercentMap)
+                .taskCompletionRate(statusTaskRates)
                 .memberContribution(memberContribution)
                 .groupAverageScore(groupAverageScore)
                 .upcomingDeadlines(upcoming)
