@@ -41,6 +41,14 @@ public class ClassRestController {
         return ResponseEntity.ok().body(classes);
     }
 
+    @GetMapping("/getalladmin")
+    public ResponseEntity<List<Classes>> getClassesByAdmin(@RequestHeader("Authorization") String token,
+            @RequestParam(name = "semesterId") String semesterId) {
+        List<Classes> classes = classService.getAll(semesterId);
+        return ResponseEntity.ok().body(classes);
+    }
+    
+
     @PostMapping(path = "")
     public ResponseEntity<Classes> saveClasses(@RequestBody Classes classes,
             @RequestHeader("Authorization") String token, @RequestParam(name = "semesterId", required = false) String semesterId) {
