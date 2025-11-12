@@ -87,7 +87,7 @@ public class TaskRestController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/overall/{groupId}")
+    @GetMapping("/overall")
     public ResponseEntity<ResponseOverall> getTaskDashboard(
             @RequestHeader("Authorization") String token,
             @RequestParam(name = "groupId", required = false) String groupId) {

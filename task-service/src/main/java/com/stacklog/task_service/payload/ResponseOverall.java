@@ -73,6 +73,7 @@ public class ResponseOverall {
     public static class UpcomingDeadline {
         private String day; // ngày deadline, ví dụ "2025-11-12"
         private int totalTask; // tổng số task có deadline trong ngày này
+        private int taskCompleted;
     }
 
 }
