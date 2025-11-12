@@ -70,7 +70,6 @@ public class TaskDashboardService {
         }
 
         // ====== 4️⃣ Điểm trung bình theo nhóm ======
-        // (Tính trung bình completion rate của tất cả user)
         double groupAverageScore = allTasks.stream()
                 .filter(t -> t.getStatusTask() != null)
                 .mapToDouble(t -> t.getStatusTask().getStatusTaskName().equalsIgnoreCase("Completed") ? 1 : 0)
@@ -86,7 +85,6 @@ public class TaskDashboardService {
                 .filter(t -> !t.getTaskDueDate().isBefore(now) && !t.getTaskDueDate().isAfter(nextWeek))
                 .toList();
 
-        // Gom nhóm theo ngày
         Map<LocalDateTime, Long> deadlineCountMap = upcomingTasks.stream()
                 .collect(Collectors.groupingBy(Task::getTaskDueDate, Collectors.counting()));
 
@@ -129,6 +127,7 @@ public class TaskDashboardService {
 
         // ====== 7️⃣ Trả về kết quả tổng hợp ======
         return ResponseOverall.builder()
+                .groupId(groupId)
                 .totalTask(totalTasks)
                 .taskCompletionRate(statusPercentMap)
                 .memberContribution(memberContribution)
