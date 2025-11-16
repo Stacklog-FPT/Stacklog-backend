@@ -139,7 +139,7 @@ public class ClassService implements IService<Classes> {
     }
 
     public List<Classes> getAll(String semesterId) {
-        if (semesterId == null || semesterId.isBlank()) {
+        if (semesterId == null || semesterId.isBlank() || semesterId.equals("")) {
             return classesRepo.findAll();
         }
         return classesRepo.findAllBySemesterSemesterId(semesterId);

@@ -12,11 +12,8 @@ const producer = kafka.producer();
 const consumer = kafka.consumer({ groupId: GROUP_ID,
   sessionTimeout: 45000,        
   heartbeatInterval: 3000,      
-  rebalanceTimeout: 60000,      
-  retry: {
-    retries: 10,
-    initialRetryTime: 3000, 
-  }, });
+  rebalanceTimeout: 60000,
+});
 
 // --- Helpers ---
 const pad2 = (n) => (n < 10 ? `0${n}` : `${n}`);
@@ -172,7 +169,7 @@ const topicHandlers = {
     }
   },
 
-  [TOPIC_CHATBOX_KICKED = process.env.TOPIC_MESSAGE_CREATED || 'chat-service.boxchat.kicked']: async (payload) => {
+  [process.env.TOPIC_MESSAGE_CREATED || 'chat-service.boxchat.kicked']: async (payload) => {
     const {
       userId,
       box
