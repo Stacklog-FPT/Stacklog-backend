@@ -40,13 +40,6 @@ public class ClassRestController {
         List<Classes> classes = classService.getAllBySemesterNUserId(token, semesterId);
         return ResponseEntity.ok().body(classes);
     }
-
-    @GetMapping("/getalladmin")
-    public ResponseEntity<List<Classes>> getClassesByAdmin(@RequestHeader("Authorization") String token,
-            @RequestParam(name = "semesterId") String semesterId) {
-        List<Classes> classes = classService.getAll(semesterId);
-        return ResponseEntity.ok().body(classes);
-    }
     
 
     @PostMapping(path = "")
