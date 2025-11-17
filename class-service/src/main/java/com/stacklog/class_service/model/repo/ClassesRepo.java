@@ -27,7 +27,4 @@ public interface ClassesRepo extends JpaRepository<Classes, String> {
 
   List<Classes> findAllByLectureIdAndSemesterSemesterId(String lectureId, String semesterId);
 
-  @Query("SELECT cl FROM Classes cl WHERE cl.semester.semesterId = :semesterId")
-  List<Classes> findAllBySemesterSemesterId(@Param("semesterId") String semesterId);
-
 }
