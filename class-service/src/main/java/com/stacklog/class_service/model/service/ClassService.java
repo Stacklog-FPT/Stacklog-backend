@@ -138,11 +138,4 @@ public class ClassService implements IService<Classes> {
         return classes;
     }
 
-    public List<Classes> getAll(String semesterId) {
-        if (semesterId == null || semesterId.isBlank() || semesterId.equals("")) {
-            return classesRepo.findAll();
-        }
-        return classesRepo.findAllBySemesterSemesterId(semesterId);
-    }
-
 }
