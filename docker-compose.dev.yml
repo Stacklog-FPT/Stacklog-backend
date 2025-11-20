@@ -49,8 +49,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
+    # ports:
+    #   - "2181:2181"
     restart: always
     networks:
       - app-network
@@ -61,14 +61,14 @@ services:
     container_name: kafka-1
     depends_on:
       - zookeeper
-    ports:
-      - "9092:9092"
-      - "19092:19092"
+    # ports:
+    #   - "9092:9092"
+    #   - "19092:19092"
     restart: always
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092,EXTERNAL://103.166.183.142:19092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:19092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
@@ -81,8 +81,8 @@ services:
     image: redis:7.2.4
     container_name: redis
     command: ["redis-server", "--appendonly", "yes"]
-    ports:
-      - "6379:6379"
+    # ports:
+    #   - "6379:6379"
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "redis-cli INFO replication | grep -q 'role:master'"]

@@ -37,7 +37,7 @@ public class Classes extends CoreEntity {
     @JsonManagedReference
     private List<Groupss> groups;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "semesterId")
     @JsonBackReference
     private Semester semester;
