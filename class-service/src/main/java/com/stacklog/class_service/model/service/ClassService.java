@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.swing.GroupLayout.Group;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +39,9 @@ public class ClassService implements IService<Classes> {
 
     @Autowired
     private GroupService groupService;
+
+    @Autowired
+    ProfileServiceClient profileServiceClient;
 
     @Autowired
     private KafkaProducer<Classes> kafkaClassProducer;
@@ -153,18 +154,21 @@ public class ClassService implements IService<Classes> {
         return excelService.importExcel(file, classMapper);
     }
 
-    public void exportClasses(List<Classes> data, String file) throws Exception {
+    public void exportClasses(List<Classes> data, String file,String token) throws Exception {
         List<ClassesExcelDTO> dtoList = new ArrayList<>();
-        List<Group> groups = new GroupService().getAllByClassId(token, classesId);
+        
         ClassesExcelDTO cedto = new ClassesExcelDTO();
         data.forEach(c -> {
             cedto.setClassName(c.getClassesName());
-            cedto.set(c.getClassesName());
-            cedto.setClassName(c.getClassesName());
-            cedto.setClassName(c.getClassesName());
-            cedto.setClassName(c.getClassesName());
+            profileServiceClient.getProfileByClassId(token, c.getClassesId()).forEach(p -> {
+                cedto.setFullname(p.getFull_name());
+                cedto.setEmail(p.getEmail());
+                cedto.setWork_id(p.getWork_id());
+                cedto.setMemberCode(p.getEmail().split("@")[0]);
+                dtoList.add(cedto);
+            });
         });
-        excelService.exportExcel(data, file, classMapper);
+        excelService.exportExcel(dtoList, file, classMapper);
     }
 
 }

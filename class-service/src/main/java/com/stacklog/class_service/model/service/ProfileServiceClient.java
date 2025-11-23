@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @FeignClient(name = "profile-service", url = "http://profileservice:2001/user", path = "")
 public interface ProfileServiceClient {
     @GetMapping("/class/{classId}")
@@ -17,10 +20,13 @@ public interface ProfileServiceClient {
             @PathVariable("classId") String classId);
 }
 
+@Getter
+@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Profile {
-    private String groupsId; // đổi tên khớp với JSON trả về
-
-    public String getGroupsId() { return groupsId; }
-    public void setGroupsId(String groupsId) { this.groupsId = groupsId; }
+    private String _id;
+    private String full_name;
+    private String work_id;
+    private String email;
+    private boolean isActive;
 }
