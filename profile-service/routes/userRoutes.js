@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, updateUser, deleteUser, findByEmail, findByGroupId, findByRole, findById, findByNameOrEmail } = require('../controller/userController');
+const { createUser, updateUser, deleteUser, findByEmail, findByClassId, findByRole, findById, findByNameOrEmail, findByClassId } = require('../controller/userController');
 const { validateUser } = require('../middleware/validateUserMiddleware');
 
 const router = express.Router();
@@ -25,7 +25,7 @@ router.get('/find/:searchWord', findByNameOrEmail);
 // list by role
 router.get('/role/:role', findByRole);
 
-// find by groupId
-router.get("/group/:groupId", findByGroupId);
+// find by classId
+router.get("/class/:classId", findByClassId);
 
 module.exports = router;
