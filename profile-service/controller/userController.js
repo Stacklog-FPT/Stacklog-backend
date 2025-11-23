@@ -61,23 +61,46 @@ exports.findByRole = async (req, res) => {
 
 exports.findByClassId = async (req, res) => {
     const { classId } = req.params;
+    const token = req.headers["authorization"];
+    if (!token) {
+        return res.status(401).json({ error: "Authorization token is required" });
+    }
+
     try {
+        // 1. Gọi nhóm từ class-service
         const response = await fetch(`http://classservice:2003/group/class/${classId}`, {
             method: "GET",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": token,
             }
         });
-        const listUserIds = response.json().flatMap(group => group.groupStudents || [])   // gom tất cả student trong mọi group
+
+        // 2. Convert sang JSON
+        const groups = await response.json();
+        console.log(groups);
+        // 3. Mapping ra danh sách userId
+        const listUserIds = groups
+            .flatMap(group => group.groupStudents || [])
             .map(student => student.userId);
-        
-        const users = await User.find({ userId: { $in: listUserIds } })
-        if (users.length === 0) return res.status(404).json({ error: `No ${role} found` });
-        res.status(200).json({ users });
+
+        console.log(listUserIds)
+        const users = await User.find({
+            _id: { $in: listUserIds },
+            isDeleted: false
+        });
+        console.log(users)
+        if (!users || users.length === 0) {
+            return res.status(404).json({ error: "No users found" });
+        }
+
+        return res.status(200).json(users);
+
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        return res.status(400).json({ error: error.message });
     }
-}
+};
+
 
 exports.findById = async (req, res) => {
     const { userId } = req.params;
