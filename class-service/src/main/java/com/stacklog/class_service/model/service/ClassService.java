@@ -7,11 +7,20 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+<<<<<<< HEAD
+=======
+import com.stacklog.class_service.dto.ClassesExcelDTO;
+import com.stacklog.class_service.dto.ClassesExcelMapper;
+>>>>>>> a8458b6d3acb4c1348a294f01af324610d4be541
 import com.stacklog.class_service.model.entities.Classes;
 import com.stacklog.class_service.model.entities.Groupss;
 import com.stacklog.class_service.model.repo.ClassesRepo;
 import com.stacklog.core_service.model.service.IService;
 import com.stacklog.core_service.utils.CommonFunction;
+<<<<<<< HEAD
+=======
+import com.stacklog.core_service.utils.excel.ExcelService;
+>>>>>>> a8458b6d3acb4c1348a294f01af324610d4be541
 import com.stacklog.core_service.utils.kafka.KafkaProducer;
 import com.stacklog.core_service.utils.redis.RedisService;
 
@@ -26,12 +35,27 @@ public class ClassService implements IService<Classes> {
     private static final String KAFKA_TOPIC_CREATE = "class-service.classes.created";
 
     @Autowired
+<<<<<<< HEAD
+=======
+    private ExcelService excelService;
+
+    @Autowired
+    private ClassesExcelMapper classMapper;
+
+    @Autowired
+>>>>>>> a8458b6d3acb4c1348a294f01af324610d4be541
     private ClassesRepo classesRepo;
 
     @Autowired
     private GroupService groupService;
 
     @Autowired
+<<<<<<< HEAD
+=======
+    ProfileServiceClient profileServiceClient;
+
+    @Autowired
+>>>>>>> a8458b6d3acb4c1348a294f01af324610d4be541
     private KafkaProducer<Classes> kafkaClassProducer;
 
     RedisService<Classes> redisClassService;
@@ -138,4 +162,28 @@ public class ClassService implements IService<Classes> {
         return classes;
     }
 
+<<<<<<< HEAD
+=======
+    public List<ClassesExcelDTO> importClasses(String file) throws Exception {
+        return excelService.importExcel(file, classMapper);
+    }
+
+    public void exportClasses(List<Classes> data, String file,String token) throws Exception {
+        List<ClassesExcelDTO> dtoList = new ArrayList<>();
+        
+        ClassesExcelDTO cedto = new ClassesExcelDTO();
+        data.forEach(c -> {
+            cedto.setClassName(c.getClassesName());
+            profileServiceClient.getProfileByClassId(token, c.getClassesId()).forEach(p -> {
+                cedto.setFullname(p.getFull_name());
+                cedto.setEmail(p.getEmail());
+                cedto.setWork_id(p.getWork_id());
+                cedto.setMemberCode(p.getEmail().split("@")[0]);
+                dtoList.add(cedto);
+            });
+        });
+        excelService.exportExcel(dtoList, file, classMapper);
+    }
+
+>>>>>>> a8458b6d3acb4c1348a294f01af324610d4be541
 }

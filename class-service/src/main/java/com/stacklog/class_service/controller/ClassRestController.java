@@ -1,13 +1,19 @@
 package com.stacklog.class_service.controller;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.Base64;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.stacklog.class_service.dto.ClassesExcelDTO;
 import com.stacklog.class_service.model.entities.Classes;
 import com.stacklog.class_service.model.service.ClassService;
 import com.stacklog.class_service.model.service.GroupsStudentService;
@@ -40,11 +46,11 @@ public class ClassRestController {
         List<Classes> classes = classService.getAllBySemesterNUserId(token, semesterId);
         return ResponseEntity.ok().body(classes);
     }
-    
 
     @PostMapping(path = "")
     public ResponseEntity<Classes> saveClasses(@RequestBody Classes classes,
-            @RequestHeader("Authorization") String token, @RequestParam(name = "semesterId", required = false) String semesterId) {
+            @RequestHeader("Authorization") String token,
+            @RequestParam(name = "semesterId", required = false) String semesterId) {
         if (semesterId == null) {
             if (semesterService.getById(semesterId, token) == null) {
                 return ResponseEntity.badRequest().body(null);
@@ -96,6 +102,44 @@ public class ClassRestController {
         }
         return ResponseEntity
                 .ok("https://stacklog.id.vn/api/class/class/join?code=" + generateInviteCodeFromClassId(classesId));
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<?> importClasses(@RequestParam("file") MultipartFile file) {
+        try {
+            // Lưu file tạm
+            File temp = File.createTempFile("classes-import-", ".xlsx");
+            file.transferTo(temp);
+
+            List<ClassesExcelDTO> result = classService.importClasses(temp.getAbsolutePath());
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Import error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<?> exportClasses(@RequestHeader("Authorization") String token,
+            @RequestParam("semesterId") String semesterId) {
+        try {
+            File temp = File.createTempFile("classes-export-", ".xlsx");
+            List<Classes> classes = classService.getAllBySemesterNUserId(token, semesterId);
+
+            classService.exportClasses(classes, temp.getAbsolutePath(), token);
+
+            byte[] bytes = Files.readAllBytes(temp.toPath());
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=classes.xlsx")
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(bytes);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Export error: " + e.getMessage());
+
+        }
     }
 
     private String generateInviteCodeFromClassId(String classesId) {

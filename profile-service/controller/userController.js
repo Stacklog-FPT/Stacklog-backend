@@ -59,10 +59,19 @@ exports.findByRole = async (req, res) => {
 };
 
 
-exports.findByGroupId = async (req, res) => {
-    const { groupId } = req.params;
+exports.findByClassId = async (req, res) => {
+    const { classId } = req.params;
     try {
-        const users = await User.find({ groupId: groupId, isDeleted: false });
+        const response = await fetch(`http://classservice:2003/group/class/${classId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const listUserIds = response.json().flatMap(group => group.groupStudents || [])   // gom tất cả student trong mọi group
+            .map(student => student.userId);
+        
+        const users = await User.find({ userId: { $in: listUserIds } })
         if (users.length === 0) return res.status(404).json({ error: `No ${role} found` });
         res.status(200).json({ users });
     } catch (error) {
