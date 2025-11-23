@@ -131,9 +131,13 @@ public class ClassRestController {
 
             byte[] bytes = Files.readAllBytes(temp.toPath());
 
+            temp.delete();
+
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=classes.xlsx")
-                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"classes.xlsx\"; filename*=UTF-8''classes.xlsx")
+                    .contentType(MediaType.parseMediaType(
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                     .body(bytes);
 
         } catch (Exception e) {
