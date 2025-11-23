@@ -162,8 +162,6 @@ public class ClassService implements IService<Classes> {
         return classes;
     }
 
-<<<<<<< HEAD
-=======
     public List<ClassesExcelDTO> importClasses(String file) throws Exception {
         return excelService.importExcel(file, classMapper);
     }
@@ -185,5 +183,4 @@ public class ClassService implements IService<Classes> {
         excelService.exportExcel(dtoList, file, classMapper);
     }
 
->>>>>>> a8458b6d3acb4c1348a294f01af324610d4be541
 }
