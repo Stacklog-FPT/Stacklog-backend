@@ -4,14 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.swing.GroupLayout.Group;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.stacklog.class_service.dto.ClassesExcelDTO;
+import com.stacklog.class_service.dto.ClassesExcelMapper;
 import com.stacklog.class_service.model.entities.Classes;
 import com.stacklog.class_service.model.entities.Groupss;
 import com.stacklog.class_service.model.repo.ClassesRepo;
 import com.stacklog.core_service.model.service.IService;
 import com.stacklog.core_service.utils.CommonFunction;
+import com.stacklog.core_service.utils.excel.ExcelService;
 import com.stacklog.core_service.utils.kafka.KafkaProducer;
 import com.stacklog.core_service.utils.redis.RedisService;
 
@@ -24,6 +29,12 @@ public class ClassService implements IService<Classes> {
 
     private static final String KAFKA_TOPIC_UPDATE = "class-service.classes.updated";
     private static final String KAFKA_TOPIC_CREATE = "class-service.classes.created";
+
+    @Autowired
+    private ExcelService excelService;
+
+    @Autowired
+    private ClassesExcelMapper classMapper;
 
     @Autowired
     private ClassesRepo classesRepo;
@@ -136,6 +147,24 @@ public class ClassService implements IService<Classes> {
                 break;
         }
         return classes;
+    }
+
+    public List<ClassesExcelDTO> importClasses(String file) throws Exception {
+        return excelService.importExcel(file, classMapper);
+    }
+
+    public void exportClasses(List<Classes> data, String file) throws Exception {
+        List<ClassesExcelDTO> dtoList = new ArrayList<>();
+        List<Group> groups = new GroupService().getAllByClassId(token, classesId);
+        ClassesExcelDTO cedto = new ClassesExcelDTO();
+        data.forEach(c -> {
+            cedto.setClassName(c.getClassesName());
+            cedto.set(c.getClassesName());
+            cedto.setClassName(c.getClassesName());
+            cedto.setClassName(c.getClassesName());
+            cedto.setClassName(c.getClassesName());
+        });
+        excelService.exportExcel(data, file, classMapper);
     }
 
 }

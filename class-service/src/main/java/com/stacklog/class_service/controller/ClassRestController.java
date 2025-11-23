@@ -1,5 +1,6 @@
 package com.stacklog.class_service.controller;
 
+import java.io.File;
 import java.util.Base64;
 import java.util.List;
 
@@ -7,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.stacklog.class_service.dto.ClassesExcelDTO;
 import com.stacklog.class_service.model.entities.Classes;
 import com.stacklog.class_service.model.service.ClassService;
 import com.stacklog.class_service.model.service.GroupsStudentService;
@@ -97,6 +100,37 @@ public class ClassRestController {
         return ResponseEntity
                 .ok("https://stacklog.id.vn/api/class/class/join?code=" + generateInviteCodeFromClassId(classesId));
     }
+
+    @PostMapping("/import")
+    public ResponseEntity<?> importClasses(@RequestParam("file") MultipartFile file) {
+        try {
+            // Lưu file tạm
+            File temp = File.createTempFile("classes-import-", ".xlsx");
+            file.transferTo(temp);
+
+            List<ClassesExcelDTO> result =
+                    classService.importClasses(temp.getAbsolutePath());
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Import error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<?> exportClasses(@RequestHeader("Authorization") String token, @RequestParam("semesterId") String semesterId) {
+        try {
+            File temp = File.createTempFile("classes-export-", ".xlsx");
+            List<Classes> classes = classService.getAllBySemesterNUserId(token, semesterId);
+            
+            classService.exportClasses(classes, temp.getAbsolutePath());
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+    }
+    
+    
 
     private String generateInviteCodeFromClassId(String classesId) {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(classesId.getBytes());
