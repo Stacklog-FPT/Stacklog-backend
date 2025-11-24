@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.stacklog.class_service.dto.ClassesExcelDTO;
 import com.stacklog.class_service.model.entities.Classes;
 import com.stacklog.class_service.model.service.ClassService;
 import com.stacklog.class_service.model.service.GroupsStudentService;
@@ -105,15 +104,16 @@ public class ClassRestController {
     }
 
     @PostMapping("/import")
-    public ResponseEntity<?> importClasses(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> importClasses(@RequestHeader("Authorization") String token, 
+            @RequestParam("file") MultipartFile file, 
+            @RequestParam(name = "classId") String classId) {
         try {
             // Lưu file tạm
-            File temp = File.createTempFile("classes-import-", ".xlsx");
+            File temp = File.createTempFile("classes-", ".xlsx");
             file.transferTo(temp);
+            classService.importClasses(classId, temp.getAbsolutePath(), token);
 
-            List<ClassesExcelDTO> result = classService.importClasses(temp.getAbsolutePath());
-
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok("Import excel success");
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Import error: " + e.getMessage());
@@ -135,7 +135,9 @@ public class ClassRestController {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"classes.xlsx\"; filename*=UTF-8''classes.xlsx")
+                            "attachment; filename=\"semester-"
+                                    + semesterService.getById(semesterId, token).getSemesterName()
+                                    + ".xlsx\"; filename*=UTF-8''classes.xlsx")
                     .contentType(MediaType.parseMediaType(
                             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                     .body(bytes);
@@ -161,7 +163,8 @@ public class ClassRestController {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"classes.xlsx\"; filename*=UTF-8''classes.xlsx")
+                            "attachment; filename=\"classes" + classes.getClassesName()
+                                    + ".xlsx\"; filename*=UTF-8''classes.xlsx")
                     .contentType(MediaType.parseMediaType(
                             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                     .body(bytes);
@@ -171,7 +174,6 @@ public class ClassRestController {
 
         }
     }
-    
 
     private String generateInviteCodeFromClassId(String classesId) {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(classesId.getBytes());

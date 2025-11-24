@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, updateUser, deleteUser, findByEmail, findByClassId, findByRole, findById, findByNameOrEmail } = require('../controller/userController');
+const { createUser, updateUser, deleteUser, findByEmail, findByClassId, findByRole, findById, findByNameOrEmail, createListUser } = require('../controller/userController');
 const { validateUser } = require('../middleware/validateUserMiddleware');
 
 const router = express.Router();
@@ -27,5 +27,8 @@ router.get('/role/:role', findByRole);
 
 // find by classId
 router.get("/class/:classId", findByClassId);
+
+// add list user
+router.post("/addAll", createListUser)
 
 module.exports = router;

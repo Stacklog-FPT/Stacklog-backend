@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.stacklog.class_service.dto.ClassesExcelDTO;
 import com.stacklog.class_service.dto.ClassesExcelMapper;
 import com.stacklog.class_service.model.entities.Classes;
+import com.stacklog.class_service.model.entities.GroupStudent;
 import com.stacklog.class_service.model.entities.Groupss;
 import com.stacklog.class_service.model.repo.ClassesRepo;
 import com.stacklog.core_service.model.service.IService;
@@ -43,6 +44,9 @@ public class ClassService implements IService<Classes> {
 
     @Autowired
     ProfileServiceClient profileServiceClient;
+
+    @Autowired
+    GroupsStudentService groupsStudentService;
 
     @Autowired
     private KafkaProducer<Classes> kafkaClassProducer;
@@ -151,8 +155,43 @@ public class ClassService implements IService<Classes> {
         return classes;
     }
 
-    public List<ClassesExcelDTO> importClasses(String file) throws Exception {
-        return excelService.importExcel(file, classMapper);
+    @Transactional
+    public List<Profile> importClasses(String classId, String file, String token) throws Exception {
+        Classes classes = classesRepo.findById(classId).orElseThrow();
+        List<Profile> excelProfiles = new ArrayList<>();
+        excelService.importExcel(file, classMapper).forEach(e -> {
+            Profile p = new Profile();
+            p.set_id(null);
+            p.setWork_id(e.getWork_id());
+            p.setEmail(e.getEmail());
+            p.setFull_name(e.getFullname());
+            excelProfiles.add(p);
+        });
+        System.out.println(excelProfiles.toString());
+
+        List<String> existingUserIds = classes.getGroups().stream()
+                .flatMap(g -> g.getGroupStudents().stream())
+                .map(GroupStudent::getUserId)
+                .toList();
+
+        System.out.println(existingUserIds.toString());
+        List<Profile> savedProfiles = profileServiceClient.addProfile(token, excelProfiles);
+
+        Groupss unassigned = classes.getGroups().stream()
+                .filter(g -> "unassigned".equals(g.getGroupsName()))
+                .findFirst()
+                .orElseThrow();
+
+        for (Profile p : savedProfiles) {
+            if (!existingUserIds.contains(p.get_id())) {
+                GroupStudent gs = new GroupStudent();
+                gs.setUserId(p.get_id());
+                gs.setGroups(unassigned);
+                groupsStudentService.save(gs, token);
+            }
+        }
+        return savedProfiles;
+
     }
 
     public void exportAllStudentInSemester(List<Classes> data, String file, String token) throws Exception {

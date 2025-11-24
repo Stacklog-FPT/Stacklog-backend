@@ -86,6 +86,7 @@ public class GroupsStudentService implements IService<GroupStudent> {
         return groupStudent;
     }
 
+    @Transactional
     @Override
     public GroupStudent save(GroupStudent e, String token) {
         boolean isCreate = (e.getGroupStudentId() == null || !groupsStudentRepo.existsById(e.getGroupStudentId()));

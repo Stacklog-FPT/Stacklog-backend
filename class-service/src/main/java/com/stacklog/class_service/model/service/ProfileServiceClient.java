@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -18,6 +20,11 @@ public interface ProfileServiceClient {
     List<Profile> getProfileByClassId(
             @RequestHeader("Authorization") String token,
             @PathVariable("classId") String classId);
+
+    @PostMapping("/addAll")
+    List<Profile> addProfile(
+            @RequestHeader("Authorization") String token,
+            @RequestBody List<Profile> profileList);
 }
 
 @Getter
