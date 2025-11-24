@@ -94,7 +94,13 @@ exports.findByClassId = async (req, res) => {
             return res.status(404).json({ error: "No users found" });
         }
 
-        return res.status(200).json(users);
+        return res.status(200).json(users.map(u => ({
+            _id: u._id.toString(),
+            full_name: u.full_name,
+            work_id: u.work_id,
+            email: u.email,
+            isActive: u.isActive
+        })));
 
     } catch (error) {
         return res.status(400).json({ error: error.message });

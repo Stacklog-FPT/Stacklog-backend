@@ -156,17 +156,26 @@ public class ClassService implements IService<Classes> {
 
     public void exportClasses(List<Classes> data, String file,String token) throws Exception {
         List<ClassesExcelDTO> dtoList = new ArrayList<>();
-        
-        ClassesExcelDTO cedto = new ClassesExcelDTO();
-        data.forEach(c -> {
-            cedto.setClassName(c.getClassesName());
-            profileServiceClient.getProfileByClassId(token, c.getClassesId()).forEach(p -> {
-                cedto.setFullname(p.getFull_name());
-                cedto.setEmail(p.getEmail());
-                cedto.setWork_id(p.getWork_id());
-                cedto.setMemberCode(p.getEmail().split("@")[0]);
-                dtoList.add(cedto);
-            });
+                data.forEach(c -> {
+            try {
+                List<ProfileResponse> profiles = profileServiceClient.getProfileByClassId(token, c.getClassesId());
+
+                profiles.forEach(p -> {
+                    ClassExcelDTO cedto = new ClassExcelDTO();  // ❗ Quan trọng: tạo object mới
+                    cedto.setClassName(c.getClassesName());
+                    cedto.setFullname(p.getFull_name());
+                    cedto.setEmail(p.getEmail());
+                    cedto.setWork_id(p.getWork_id());
+                    cedto.setMemberCode(p.getEmail().split("@")[0]);
+
+                    dtoList.add(cedto);
+                });
+
+            } catch (FeignException.NotFound e) {
+                System.out.println("No profile found for classId = " + c.getClassesId());
+            } catch (Exception e) {
+                System.out.println("Error fetching profile for classId = " + c.getClassesId() + ": " + e.getMessage());
+            }
         });
         excelService.exportExcel(dtoList, file, classMapper);
     }
