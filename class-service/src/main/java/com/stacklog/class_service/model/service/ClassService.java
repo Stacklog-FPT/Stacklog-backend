@@ -18,6 +18,7 @@ import com.stacklog.core_service.utils.excel.ExcelService;
 import com.stacklog.core_service.utils.kafka.KafkaProducer;
 import com.stacklog.core_service.utils.redis.RedisService;
 
+import feign.FeignException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -158,10 +159,10 @@ public class ClassService implements IService<Classes> {
         List<ClassesExcelDTO> dtoList = new ArrayList<>();
                 data.forEach(c -> {
             try {
-                List<ProfileResponse> profiles = profileServiceClient.getProfileByClassId(token, c.getClassesId());
+                List<Profile> profiles = profileServiceClient.getProfileByClassId(token, c.getClassesId());
 
                 profiles.forEach(p -> {
-                    ClassExcelDTO cedto = new ClassExcelDTO();  // ❗ Quan trọng: tạo object mới
+                    ClassesExcelDTO cedto = new ClassesExcelDTO();
                     cedto.setClassName(c.getClassesName());
                     cedto.setFullname(p.getFull_name());
                     cedto.setEmail(p.getEmail());
