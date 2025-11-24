@@ -127,7 +127,7 @@ public class ClassRestController {
             File temp = File.createTempFile("classes-export-", ".xlsx");
             List<Classes> classes = classService.getAllBySemesterNUserId(token, semesterId);
 
-            classService.exportClasses(classes, temp.getAbsolutePath(), token);
+            classService.exportAllStudentInSemester(classes, temp.getAbsolutePath(), token);
 
             byte[] bytes = Files.readAllBytes(temp.toPath());
 
@@ -145,6 +145,33 @@ public class ClassRestController {
 
         }
     }
+
+    @GetMapping("/export-by-class")
+    public ResponseEntity<?> exportByClassesId(@RequestHeader("Authorization") String token,
+            @RequestParam("classId") String classId) {
+        try {
+            File temp = File.createTempFile("classes-export-", ".xlsx");
+            Classes classes = classService.getById(classId, token);
+
+            classService.exportByClassId(classes, temp.getAbsolutePath(), token);
+
+            byte[] bytes = Files.readAllBytes(temp.toPath());
+
+            temp.delete();
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"classes.xlsx\"; filename*=UTF-8''classes.xlsx")
+                    .contentType(MediaType.parseMediaType(
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(bytes);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Export error: " + e.getMessage());
+
+        }
+    }
+    
 
     private String generateInviteCodeFromClassId(String classesId) {
         return Base64.getUrlEncoder().withoutPadding().encodeToString(classesId.getBytes());

@@ -155,31 +155,52 @@ public class ClassService implements IService<Classes> {
         return excelService.importExcel(file, classMapper);
     }
 
-    public void exportClasses(List<Classes> data, String file,String token) throws Exception {
+    public void exportAllStudentInSemester(List<Classes> data, String file, String token) throws Exception {
         List<ClassesExcelDTO> dtoList = new ArrayList<>();
         data.forEach(c -> {
             try {
-                List<Profile> profiles = profileServiceClient.getProfileByClassId(token, c.getClassesId());
-
-                profiles.forEach(p -> {
-                    ClassesExcelDTO cedto = new ClassesExcelDTO();
-                    cedto.setClassName(c.getClassesName());
-                    cedto.setFullname(p.getFull_name());
-                    cedto.setEmail(p.getEmail());
-                    cedto.setWork_id(p.getWork_id());
-                    cedto.setMemberCode(p.getEmail().split("@")[0]);
-                    
-                    dtoList.add(cedto);
-                });
-
-            } catch (FeignException.NotFound e) {
-                System.out.println("No profile found for classId = " + c.getClassesId());
+                List<ClassesExcelDTO> classDtos = covertToClassesExcel(c, token);
+                dtoList.addAll(classDtos);
             } catch (Exception e) {
-                System.out.println("Error fetching profile for classId = " + c.getClassesId() + ": " + e.getMessage());
+                System.out.println("Error in class: " + c.getClassesId() + " → " + e.getMessage());
             }
         });
-        System.out.println(dtoList.toString());
         excelService.exportExcel(dtoList, file, classMapper);
+    }
+
+    public void exportByClassId(Classes classes, String file, String token) throws Exception {
+        List<ClassesExcelDTO> dtoList = new ArrayList<>();
+        try {
+            List<ClassesExcelDTO> classDtos = covertToClassesExcel(classes, token);
+            dtoList.addAll(classDtos);
+        } catch (Exception e) {
+            System.out.println("Error in class: " + classes.getClassesId() + " → " + e.getMessage());
+        }
+        excelService.exportExcel(dtoList, file, classMapper);
+    }
+
+    private List<ClassesExcelDTO> covertToClassesExcel(Classes classes, String token) {
+        List<ClassesExcelDTO> dtoList = new ArrayList<>();
+        try {
+            List<Profile> profiles = profileServiceClient.getProfileByClassId(token, classes.getClassesId());
+
+            profiles.forEach(p -> {
+                ClassesExcelDTO cedto = new ClassesExcelDTO();
+                cedto.setClassName(classes.getClassesName());
+                cedto.setFullname(p.getFull_name());
+                cedto.setEmail(p.getEmail());
+                cedto.setWork_id(p.getWork_id());
+                cedto.setMemberCode(p.getEmail().split("@")[0]);
+
+                dtoList.add(cedto);
+            });
+        } catch (FeignException.NotFound e) {
+            System.out.println("No profile found for classId = " + classes.getClassesId());
+        } catch (Exception e) {
+            System.out
+                    .println("Error fetching profile for classId = " + classes.getClassesId() + ": " + e.getMessage());
+        }
+        return dtoList;
     }
 
 }
