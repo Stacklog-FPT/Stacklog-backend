@@ -157,7 +157,7 @@ public class ClassService implements IService<Classes> {
 
     public void exportClasses(List<Classes> data, String file,String token) throws Exception {
         List<ClassesExcelDTO> dtoList = new ArrayList<>();
-                data.forEach(c -> {
+        data.forEach(c -> {
             try {
                 List<Profile> profiles = profileServiceClient.getProfileByClassId(token, c.getClassesId());
 
@@ -168,7 +168,7 @@ public class ClassService implements IService<Classes> {
                     cedto.setEmail(p.getEmail());
                     cedto.setWork_id(p.getWork_id());
                     cedto.setMemberCode(p.getEmail().split("@")[0]);
-
+                    
                     dtoList.add(cedto);
                 });
 
@@ -178,6 +178,7 @@ public class ClassService implements IService<Classes> {
                 System.out.println("Error fetching profile for classId = " + c.getClassesId() + ": " + e.getMessage());
             }
         });
+        System.out.println(dtoList.toString());
         excelService.exportExcel(dtoList, file, classMapper);
     }
 
