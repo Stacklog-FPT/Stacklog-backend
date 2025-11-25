@@ -1,19 +1,26 @@
 package com.stacklog.score_service.model.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.stacklog.core_service.model.service.IService;
 import com.stacklog.core_service.utils.CommonFunction;
+import com.stacklog.core_service.utils.excel.ExcelService;
 import com.stacklog.core_service.utils.kafka.KafkaProducer;
 import com.stacklog.core_service.utils.redis.RedisService;
+import com.stacklog.score_service.dto.ScoreExcelDTO;
+import com.stacklog.score_service.dto.ScoreExcelMapper;
 import com.stacklog.score_service.model.entities.ScoreItem;
 import com.stacklog.score_service.model.repo.ScoreItemRepo;
 
+import feign.FeignException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -29,6 +36,15 @@ public class ScoreItemService implements IService<ScoreItem> {
 
     @Autowired
     private ClassServiceClient classServiceClient;
+
+    @Autowired
+    ProfileServiceClient profileServiceClient;
+
+    @Autowired
+    ExcelService excelService;
+
+    @Autowired
+    ScoreExcelMapper scoreExcelMapper;
 
     @Autowired
     private KafkaProducer<ScoreItem> kafkaScoreItemProducer;
@@ -118,6 +134,47 @@ public class ScoreItemService implements IService<ScoreItem> {
         redisScoreItemService.saveListToRedis(lists, token, NAME_SERVICE);
 
         return scoreItem;
+    }
+
+    public void exportByClassId(String classesId, String file, String token) throws Exception {
+        try {
+            List<ScoreExcelDTO> scoresDtos = covertToScoreExcel(classesId, token);
+            excelService.exportExcel(scoresDtos, file, scoreExcelMapper);
+        } catch (Exception e) {
+            System.out.println("Error in class: " + classesId + " → " + e.getMessage());
+        }
+
+    }
+
+    private List<ScoreExcelDTO> covertToScoreExcel(String classesId, String token) {
+        List<ScoreExcelDTO> dtoList = new ArrayList<>();
+        try {
+            List<Profile> profiles = profileServiceClient.getProfileByClassId(token, classesId);
+
+            profiles.forEach(p -> {
+                ScoreExcelDTO cedto = new ScoreExcelDTO();
+                cedto.setClassName("PRN490");
+                cedto.setFullname(p.getFull_name());
+                cedto.setEmail(p.getEmail());
+                cedto.setWork_id(p.getWork_id());
+                cedto.setMemberCode(p.getEmail().split("@")[0]);
+                List<ScoreItem> listScores = scoreItemRepo
+                        .findAllByUserIdNClassId(redisScoreItemService.getCurrentUserId(token), classesId);
+                Map<String, Double> scoreItemMap = listScores.stream()
+                        .collect(Collectors.toMap(
+                                item -> item.getScoreCategory().getScoreCategoryName(), // Key: scoreCategoryName
+                                ScoreItem::getScoreItemValue // Value: scoreItemValue
+                ));
+                cedto.setListScores(scoreItemMap);
+                dtoList.add(cedto);
+            });
+        } catch (FeignException.NotFound e) {
+            System.out.println("No profile found for classId = " + classesId);
+        } catch (Exception e) {
+            System.out
+                    .println("Error fetching profile for classId = " + classesId + ": " + e.getMessage());
+        }
+        return dtoList;
     }
 
 }
