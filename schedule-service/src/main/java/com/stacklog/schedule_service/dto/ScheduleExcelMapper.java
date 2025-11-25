@@ -1,9 +1,11 @@
 package com.stacklog.schedule_service.dto;
 
 import org.apache.poi.ss.usermodel.Row;
+import org.springframework.stereotype.Component;
 
 import com.stacklog.core_service.utils.excel.ExcelMapper;
 
+@Component
 public class ScheduleExcelMapper implements ExcelMapper<ScheduleExcelDTO> {
 
   @Override

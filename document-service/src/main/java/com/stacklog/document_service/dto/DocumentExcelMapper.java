@@ -1,9 +1,11 @@
 package com.stacklog.document_service.dto;
 
 import org.apache.poi.ss.usermodel.Row;
+import org.springframework.stereotype.Component;
 
 import com.stacklog.core_service.utils.excel.ExcelMapper;
 
+@Component
 public class DocumentExcelMapper implements ExcelMapper<DocumentExcelDTO> {
 
   @Override
