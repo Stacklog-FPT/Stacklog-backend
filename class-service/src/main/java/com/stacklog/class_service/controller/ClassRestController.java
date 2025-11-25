@@ -163,7 +163,7 @@ public class ClassRestController {
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"classes" + classes.getClassesName()
+                            "attachment; filename=\"classes-" + classes.getClassesName()
                                     + ".xlsx\"; filename*=UTF-8''classes.xlsx")
                     .contentType(MediaType.parseMediaType(
                             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))

@@ -174,11 +174,15 @@ exports.createListUser = async (req, res) => {
         // 7. Trả về danh sách user cuối cùng
         const finalList = [...oldUsers, ...insertedUsers];
 
-        return res.status(200).json({
-            message: "Import user completed",
-            total: finalList.length,
-            users: finalList
-        });
+        console.log(finalList);
+
+        return res.status(200).json(finalList.map(u => ({
+            _id: u._id.toString(),
+            full_name: u.full_name,
+            work_id: u.work_id,
+            email: u.email,
+            isActive: u.isActive
+        })));
 
     } catch (error) {
         console.error("Create List User error:", error);
