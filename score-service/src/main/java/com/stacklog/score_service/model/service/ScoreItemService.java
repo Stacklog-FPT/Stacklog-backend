@@ -19,6 +19,7 @@ import com.stacklog.score_service.dto.ScoreExcelDTO;
 import com.stacklog.score_service.dto.ScoreExcelMapper;
 import com.stacklog.score_service.model.entities.ScoreItem;
 import com.stacklog.score_service.model.repo.ScoreItemRepo;
+import com.stacklog.score_service.model.entities.ScoreCategory;
 
 import feign.FeignException;
 import jakarta.transaction.Transactional;
