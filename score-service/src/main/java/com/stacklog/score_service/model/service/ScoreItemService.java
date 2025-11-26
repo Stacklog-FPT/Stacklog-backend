@@ -156,8 +156,8 @@ public class ScoreItemService implements IService<ScoreItem> {
 
     private String[] plusHeaders(String classId) {
         List<ScoreCategory> list = scoreCategoryService.getAllByClassId(classId, token);
-        String[] plusHeaders = new String[list.getSize()];
-        for (int i = 0; i< list.getSize(); i++){
+        String[] plusHeaders = new String[list.size()];
+        for (int i = 0; i< list.size(); i++){
             plusHeaders[i] = list.get(i).getScoreCategoryName();
         }
         return plusHeaders;
