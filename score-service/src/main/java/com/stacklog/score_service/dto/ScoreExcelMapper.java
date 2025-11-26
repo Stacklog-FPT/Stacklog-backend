@@ -48,10 +48,4 @@ public class ScoreExcelMapper implements ExcelMapper<ScoreExcelDTO> {
     return ScoreExcelDTO.class;
   }
 
-  public String[] plusHeaders(Map<String, Double> listScores) {
-    return (listScores == null || listScores.isEmpty())
-        ? new String[0]
-        : listScores.keySet().toArray(new String[0]);
-  }
-
 }
