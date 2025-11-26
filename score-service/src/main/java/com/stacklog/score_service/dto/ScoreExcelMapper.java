@@ -48,19 +48,10 @@ public class ScoreExcelMapper implements ExcelMapper<ScoreExcelDTO> {
     return ScoreExcelDTO.class;
   }
 
-  public String[] headers(Map<String, Double> listScores) {
-    String[] headers = new String[] { "Class", "RollNumber", "Email", "MemberCode", "FullName" };
-
-    if (listScores != null && !listScores.isEmpty()) {
-      String[] subjectHeaders = listScores.keySet().toArray(new String[0]);
-      String[] allHeaders = new String[headers.length + subjectHeaders.length];
-      System.arraycopy(headers, 0, allHeaders, 0, headers.length);
-      System.arraycopy(subjectHeaders, 0, allHeaders, headers.length, subjectHeaders.length);
-
-      return allHeaders;
-    }
-
-    return headers;
+  public String[] plusHeaders(Map<String, Double> listScores) {
+    return (listScores == null || listScores.isEmpty())
+        ? new String[0]
+        : listScores.keySet().toArray(new String[0]);
   }
 
 }
