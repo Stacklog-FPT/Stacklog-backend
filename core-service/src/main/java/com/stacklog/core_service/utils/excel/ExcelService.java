@@ -15,8 +15,8 @@ public class ExcelService {
         return helper.importExcel(filePath);
     }
 
-    public <T> void exportExcel(List<T> data, String filePath, ExcelMapper<T> mapper) throws Exception {
+    public <T> void exportExcel(List<T> data, String filePath, ExcelMapper<T> mapper, String[] plusHeaders) throws Exception {
         ExcelHelper<T> helper = new ExcelHelper<>(mapper);
-        helper.exportExcel(data, filePath);
+        helper.exportExcel(data, filePath, plusHeaders);
     }
 }
