@@ -139,11 +139,21 @@ public class ScoreItemService implements IService<ScoreItem> {
     public void exportByClassId(String classesId, String file, String token) throws Exception {
         try {
             List<ScoreExcelDTO> scoresDtos = covertToScoreExcel(classesId, token);
-            excelService.exportExcel(scoresDtos, file, scoreExcelMapper);
+            String[] plusHeaders = new String[0];
+            if (scoresDtos != null && !scoresDtos.isEmpty()) {
+                plusHeaders = plusHeaders(scoresDtos.get(0).getListScores());
+            }
+            excelService.exportExcel(scoresDtos, file, scoreExcelMapper, plusHeaders);
         } catch (Exception e) {
             System.out.println("Error in class: " + classesId + " → " + e.getMessage());
         }
 
+    }
+
+    private String[] plusHeaders(Map<String, Double> listScores) {
+    return (listScores == null || listScores.isEmpty())
+        ? new String[0]
+        : listScores.keySet().toArray(new String[0]);
     }
 
     private List<ScoreExcelDTO> covertToScoreExcel(String classesId, String token) {
