@@ -159,12 +159,15 @@ public class ScoreItemService implements IService<ScoreItem> {
                 cedto.setWork_id(p.getWork_id());
                 cedto.setMemberCode(p.getEmail().split("@")[0]);
                 List<ScoreItem> listScores = scoreItemRepo
-                        .findAllByUserIdNClassId(redisScoreItemService.getCurrentUserId(token), classesId);
+                        .findAllByUserIdNClassId(p.get_id(), classesId);
+                System.out.println(listScores.toString());
                 Map<String, Double> scoreItemMap = listScores.stream()
                         .collect(Collectors.toMap(
                                 item -> item.getScoreCategory().getScoreCategoryName(), // Key: scoreCategoryName
-                                ScoreItem::getScoreItemValue // Value: scoreItemValue
+                                ScoreItem::getScoreItemValue,
+                                (existing, replacement) -> existing
                 ));
+                System.out.println(scoreItemMap.toString());
                 cedto.setListScores(scoreItemMap);
                 dtoList.add(cedto);
             });
