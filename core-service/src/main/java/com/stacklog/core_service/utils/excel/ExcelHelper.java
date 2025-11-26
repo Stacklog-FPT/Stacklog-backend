@@ -37,7 +37,7 @@ public class ExcelHelper<T> {
     return result;
   }
 
-  public void exportExcel(List<T> data, String filePath) throws Exception {
+  public void exportExcel(List<T> data, String filePath, String[] plusHeaders) throws Exception {
     try (Workbook workbook = new XSSFWorkbook()) {
       Sheet sheet = workbook.createSheet("Sheet1");
 
@@ -46,7 +46,8 @@ public class ExcelHelper<T> {
       String[] headers = mapper.headers();
       for (int i = 0; i < headers.length; i++)
         header.createCell(i).setCellValue(headers[i]);
-
+      for (int i = 0; i < plusHeaders.length; i++)
+        header.createCell(i+headers.length).setCellValue(plusHeaders[i]);
       // Body
       int rowIdx = 1;
       for (T item : data) {
