@@ -204,7 +204,7 @@ public class ClassService implements IService<Classes> {
                 System.out.println("Error in class: " + c.getClassesId() + " → " + e.getMessage());
             }
         });
-        excelService.exportExcel(dtoList, file, classMapper);
+        excelService.exportExcel(dtoList, file, classMapper, new String[0]);
     }
 
     public void exportByClassId(Classes classes, String file, String token) throws Exception {
@@ -215,7 +215,7 @@ public class ClassService implements IService<Classes> {
         } catch (Exception e) {
             System.out.println("Error in class: " + classes.getClassesId() + " → " + e.getMessage());
         }
-        excelService.exportExcel(dtoList, file, classMapper);
+        excelService.exportExcel(dtoList, file, classMapper, new String[0]);
     }
 
     private List<ClassesExcelDTO> covertToClassesExcel(Classes classes, String token) {
