@@ -35,6 +35,9 @@ public class ScoreItemService implements IService<ScoreItem> {
     private ScoreItemRepo scoreItemRepo;
 
     @Autowired
+    private ScoreCategoryService scoreCategoryService;
+
+    @Autowired
     private ClassServiceClient classServiceClient;
 
     @Autowired
@@ -141,7 +144,7 @@ public class ScoreItemService implements IService<ScoreItem> {
             List<ScoreExcelDTO> scoresDtos = covertToScoreExcel(classesId, token);
             String[] plusHeaders = new String[0];
             if (scoresDtos != null && !scoresDtos.isEmpty()) {
-                plusHeaders = plusHeaders(scoresDtos.get(0).getListScores());
+                plusHeaders = plusHeaders(classId);
             }
             excelService.exportExcel(scoresDtos, file, scoreExcelMapper, plusHeaders);
         } catch (Exception e) {
@@ -150,10 +153,13 @@ public class ScoreItemService implements IService<ScoreItem> {
 
     }
 
-    private String[] plusHeaders(Map<String, Double> listScores) {
-    return (listScores == null || listScores.isEmpty())
-        ? new String[0]
-        : listScores.keySet().toArray(new String[0]);
+    private String[] plusHeaders(String classId) {
+        List<ScoreCategory> list = scoreCategoryService.getAllByClassId(classId, token);
+        String[] plusHeaders = new String[list.getSize()];
+        for (int i = 0; i< list.getSize(), i++){
+            plusHeaders[i] = list.get(i).getScoreCategoryName();
+        }
+        return plusHeaders;
     }
 
     private List<ScoreExcelDTO> covertToScoreExcel(String classesId, String token) {
