@@ -181,7 +181,7 @@ public class ScoreItemService implements IService<ScoreItem> {
                 System.out.println(listScores.toString());
                 Map<String, Double> scoreItemMap = new LinkedHashMap<>();
                 for (String header : headers) {
-                    Double value = scoreItems.stream()
+                    Double value = listScores.stream()
                             .filter(item -> item.getScoreCategory().getScoreCategoryName().equals(header))
                             .map(ScoreItem::getScoreItemValue)
                             .findFirst()
