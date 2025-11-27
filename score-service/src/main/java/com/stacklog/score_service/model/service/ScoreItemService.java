@@ -144,9 +144,7 @@ public class ScoreItemService implements IService<ScoreItem> {
     public void exportByClassId(String classesId, String file, String token) throws Exception {
         try {
             String[] plusHeaders = new String[0];
-            if (scoresDtos != null && !scoresDtos.isEmpty()) {
-                plusHeaders = plusHeaders(classesId, token);
-            }
+            plusHeaders = plusHeaders(classesId, token);
             List<ScoreExcelDTO> scoresDtos = covertToScoreExcel(classesId, token, plusHeaders);
             excelService.exportExcel(scoresDtos, file, scoreExcelMapper, plusHeaders);
         } catch (Exception e) {
