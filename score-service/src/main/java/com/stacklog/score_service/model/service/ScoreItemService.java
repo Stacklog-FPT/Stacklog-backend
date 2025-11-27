@@ -143,11 +143,11 @@ public class ScoreItemService implements IService<ScoreItem> {
 
     public void exportByClassId(String classesId, String file, String token) throws Exception {
         try {
-            List<ScoreExcelDTO> scoresDtos = covertToScoreExcel(classesId, token);
             String[] plusHeaders = new String[0];
             if (scoresDtos != null && !scoresDtos.isEmpty()) {
                 plusHeaders = plusHeaders(classesId, token);
             }
+            List<ScoreExcelDTO> scoresDtos = covertToScoreExcel(classesId, token, plusHeaders);
             excelService.exportExcel(scoresDtos, file, scoreExcelMapper, plusHeaders);
         } catch (Exception e) {
             System.out.println("Error in class: " + classesId + " → " + e.getMessage());
@@ -164,7 +164,7 @@ public class ScoreItemService implements IService<ScoreItem> {
         return plusHeaders;
     }
 
-    private List<ScoreExcelDTO> covertToScoreExcel(String classesId, String token) {
+    private List<ScoreExcelDTO> covertToScoreExcel(String classesId, String token, String[] headers) {
         List<ScoreExcelDTO> dtoList = new ArrayList<>();
         try {
             List<Profile> profiles = profileServiceClient.getProfileByClassId(token, classesId);
@@ -180,15 +180,14 @@ public class ScoreItemService implements IService<ScoreItem> {
                         .findAllByUserIdNClassId(p.get_id(), classesId);
                 System.out.println(listScores.toString());
                 Map<String, Double> scoreItemMap = new LinkedHashMap<>();
-                headerList.forEach(header -> {
-                    // Nếu học sinh không có điểm, default là null hoặc 0
-                    Double value = listScores.stream()
-                        .filter(item -> item.getScoreCategory().getScoreCategoryName().equals(header))
-                        .map(ScoreItem::getScoreItemValue)
-                        .findFirst()
-                        .orElse(null);
+                for (String header : headers) {
+                    Double value = scoreItems.stream()
+                            .filter(item -> item.getScoreCategory().getScoreCategoryName().equals(header))
+                            .map(ScoreItem::getScoreItemValue)
+                            .findFirst()
+                            .orElse(null);
                     scoreItemMap.put(header, value);
-                });
+                }
                 System.out.println(scoreItemMap.toString());
                 cedto.setListScores(scoreItemMap);
                 dtoList.add(cedto);
