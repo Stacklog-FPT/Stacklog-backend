@@ -178,12 +178,16 @@ public class ScoreItemService implements IService<ScoreItem> {
                 List<ScoreItem> listScores = scoreItemRepo
                         .findAllByUserIdNClassId(p.get_id(), classesId);
                 System.out.println(listScores.toString());
-                Map<String, Double> scoreItemMap = listScores.stream()
-                        .collect(Collectors.toMap(
-                                item -> item.getScoreCategory().getScoreCategoryName(), // Key: scoreCategoryName
-                                ScoreItem::getScoreItemValue,
-                                (existing, replacement) -> existing
-                ));
+                Map<String, Double> scoreItemMap = new LinkedHashMap<>();
+                headerList.forEach(header -> {
+                    // Nếu học sinh không có điểm, default là null hoặc 0
+                    Double value = listScores.stream()
+                        .filter(item -> item.getScoreCategory().getScoreCategoryName().equals(header))
+                        .map(ScoreItem::getScoreItemValue)
+                        .findFirst()
+                        .orElse(null);
+                    scoreItemMap.put(header, value);
+                });
                 System.out.println(scoreItemMap.toString());
                 cedto.setListScores(scoreItemMap);
                 dtoList.add(cedto);
