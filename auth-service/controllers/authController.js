@@ -124,7 +124,7 @@ const loginGoogle = async (req, res) => {
     });
 
     return res.json({
-      _id: user._id, username: user.username, email: user.email, role: user.role, token
+      _id: user._id, username: user.username, email: user.email, role: user.role, token, avatar: payload.picture,
     });
   } catch (e) {
     return res.status(500).send({ errMsg: 'Something is wrong!' });
