@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.stacklog.score_service.model.entities.ScoreItem;
 import com.stacklog.score_service.model.service.ScoreItemService;
 
-import io.jsonwebtoken.lang.Classes;
-
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

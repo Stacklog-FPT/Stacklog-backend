@@ -86,9 +86,6 @@ public class ProjectInformationService implements IService<ProjectInformation> {
         if (groupIds.isEmpty())
             return List.of();
 
-        // 2) lấy userId hiện tại từ Redis (như bạn đang làm)
-        String userId = redisPIService.getCurrentUserId(token);
-
         // 3) query DB 1 lần cho tất cả group
         List<ProjectInformation> piList = piRepo.findAllByGroupIds(groupIds);
 
