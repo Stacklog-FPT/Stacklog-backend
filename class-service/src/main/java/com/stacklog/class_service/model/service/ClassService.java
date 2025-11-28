@@ -93,10 +93,10 @@ public class ClassService implements IService<Classes> {
 
         if (isCreate) {
             // kafka producer
-            kafkaClassProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
+            kafkaClassProducer.sendMessage(newClasses, KAFKA_TOPIC_CREATE);
         } else {
             // kafa producer
-            kafkaClassProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
+            kafkaClassProducer.sendMessage(newClasses, KAFKA_TOPIC_UPDATE);
         }
 
         Groupss groupss = new Groupss();

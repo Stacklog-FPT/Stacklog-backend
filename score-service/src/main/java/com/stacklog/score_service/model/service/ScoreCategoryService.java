@@ -1,10 +1,12 @@
 package com.stacklog.score_service.model.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import com.stacklog.core_service.model.service.IService;
@@ -15,6 +17,7 @@ import com.stacklog.score_service.model.entities.ScoreCategory;
 import com.stacklog.score_service.model.repo.ScoreCategoryRepo;
 
 import jakarta.transaction.Transactional;
+import lombok.Data;
 
 @Service
 public class ScoreCategoryService implements IService<ScoreCategory> {
@@ -100,7 +103,7 @@ public class ScoreCategoryService implements IService<ScoreCategory> {
             e.setScoreCategoryId(UUID.randomUUID().toString());
         }
         e = scoreCategoryRepo.save(e);
-        
+
         return e;
     }
 
@@ -116,5 +119,60 @@ public class ScoreCategoryService implements IService<ScoreCategory> {
 
         return scoreCategory;
     }
-    
+
+    @Transactional
+    private void createDefaultScoreCategories(String classId) {
+        // final, assignment, group-project, practicalexam, progresstest1, progresstest2
+        List<ScoreCategory> defaultScoreCategories = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            ScoreCategory sc = new ScoreCategory();
+            sc.setClassId(classId);
+            String name = "final";
+            Double weight = 0.4;
+            switch (i) {
+                case 1:
+                    name = "assignment";
+                    weight = 0.2;
+                    break;
+                case 2:
+                    name = "Group Project";
+                    weight = 0.1;
+                    break;
+                case 3:
+                    name = "Practical Exam";
+                    weight = 0.1;
+                    break;
+                case 4:
+                    name = "Progess Test 1";
+                    weight = 0.1;
+                    break;
+                case 5:
+                    name = "Progess Test 2";
+                    weight = 0.1;
+                    break;
+                default:
+                    break;
+            }
+            sc.setScoreCategoryName(name);
+            sc.setScoreCategoryWeight(weight);
+            sc.setCreatedAt(LocalDateTime.now());
+            sc.setUpdateAt(LocalDateTime.now());
+            sc.setCreatedBy("");
+            sc.setUpdateBy("");
+            defaultScoreCategories.add(sc);
+        }
+        scoreCategoryRepo.saveAll(defaultScoreCategories);
+    }
+
+    @KafkaListener(topics = "class-service.classes.created", groupId = "score-service-group")
+    public void listenClassCreated(ClassCreatedEvent message) {
+        System.out.println("📥 Received new class: " + message.getClassId());
+        createDefaultScoreCategories(message.getClassId());
+    }
+
+}
+
+@Data
+class ClassCreatedEvent {
+    private String classId;
 }
