@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 @RestController
 @RequestMapping("/")
 public class ScoreItemController {
@@ -50,7 +49,7 @@ public class ScoreItemController {
     @DeleteMapping("/delete/{stId}")
     public ResponseEntity<ScoreItem> deleteScoreItem(@RequestHeader("Authorization") String token,
             @PathVariable("stId") String stId) {
-        
+
         ScoreItem oldScoreItem = scoreItemService.delete(stId, token);
         if (oldScoreItem == null) {
             return ResponseEntity.badRequest().build();
@@ -87,17 +86,17 @@ public class ScoreItemController {
 
     @PostMapping("/create/avg-group-score")
     public ResponseEntity<?> createAvgScore(@RequestHeader("Authorization") String token,
-            @RequestParam("groupId") String groupId, @RequestParam(name = "avgScore") Double avgScore) {
-        
-        List<ScoreItem> siList = scoreItemService.createPersonalScoreItem(groupId, avgScore, token);
+            @RequestParam("groupId") String groupId,
+            @RequestParam(name = "avgScore") Double avgScore,
+            @RequestParam(name = "classId") String classId) {
+
+        List<ScoreItem> siList = scoreItemService.createPersonalScoreItem(groupId, avgScore, classId, token);
 
         if (siList.isEmpty()) {
             return ResponseEntity.status(404).body("message: No content");
         }
-        
+
         return ResponseEntity.ok(siList);
     }
-    
-    
 
 }

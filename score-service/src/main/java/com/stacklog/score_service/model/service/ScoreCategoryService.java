@@ -73,9 +73,9 @@ public class ScoreCategoryService implements IService<ScoreCategory> {
         throw new UnsupportedOperationException("Unimplemented method 'getById'");
     }
 
-    // public ScoreCategory getByName(String name, String classId) {
-    //     return scoreCategoryRepo.findByScoreCategoryNameAndClassId(name, classId).orElseThrow();
-    // }
+    public ScoreCategory getByName(String name, String classId) {
+        return scoreCategoryRepo.findByScoreCategoryNameAndClassId(name, classId).orElseThrow();
+    }
 
     @Override
     public ScoreCategory save(ScoreCategory e, String token) {

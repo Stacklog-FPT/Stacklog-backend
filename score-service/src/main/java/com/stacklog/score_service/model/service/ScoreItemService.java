@@ -18,7 +18,6 @@ import com.stacklog.core_service.utils.redis.RedisService;
 import com.stacklog.score_service.dto.ScoreExcelDTO;
 import com.stacklog.score_service.dto.ScoreExcelMapper;
 import com.stacklog.score_service.model.entities.ScoreItem;
-import com.stacklog.score_service.model.repo.ScoreCategoryRepo;
 import com.stacklog.score_service.model.repo.ScoreItemRepo;
 import com.stacklog.score_service.model.entities.ScoreCategory;
 
@@ -202,17 +201,12 @@ public class ScoreItemService implements IService<ScoreItem> {
         return dtoList;
     }
 
-    public List<ScoreItem> createPersonalScoreItem(String groupId, Double avgScore, String token) {
+    public List<ScoreItem> createPersonalScoreItem(String groupId, Double avgScore, String classId, String token) {
         List<ScoreItem> siList = new ArrayList<>();
         try {
             List<GroupStudent> gsList = classServiceClient.getGroupStudent(token, groupId);
             Map<String, Double> memberContribution = taskServiceClient.getOverallTask(token, groupId)
                     .getMemberContribution();
-
-            // // đang thiếu classId để thực hiện get scorecategory by classID
-
-            // scoreCategoryService.getByName("Assignment", classId)
-
 
             if (gsList == null || gsList.isEmpty()) {
                 System.out.println("⚠ No students found in groupId = " + groupId);
