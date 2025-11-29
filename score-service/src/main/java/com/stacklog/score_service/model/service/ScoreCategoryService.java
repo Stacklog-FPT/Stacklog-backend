@@ -127,6 +127,7 @@ public class ScoreCategoryService implements IService<ScoreCategory> {
         List<ScoreCategory> defaultScoreCategories = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
             ScoreCategory sc = new ScoreCategory();
+            sc.setScoreCategoryId(UUID.randomUUID().toString());
             sc.setClassId(classId);
             String name = "final";
             Double weight = 0.4;
