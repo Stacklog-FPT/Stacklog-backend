@@ -201,6 +201,7 @@ public class ScoreItemService implements IService<ScoreItem> {
         return dtoList;
     }
 
+    @Transactional
     public List<ScoreItem> createPersonalScoreItem(String groupId, Double avgScore, String classId, String token) {
         List<ScoreItem> siList = new ArrayList<>();
         try {
