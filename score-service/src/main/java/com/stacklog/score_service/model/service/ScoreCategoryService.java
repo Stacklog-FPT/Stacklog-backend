@@ -166,13 +166,20 @@ public class ScoreCategoryService implements IService<ScoreCategory> {
 
     @KafkaListener(topics = "class-service.classes.created", groupId = "score-service-group")
     public void listenClassCreated(ClassCreatedEvent message) {
-        System.out.println("📥 Received new class: " + message.getClassId());
-        createDefaultScoreCategories(message.getClassId());
+        System.out.println("📥 Received new class: " + message.getClassesId());
+        createDefaultScoreCategories(message.getClassesId());
     }
 
 }
 
 @Data
 class ClassCreatedEvent {
-    private String classId;
+    private String createdBy;
+    private LocalDateTime createdAt;
+    private String updateBy;
+    private LocalDateTime updateAt;
+    private String classesId;
+    private String classesName;
+    private String lectureId;
+    private Object groups;
 }
