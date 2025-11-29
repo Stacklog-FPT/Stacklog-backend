@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -26,9 +25,6 @@ public interface TaskServiceClient {
 
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ResponseOverall {
 
@@ -45,7 +41,6 @@ class ResponseOverall {
     private List<UserOverview> userOverviews;
 
     @Data
-    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class StatusTaskRate {
@@ -58,7 +53,6 @@ class ResponseOverall {
 
 
     @Data
-    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UserOverview {
@@ -70,7 +64,6 @@ class ResponseOverall {
     }
 
     @Data
-    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class UpcomingDeadline {
@@ -79,9 +72,4 @@ class ResponseOverall {
         private int taskCompleted;
     }
 
-
-
 }
-
-
-
