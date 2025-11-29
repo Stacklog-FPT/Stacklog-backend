@@ -91,7 +91,7 @@ public class TaskRestController {
     public ResponseEntity<ResponseOverall> getTaskDashboard(
             @RequestHeader("Authorization") String token,
             @RequestParam(name = "groupId", required = false) String groupId) {
-        ResponseOverall responseOverall = taskDashboardService.getOverallStatistics(groupId);
+        ResponseOverall responseOverall = taskDashboardService.getOverallStatistics(groupId, token);
         if (responseOverall == null) {
             return ResponseEntity.badRequest().body(null);
         }
