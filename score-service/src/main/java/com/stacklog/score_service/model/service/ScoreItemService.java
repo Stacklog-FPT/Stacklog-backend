@@ -52,9 +52,6 @@ public class ScoreItemService implements IService<ScoreItem> {
     TaskServiceClient taskServiceClient;
 
     @Autowired
-    ScoreCategoryRepo scoreCategoryRepo;
-
-    @Autowired
     ScoreExcelMapper scoreExcelMapper;
 
     @Autowired
@@ -212,6 +209,11 @@ public class ScoreItemService implements IService<ScoreItem> {
             Map<String, Double> memberContribution = taskServiceClient.getOverallTask(token, groupId)
                     .getMemberContribution();
 
+            // // đang thiếu classId để thực hiện get scorecategory by classID
+
+            // scoreCategoryService.getByName("Assignment", classId)
+
+
             if (gsList == null || gsList.isEmpty()) {
                 System.out.println("⚠ No students found in groupId = " + groupId);
                 return siList;
@@ -232,8 +234,7 @@ public class ScoreItemService implements IService<ScoreItem> {
                     personalScore = 10.0;
                 }
 
-                ScoreCategory category = scoreCategoryRepo.findByScoreCategoryNameAndGroupId("Assignment", groupId)
-                        .orElseThrow(() -> new RuntimeException("ScoreCategory 'Assignment' not found"));
+                ScoreCategory category = scoreCategoryService.getByName("Assignment", classId);
 
                 ScoreItem item = new ScoreItem();
                 item.setCreatedAt(LocalDateTime.now());

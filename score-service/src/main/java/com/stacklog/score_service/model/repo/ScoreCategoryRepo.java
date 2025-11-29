@@ -18,6 +18,7 @@ public interface ScoreCategoryRepo extends JpaRepository<ScoreCategory, String> 
     @Query("select sc from ScoreCategory sc where sc.isReusable = true")
     List<ScoreCategory> findAllByIsReusable(boolean isReuse);
 
-    Optional<ScoreCategory> findByScoreCategoryNameAndGroupId(String string, String groupId);
+    // @Query("select sc from ScoreCategory sc where sc.scoreCategoryName = :scoreCategoryName and sc.classId = :groupId")
+    // Optional<ScoreCategory> findByScoreCategoryNameAndClassId(String scoreCategoryName, String classId);
     
 }
