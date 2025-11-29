@@ -35,9 +35,9 @@ router.post("/addAll", createListUser)
 
 // import excel 
 const upload = multer({ dest: "uploads/" });
-router.post("/import-excel", upload.single('file'), importExcel)
+router.post("/import-excel/:role", upload.single('file'), importExcel)
 
 // export excel 
-router.get("/export-excel", exportExcel)
+router.get("/export-excel/:role", exportExcel)
 
 module.exports = router;

@@ -201,7 +201,7 @@ exports.importExcel = async (req, res) => {
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(sheet);
 
-        const role = req.query.role;
+        const { role } = req.params;
         if (!role) {
             return res.status(400).json({ message: "Thiếu role ?role=" });
         }
@@ -241,7 +241,7 @@ exports.importExcel = async (req, res) => {
 
 exports.exportExcel = async (req, res) => {
     try {
-        const role = req.query.role;
+        const { role } = req.params;
         if (!role) {
             return res.status(400).json({ message: "Thiếu role ?role=" });
         }
