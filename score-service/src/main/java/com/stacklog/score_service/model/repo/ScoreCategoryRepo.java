@@ -1,6 +1,7 @@
 package com.stacklog.score_service.model.repo;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,5 +17,7 @@ public interface ScoreCategoryRepo extends JpaRepository<ScoreCategory, String> 
 
     @Query("select sc from ScoreCategory sc where sc.isReusable = true")
     List<ScoreCategory> findAllByIsReusable(boolean isReuse);
+
+    Optional<ScoreCategory> findByScoreCategoryNameAndGroupId(String string, String groupId);
     
 }

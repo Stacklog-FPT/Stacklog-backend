@@ -18,6 +18,7 @@ import com.stacklog.core_service.utils.redis.RedisService;
 import com.stacklog.score_service.dto.ScoreExcelDTO;
 import com.stacklog.score_service.dto.ScoreExcelMapper;
 import com.stacklog.score_service.model.entities.ScoreItem;
+import com.stacklog.score_service.model.repo.ScoreCategoryRepo;
 import com.stacklog.score_service.model.repo.ScoreItemRepo;
 import com.stacklog.score_service.model.entities.ScoreCategory;
 
@@ -46,6 +47,12 @@ public class ScoreItemService implements IService<ScoreItem> {
 
     @Autowired
     ExcelService excelService;
+
+    @Autowired
+    TaskServiceClient taskServiceClient;
+
+    @Autowired
+    ScoreCategoryRepo scoreCategoryRepo;
 
     @Autowired
     ScoreExcelMapper scoreExcelMapper;
@@ -155,7 +162,7 @@ public class ScoreItemService implements IService<ScoreItem> {
     private String[] plusHeaders(String classId, String token) {
         List<ScoreCategory> list = scoreCategoryService.getAllByClassId(classId, token);
         String[] plusHeaders = new String[list.size()];
-        for (int i = 0; i< list.size(); i++){
+        for (int i = 0; i < list.size(); i++) {
             plusHeaders[i] = list.get(i).getScoreCategoryName();
         }
         return plusHeaders;
@@ -196,6 +203,62 @@ public class ScoreItemService implements IService<ScoreItem> {
                     .println("Error fetching profile for classId = " + classesId + ": " + e.getMessage());
         }
         return dtoList;
+    }
+
+    public List<ScoreItem> createPersonalScoreItem(String groupId, Double avgScore, String token) {
+        List<ScoreItem> siList = new ArrayList<>();
+        try {
+            List<GroupStudent> gsList = classServiceClient.getGroupStudent(token, groupId);
+            Map<String, Double> memberContribution = taskServiceClient.getOverallTask(token, groupId)
+                    .getMemberContribution();
+
+            if (gsList == null || gsList.isEmpty()) {
+                System.out.println("⚠ No students found in groupId = " + groupId);
+                return siList;
+            }
+
+            if (memberContribution == null) {
+                System.out.println("⚠ memberContribution is null for groupId = " + groupId);
+                return siList;
+            }
+
+            gsList.forEach(gs -> {
+                String userId = gs.getUserId();
+
+                Double percent = memberContribution.getOrDefault(userId, 0.0);
+
+                double personalScore = (avgScore * percent) / (100 / gsList.size());
+                if (personalScore > 10.0) {
+                    personalScore = 10.0;
+                }
+
+                ScoreCategory category = scoreCategoryRepo.findByScoreCategoryNameAndGroupId("Assignment", groupId)
+                        .orElseThrow(() -> new RuntimeException("ScoreCategory 'Assignment' not found"));
+
+                ScoreItem item = new ScoreItem();
+                item.setCreatedAt(LocalDateTime.now());
+                item.setCreatedBy(redisScoreItemService.getCurrentUserId(token));
+                item.setUpdateAt(LocalDateTime.now());
+                item.setUpdateBy(redisScoreItemService.getCurrentUserId(token));
+                item.setScoreItemValue(personalScore);
+                item.setIsVisualize(false);
+
+                item.setUserId(userId);
+                item.setGroupId(groupId);
+
+                item.setScoreCategory(category);
+
+                siList.add(item);
+
+            });
+
+            return scoreItemRepo.saveAll(siList);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return siList;
     }
 
 }

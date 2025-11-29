@@ -84,6 +84,20 @@ public class ScoreItemController {
 
         }
     }
+
+    @PostMapping("/create/avg-group-score")
+    public ResponseEntity<?> createAvgScore(@RequestHeader("Authorization") String token,
+            @RequestParam("groupId") String groupId, @RequestParam(name = "avgScore") Double avgScore) {
+        
+        List<ScoreItem> siList = scoreItemService.createPersonalScoreItem(groupId, avgScore, token);
+
+        if (siList.isEmpty()) {
+            return ResponseEntity.status(404).body("message: No content");
+        }
+        
+        return ResponseEntity.ok(siList);
+    }
+    
     
 
 }
