@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stacklog.core_service.model.service.IService;
 import com.stacklog.core_service.utils.CommonFunction;
 import com.stacklog.core_service.utils.kafka.KafkaProducer;
@@ -164,10 +165,20 @@ public class ScoreCategoryService implements IService<ScoreCategory> {
         scoreCategoryRepo.saveAll(defaultScoreCategories);
     }
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     @KafkaListener(topics = "class-service.classes.created", groupId = "score-service-group")
-    public void listenClassCreated(ClassCreatedEvent message) {
-        System.out.println("📥 Received new class: " + message.getClassesId());
-        createDefaultScoreCategories(message.getClassesId());
+    public void listenClassCreated(String json) {
+        System.out.println("📥 Received new class: " + json);
+        ClassCreatedEvent event = null;
+        try {
+            event = objectMapper.readValue(json, ClassCreatedEvent.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+        createDefaultScoreCategories(event.getClassesId());
     }
 
 }
