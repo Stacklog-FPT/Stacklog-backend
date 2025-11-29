@@ -1,6 +1,8 @@
 const express = require('express');
-const { createUser, updateUser, deleteUser, findByEmail, findByClassId, findByRole, findById, findByNameOrEmail, createListUser } = require('../controller/userController');
+const { createUser, updateUser, deleteUser, findByEmail, findByClassId, findByRole, findById, findByNameOrEmail, createListUser, importExcel, exportExcel } = require('../controller/userController');
 const { validateUser } = require('../middleware/validateUserMiddleware');
+const multer = require("multer");
+
 
 const router = express.Router();
 
@@ -30,5 +32,12 @@ router.get("/class/:classId", findByClassId);
 
 // add list user
 router.post("/addAll", createListUser)
+
+// import excel 
+const upload = multer({ dest: "uploads/" });
+router.post("/import-excel", upload.single('file'), importExcel)
+
+// export excel 
+router.post("/export-excel", exportExcel)
 
 module.exports = router;

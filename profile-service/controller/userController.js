@@ -189,3 +189,99 @@ exports.createListUser = async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 }
+
+
+exports.importExcel = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "Vui lòng upload file Excel." });
+        }
+
+        const workbook = XLSX.readFile(req.file.path);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet);
+
+        const role = req.query.role;
+        if (!role) {
+            return res.status(400).json({ message: "Thiếu role ?role=" });
+        }
+
+        const usersToCreate = [];
+
+        for (const row of rows) {
+            // Format yêu cầu theo cột Class, RollNumber, Email, MemberCode, FullName
+            const user = {
+                class: '',
+                rollNumber: row.RollNumber,
+                email: row.Email,
+                memberCode: row.MemberCode,
+                fullName: row.FullName,
+                role: role,
+            };
+
+            usersToCreate.push(user);
+        }
+
+        const createdUsers = await User.insertMany(usersToCreate);
+
+        // Xóa file sau khi import
+        fs.unlinkSync(req.file.path);
+
+        return res.status(200).json({
+            message: "Import Excel thành công!",
+            total: createdUsers.length,
+            data: createdUsers,
+        });
+    } catch (err) {
+        console.error("ImportExcel Error:", err);
+        return res.status(500).json({ message: "Lỗi import Excel", error: err });
+    }
+}
+
+
+exports.exportExcel = async (req, res) => {
+    try {
+        const role = req.query.role;
+        if (!role) {
+            return res.status(400).json({ message: "Thiếu role ?role=" });
+        }
+
+        const users = await User.find({ role, isDeleted: false }).lean();
+
+        if (!users.length) {
+            return res.status(404).json({ message: "Không có user nào với role này." });
+        }
+
+        const data = users.map(u => ({
+            rollNumber: u.work_id,
+            email: u.email,
+            memberCode: u.work_id,
+            fullName: u.full_name,
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+
+        const fileName = `users_${role}_${Date.now()}.xlsx`;
+        const filePath = `./exports/${fileName}`;
+
+        // Tạo folder nếu chưa tồn tại
+        if (!fs.existsSync("./exports")) fs.mkdirSync("./exports");
+
+        XLSX.writeFile(workbook, filePath);
+
+        res.download(filePath, fileName, (err) => {
+            if (err) {
+                console.error("Error downloading file:", err);
+            }
+            // Xóa file sau khi gửi xong
+            fs.unlinkSync(filePath);
+        });
+    } catch (err) {
+        console.error("ExportExcel Error:", err);
+        return res.status(500).json({ message: "Lỗi export Excel", error: err });
+    }
+};
+
