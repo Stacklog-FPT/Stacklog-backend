@@ -38,6 +38,6 @@ const upload = multer({ dest: "uploads/" });
 router.post("/import-excel", upload.single('file'), importExcel)
 
 // export excel 
-router.post("/export-excel", exportExcel)
+router.get("/export-excel", exportExcel)
 
 module.exports = router;
