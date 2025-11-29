@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const { produceMessage } = require('../config/kafka');
+const XLSX = require("xlsx");
+const fs = require("fs");
 
 // Create a new user
 exports.createUser = async (req, res) => {
