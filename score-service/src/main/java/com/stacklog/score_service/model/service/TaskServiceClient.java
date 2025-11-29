@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @FeignClient(name = "task-service", url = "http://taskservice:2002", path = "")
 public interface TaskServiceClient {
@@ -20,7 +22,8 @@ public interface TaskServiceClient {
 
 }
 
-@Data
+@Getter
+@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ResponseOverall {
     private String groupId;
