@@ -6,6 +6,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -15,10 +16,11 @@ import lombok.NoArgsConstructor;
 
 @FeignClient(name = "class-service", url = "http://scoreservice:2008", path = "")
 public interface ScoreServiceClient {
-  @GetMapping("/class/{groupId}")
+  @GetMapping("/group/{groupId}")
   List<ScoreItem> getScoreItemsByGroupId(
       @RequestHeader("Authorization") String token,
-      @PathVariable("groupId") String groupId);
+      @PathVariable("groupId") String groupId,
+      @RequestParam("category") String categoryName);
 }
 
 @Data

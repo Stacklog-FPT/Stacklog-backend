@@ -91,7 +91,7 @@ public class TaskDashboardService {
                 }
 
                 // ====== 4️⃣ Điểm trung bình theo nhóm ======
-                List<ScoreItem> getAllScoreItems = scoreServiceClient.getScoreItemsByGroupId(groupId, token);
+                List<ScoreItem> getAllScoreItems = scoreServiceClient.getScoreItemsByGroupId(token, groupId, "Assignment");
                 double totalScore = 0.0;
                 for (ScoreItem scoreItem : getAllScoreItems) {
                         totalScore += scoreItem.getScoreItemValue(); // Cộng điểm của mỗi ScoreItem vào tổng
