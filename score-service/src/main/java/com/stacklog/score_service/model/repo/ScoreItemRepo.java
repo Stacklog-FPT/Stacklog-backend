@@ -30,4 +30,11 @@ public interface ScoreItemRepo extends JpaRepository<ScoreItem, String> {
             """)
     List<ScoreItem> findAllByUserIdNClassId(String userId, String classId);
 
+    @Query("""
+            SELECT si FROM ScoreItem si
+                WHERE si.groupId = :groupId
+                AND si.scoreCategory.scoreCategoryName = :scoreCategoryName
+                """)
+    List<ScoreItem> findByGroupIdAndScoreCategoryScoreCategoryName(String groupId, String scoreCategoryName);
+
 }

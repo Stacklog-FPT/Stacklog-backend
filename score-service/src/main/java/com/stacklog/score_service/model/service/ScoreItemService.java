@@ -260,4 +260,8 @@ public class ScoreItemService implements IService<ScoreItem> {
         return siList;
     }
 
+    public List<ScoreItem> getAllByGroupIdNScoreCategory(String token, String groupId, String scoreCategoryName) {
+        return scoreItemRepo.findByGroupIdAndScoreCategoryScoreCategoryName(groupId, scoreCategoryName);
+    }
+
 }

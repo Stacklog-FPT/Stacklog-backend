@@ -36,6 +36,13 @@ public class ScoreItemController {
         return ResponseEntity.ok(list);
     }
 
+    @GetMapping("/group/{groupId}")
+    public ResponseEntity<List<ScoreItem>> getScoreItemByScoreCategory(@RequestHeader("Authorization") String token,
+            @PathVariable("groupId") String groupId, @RequestParam(name = "category") String scoreCategoryName) {
+        List<ScoreItem> list = scoreItemService.getAllByGroupIdNScoreCategory(token, groupId, scoreCategoryName);
+        return ResponseEntity.ok(list);
+    }
+
     @PostMapping("/save")
     public ResponseEntity<ScoreItem> saveScoreItem(@RequestHeader("Authorization") String token,
             @RequestBody ScoreItem e) {
