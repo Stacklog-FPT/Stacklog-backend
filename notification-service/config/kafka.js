@@ -1,5 +1,6 @@
 const { Kafka } = require("kafkajs");
 require("dotenv").config();
+const { sendEmail } = require("./email")
 
 const { createNotification } = require("../controllers/notification.controller");
 
@@ -9,9 +10,10 @@ const GROUP_ID = process.env.KAFKA_GROUP_ID || "notification-group";
 
 const kafka = new Kafka({ clientId: CLIENT_ID, brokers: [KAFKA_BROKER] });
 const producer = kafka.producer();
-const consumer = kafka.consumer({ groupId: GROUP_ID,
-  sessionTimeout: 45000,        
-  heartbeatInterval: 3000,      
+const consumer = kafka.consumer({
+  groupId: GROUP_ID,
+  sessionTimeout: 45000,
+  heartbeatInterval: 3000,
   rebalanceTimeout: 60000,
 });
 
@@ -48,6 +50,13 @@ function getMemberIdsFromAssigns(payload) {
 
 // --- Topic handlers ---
 const topicHandlers = {
+
+  // Class: import người vào thì thông báo về mail, tạo nhóm, thêm người vào nhóm thì tb hệ thống
+  // Tạo topic, reject approve thì tb hệ thống
+  // task: assign, comment, delete
+  // task deadline trong 1 ngày thì thông báo 1h thì mail hệ thống
+  // 
+
   // Nhóm được tạo (giữ nguyên nếu payload của bạn có memberIds & groupName, groupId)
   [process.env.TOPIC_GROUP_CREATED || "class-service.groupsses.created"]: async (payload) => {
     const memberIds = Array.isArray(payload.memberIds) ? payload.memberIds : [];
@@ -56,8 +65,6 @@ const topicHandlers = {
 
     const path = `/tasks/${groupId}`
 
-    // Nếu bạn có autoCreateBoxFromGroupEvent thì gọi ở đây
-    // await autoCreateBoxFromGroupEvent(payload);
 
     if (memberIds.length) {
       await createNotification(
@@ -80,8 +87,6 @@ const topicHandlers = {
 
     console.log(payload);
 
-    // Fallback: nếu không có assigns, bạn có thể chọn gửi broadcast cho group
-    // hoặc bỏ qua. Ở đây mình chỉ gửi khi có memberIds.
     if (memberIds.length) {
       await createNotification(
         memberIds,
@@ -90,11 +95,9 @@ const topicHandlers = {
         {},
         path
       );
-      
+
     }
 
-    // Nếu bạn muốn emit thêm thông tin (groupId, taskId) -> thêm vào content
-    // hoặc sửa controller/model để có meta.
   },
 
   // Review mới cho task (payload mang cả mảng reviews)
@@ -115,16 +118,11 @@ const topicHandlers = {
         );
       }
 
-      // (Optional) Nếu muốn gửi cho tất cả người được assign:
-      // const assignees = getMemberIdsFromAssigns(payload);
-      // if (assignees.length) {
-      //   await createNotification(assignees, `💬 Task "${taskTitle}" có review mới`, "task");
-      // }
     }
   },
 
   // Task đến deadline (sử dụng taskDueDate từ payload)
-  [process.env.TOPIC_TASK_DEADLINE || "task-service.task.deadline"]: async (payload) => {
+  [process.env.TOPIC_TASK_DEADLINE || "task-service.task.deadline-by-date"]: async (payload) => {
     const { groupId, taskId, taskTitle, taskDueDate } = payload;
 
     const deadlineText = toReadable(taskDueDate); // ví dụ: 2025-09-26 01:35 (UTC)
@@ -186,6 +184,23 @@ const topicHandlers = {
       {},
       path
     );
+  },
+
+  
+
+  [process.env.TOPIC_SEND_EMAIL || 'notification-service.email.send']: async (payload) => {
+    const {
+      subject,
+      content,
+      receivers
+    } = payload;
+
+    await Promise.all(
+      receivers.map(email =>
+        sendEmail("", email, subject, content, [])
+      )
+    );
+
   },
 
 };

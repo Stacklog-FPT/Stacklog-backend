@@ -29,10 +29,56 @@ public class AutoCheckDeadlineTask {
   @Autowired
   private KafkaProducer<TaskMessageQueue> kafkaTaskProducer;
 
-  private final String TOPIC = "task-service.task.deadline";
+  @Autowired
+  private KafkaProducer<MessageEmailKafka> kafkaMessKafkaProducer;
 
-  @Scheduled(fixedRate = 60 * 60 * 1000)
-  public void checkDeadline() {
+  private final String TOPIC_BY_DATE = "task-service.task.deadline-by-date";
+
+  @Scheduled(fixedRate = 24 * 60 * 60 * 1000)
+  public void checkDeadlineDate() {
+    log.info("🔎 Running AutoCheckDeadlineTask...");
+
+    LocalDateTime now = LocalDateTime.now();
+
+    // Lấy tất cả tasks còn hạn (không Completed)
+    List<Task> tasks = taskRepo.findAll();
+
+    for (Task task : tasks) {
+      if (task.getTaskDueDate() == null)
+        continue;
+
+      boolean isCompleted = task.getStatusTask() != null &&
+          "Completed".equalsIgnoreCase(task.getStatusTask().getStatusTaskName());
+
+      if (isCompleted)
+        continue;
+
+      // Điều kiện "sắp đến hạn" — tùy bạn chỉnh
+      long minutesUntilDue = Duration.between(now, task.getTaskDueDate()).toMinutes();
+
+      // Ví dụ: gửi notification khi còn <= 60 phút
+      if (minutesUntilDue <= 1440 && minutesUntilDue > 0) {
+
+        TaskMessageQueue payload = new TaskMessageQueue(
+            task.getGroupId(),
+            task.getTaskId(),
+            task.getTaskTitle(),
+            task.getTaskDueDate(),
+            task.getAssigns().stream()
+                .map(a -> a.getAssignTo())
+                .toList());
+
+        kafkaTaskProducer.sendMessage(payload, TOPIC_BY_DATE);
+
+        log.info("📤 Sent DEADLINE notification to Kafka → task {}", task.getTaskId());
+      }
+    }
+
+    log.info("✅ AutoCheckDeadlineTask done.");
+  }
+
+  @Scheduled(fixedRate =  60 * 60 * 1000)
+  public void checkDeadlineHour() {
     log.info("🔎 Running AutoCheckDeadlineTask...");
 
     LocalDateTime now = LocalDateTime.now();
@@ -56,16 +102,12 @@ public class AutoCheckDeadlineTask {
       // Ví dụ: gửi notification khi còn <= 60 phút
       if (minutesUntilDue <= 60 && minutesUntilDue > 0) {
 
-        TaskMessageQueue payload = new TaskMessageQueue(
-            task.getGroupId(),
-            task.getTaskId(),
-            task.getTaskTitle(),
-            task.getTaskDueDate(),
-            task.getAssigns().stream()
-                .map(a -> a.getAssignTo())
-                .toList());
+        MessageEmailKafka payload = new MessageEmailKafka();
+        payload.setSubject("DEADLINE IS COMMING");
+        payload.setContent("Deadline is behind you. you need to rush this task:" + task.getTaskTitle() + " click to:  " + task.getGroupId());
+        // laáy email của những user được assign tới task đó gặp vấn đề là batch không có token :)))
 
-        kafkaTaskProducer.sendMessage(payload, TOPIC);
+        kafkaMessKafkaProducer.sendMessage(payload, "notification-service.email.send");
 
         log.info("📤 Sent DEADLINE notification to Kafka → task {}", task.getTaskId());
       }
@@ -85,4 +127,12 @@ class TaskMessageQueue {
   private String taskTitle;
   private LocalDateTime taskDueDate;
   private List<String> assigns;
+}
+
+@Getter
+@Setter
+class MessageEmailKafka {
+  private String subject;
+  private String content;
+  private List<String> receivers;
 }

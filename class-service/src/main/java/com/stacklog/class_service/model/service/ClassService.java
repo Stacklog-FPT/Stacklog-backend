@@ -21,6 +21,8 @@ import com.stacklog.core_service.utils.redis.RedisService;
 
 import feign.FeignException;
 import jakarta.transaction.Transactional;
+import lombok.Getter;
+import lombok.Setter;
 
 @Service
 public class ClassService implements IService<Classes> {
@@ -50,6 +52,9 @@ public class ClassService implements IService<Classes> {
 
     @Autowired
     private KafkaProducer<Classes> kafkaClassProducer;
+
+    @Autowired
+    private KafkaProducer<EmailMessageKafka> kafkaSendEmailProducer;
 
     RedisService<Classes> redisClassService;
 
@@ -182,14 +187,25 @@ public class ClassService implements IService<Classes> {
                 .findFirst()
                 .orElseThrow();
 
+        List<String> emailReceiverEmail = new ArrayList<>();
+
         for (Profile p : savedProfiles) {
             if (!existingUserIds.contains(p.get_id())) {
                 GroupStudent gs = new GroupStudent();
                 gs.setUserId(p.get_id());
                 gs.setGroups(unassigned);
                 groupsStudentService.save(gs, token);
+                emailReceiverEmail.add(p.getEmail());
             }
         }
+
+        EmailMessageKafka emailMessageKafka = new EmailMessageKafka();
+        emailMessageKafka.setSubject("[YOU HAVE JOINED CLASS]");
+        emailMessageKafka.setContent("You have join this class " + classes.getClassesName() + " Link to go that class:");
+        emailMessageKafka.setReceivers(emailReceiverEmail);
+        
+        kafkaSendEmailProducer.sendMessage(emailMessageKafka, "notification-service.email.send");
+
         return savedProfiles;
 
     }
@@ -242,4 +258,12 @@ public class ClassService implements IService<Classes> {
         return dtoList;
     }
 
+}
+
+@Getter
+@Setter
+class EmailMessageKafka{
+    private String subject;
+    private String content;
+    private List<String> receivers;
 }
