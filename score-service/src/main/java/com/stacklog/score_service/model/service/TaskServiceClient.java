@@ -9,7 +9,7 @@ import com.stacklog.score_service.dto.ResponseOverall;
 
 @FeignClient(name = "task-service", url = "http://taskservice:2002", path = "")
 public interface TaskServiceClient {
-    @GetMapping("/task/overall?groupId={groupId}")
+    @GetMapping("/task/overall")
     ResponseOverall getOverallTask(@RequestHeader("Authorization") String token,
             @RequestParam(name = "groupId") String groupId);
 
