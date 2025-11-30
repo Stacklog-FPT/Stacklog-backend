@@ -5,11 +5,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(scanBasePackages = {"com.stacklog.task_service", "com.stacklog.core_service"})
 @EnableJpaRepositories(basePackages = "com.stacklog.task_service.model.repo")
 @EntityScan(basePackages = "com.stacklog.task_service.model.entities")
 @EnableFeignClients
+@EnableScheduling
 public class TaskServiceApplication {
 
 	public static void main(String[] args) {
