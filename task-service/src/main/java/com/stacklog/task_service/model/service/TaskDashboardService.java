@@ -3,6 +3,7 @@ package com.stacklog.task_service.model.service;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,12 +70,24 @@ public class TaskDashboardService {
                 }
 
                 // ====== 3️⃣ Tính % đóng góp task của từng thành viên ======
-                Map<String, Long> taskByMember = assigns.stream()
-                                .collect(Collectors.groupingBy(TaskAssign::getAssignTo, Collectors.counting()));
+
+                Map<String, Long> completedByMember = allTasks.stream()
+                                .filter(t -> t.getStatusTask() != null && t.getStatusTask().getStatusTaskName().toLowerCase().contains("complete"))
+                                .flatMap(t -> t.getAssigns() == null ? Stream.empty() : t.getAssigns().stream())
+                                .map(TaskAssign::getAssignTo)
+                                .filter(Objects::nonNull)
+                                .filter(name -> !name.isBlank())
+                                .collect(Collectors.groupingBy(name -> name, Collectors.counting()));
+
+                long totalCompleted = completedByMember.values()
+                                .stream()
+                                .mapToLong(Long::longValue)
+                                .sum();
 
                 Map<String, Double> memberContribution = new LinkedHashMap<>();
-                for (Map.Entry<String, Long> e : taskByMember.entrySet()) {
-                        memberContribution.put(e.getKey(), percent(e.getValue(), assigns.size()));
+
+                for (Map.Entry<String, Long> e : completedByMember.entrySet()) {
+                        memberContribution.put(e.getKey(), percent(e.getValue(), totalCompleted));
                 }
 
                 // ====== 4️⃣ Điểm trung bình theo nhóm ======
