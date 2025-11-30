@@ -236,6 +236,9 @@ public class ScoreItemService implements IService<ScoreItem> {
                 item.setCreatedBy(redisScoreItemService.getCurrentUserId(token));
                 item.setUpdateAt(LocalDateTime.now());
                 item.setUpdateBy(redisScoreItemService.getCurrentUserId(token));
+
+                item.setScoreItemId(UUID.randomUUID().toString());
+
                 item.setScoreItemValue(personalScore);
                 item.setIsVisualize(false);
 
