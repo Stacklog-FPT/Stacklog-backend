@@ -79,6 +79,8 @@ public class GroupService implements IService<Groupss> {
             return null;
         }
 
+        newGroupss = groupsRepo.findById(newGroupss.getGroupsId()).orElseThrow();
+
         if (isCreate) {
             kafkaGroupsProducer.sendMessage(newGroupss, KAFKA_TOPIC_CREATE);
         } else {

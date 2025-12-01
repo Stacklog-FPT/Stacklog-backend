@@ -48,6 +48,12 @@ function getMemberIdsFromAssigns(payload) {
   return [];
 }
 
+function getMemberIdsFromGroupsStudent(groupsStudents = []) {
+  if (Array.isArray(groupsStudents)) {
+    return groupsStudents.map(gs => gs?.userId).filter(Boolean);
+  }
+}
+
 // --- Topic handlers ---
 const topicHandlers = {
 
@@ -58,22 +64,59 @@ const topicHandlers = {
   // 
 
   // Nhóm được tạo (giữ nguyên nếu payload của bạn có memberIds & groupName, groupId)
-  [process.env.TOPIC_GROUP_CREATED || "class-service.groupsses.created"]: async (payload) => {
-    const memberIds = Array.isArray(payload.memberIds) ? payload.memberIds : [];
-    const groupName = payload.groupName || "Nhóm";
-    const groupId = payload.groupId;
+  ["class-service.groupsses.created"]: async (payload) => {
+    const memberIds = getMemberIdsFromGroupsStudent(payload.groupStudents);
+    const groupsName = payload.groupName || "Nhóm";
+    const groupsId = payload.groupsId;
 
-    const path = `/tasks/${groupId}`
+    const path = `/tasks/${groupsId}`
 
 
     if (memberIds.length) {
       await createNotification(
         memberIds,
-        `Nhóm ${groupName} đã được tạo`,
+        `Nhóm ${groupsName} đã được tạo và đã thêm bạn vào`,
         "system",
         {},
         path
       );
+    }
+  },
+
+  ["topic-service.projectinformation.updated"]: async (payload) => {
+    try {
+      const { createdBy, piStatus, piTitle } = payload;
+
+      if (!createdBy || !piStatus || !piTitle) {
+        console.warn("❗ Missing required fields in payload:", payload);
+        return;
+      }
+
+      // Normalize status
+      const status = String(piStatus).toUpperCase().trim();
+
+      let content;
+      switch (status) {
+        case "APPROVED":
+          content = `Topic bạn đăng ký với tên "${piTitle}" đã được chấp thuận.`;
+          break;
+        case "REJECTED":
+          content = `Topic bạn đăng ký với tên "${piTitle}" đã bị từ chối.`;
+          break;
+      }
+
+      await createNotification(
+        [createdBy],
+        content,
+        "system",
+        {}
+      );
+      console.log(
+        `📨 Notification sent to user ${createdBy} | Status: ${status} | Title: ${piTitle}`
+      );
+
+    } catch (error) {
+      console.error("🔥 Error handling projectinformation.updated event:", error);
     }
   },
 
