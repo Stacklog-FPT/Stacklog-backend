@@ -102,21 +102,23 @@ const topicHandlers = {
 
   // Review mới cho task (payload mang cả mảng reviews)
   [process.env.TOPIC_REVIEW_CREATED || "task-service.review.created"]: async (payload) => {
-    const { taskId, taskTitle, reviews } = payload;
+    const { taskTitle, assigns, groupId } = payload;
 
-    if (Array.isArray(reviews) && reviews.length > 0) {
-      const latestReview = reviews[reviews.length - 1];
-      const { reviewContent, createdBy: reviewerId } = latestReview || {};
+    const path = `/tasks/${groupId}`
 
-      // Gửi cho chủ task (owner): dùng createdBy của task
-      const ownerId = payload.createdBy;
-      if (ownerId) {
-        await createNotification(
-          [ownerId],
-          `💬 Task "${taskTitle}" có review mới: "${reviewContent}"`,
-          "task"
-        );
-      }
+    if (Array.isArray(assigns) && assigns.length > 0) {
+      await Promise.all(
+        assigns
+          .filter(Boolean) // loại null/undefined
+          .map(userId =>
+            createNotification(
+              [userId],
+              `💬 Task "${taskTitle}" có review mới`,
+              "task",
+              path
+            )
+          )
+      );
 
     }
   },
@@ -186,7 +188,7 @@ const topicHandlers = {
     );
   },
 
-  
+
 
   [process.env.TOPIC_SEND_EMAIL || 'notification-service.email.send']: async (payload) => {
     const {

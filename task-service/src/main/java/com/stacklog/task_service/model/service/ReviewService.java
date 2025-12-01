@@ -16,7 +16,11 @@ import com.stacklog.core_service.utils.CommonFunction;
 import com.stacklog.core_service.utils.kafka.KafkaProducer;
 import com.stacklog.core_service.utils.redis.RedisService;
 import com.stacklog.task_service.model.entities.Review;
+import com.stacklog.task_service.model.entities.TaskAssign;
 import com.stacklog.task_service.model.repo.ReviewRepo;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Service
 public class ReviewService implements IService<Review> {
@@ -31,6 +35,9 @@ public class ReviewService implements IService<Review> {
 
     @Autowired
     KafkaProducer<Review> kafkaReviewProducer;
+
+    @Autowired
+    KafkaProducer<ReviewMessage> kafkaReviewMessageProducer;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -91,17 +98,18 @@ public class ReviewService implements IService<Review> {
             e.setCreatedBy(redisReviewService.getCurrentUserId(token));
             e.setReviewId(UUID.randomUUID().toString());
         }
-        if (isCreate) {
-            kafkaReviewProducer.sendMessage(e, KAFKA_TOPIC_CREATE);
-        } else {
-            kafkaReviewProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
-        }
 
         redisReviewService.saveToRedis(e, token, NAME_SERVICE);
 
         messagingTemplate.convertAndSend("/topic/task-service", e);
 
         e = reviewRepo.save(e);
+
+        if (isCreate) {
+            sendReviewMessageKafka(e);
+        } else {
+            kafkaReviewProducer.sendMessage(e, KAFKA_TOPIC_UPDATE);
+        }
 
         return e;
 
@@ -120,4 +128,20 @@ public class ReviewService implements IService<Review> {
         reviewRepo.deleteAllNotIn(taskId, keepIds);
     }
 
+    private void sendReviewMessageKafka(Review e) {
+        ReviewMessage reviewMessage = new ReviewMessage();
+        reviewMessage.setTaskTitle(e.getTask().getTaskTitle());
+        reviewMessage.setAssigns(e.getTask().getAssigns().stream().map(TaskAssign::getAssignTo).toList());
+        reviewMessage.setGroupId(e.getTask().getGroupId());
+        kafkaReviewMessageProducer.sendMessage(reviewMessage, KAFKA_TOPIC_CREATE);
+    }
+
+}
+
+@Getter
+@Setter
+class ReviewMessage {
+    private String taskTitle;
+    private List<String> assigns;
+    private String groupId;
 }
