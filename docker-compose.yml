@@ -2,14 +2,13 @@ version: '3.2'
 
 services:
 
-  # --- API Gateway ---
   # api-gateway:
   #   image: nginx:1.24.0-alpine
   #   container_name: api-gateway
-  #   # ports:
-  #   #   - "80"
-  #   expose:
-  #     - "80"  
+  #   ports:
+  #     - "8080:80"
+  #   # expose:
+  #   #   - "80"  
   #   restart: always
   #   volumes:
   #     - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
@@ -25,6 +24,7 @@ services:
   #     - scheduleservice
   #     - notificationservice
   #     - scoreservice
+  #     - topicservice
       # - searchservice
 
   # --- Prometheus ---
@@ -48,8 +48,8 @@ services:
   #   environment:
   #     ZOOKEEPER_CLIENT_PORT: 2181
   #     ZOOKEEPER_TICK_TIME: 2000
-  #   ports:
-  #     - "2181:2181"
+  #   # ports:
+  #   #   - "2181:2181"
   #   restart: always
   #   networks:
   #     - app-network
@@ -60,28 +60,28 @@ services:
   #   container_name: kafka-1
   #   depends_on:
   #     - zookeeper
-  #   ports:
-  #     - "9092:9092"
-  #     - "19092:19092"
-  #   restart: always
-  #   environment:
-  #     KAFKA_BROKER_ID: 1
-  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
-  #     KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:19092
-  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
-  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  #   networks:
-  #     - app-network
+    # ports:
+    #   - "9092:9092"
+    #   - "19092:19092"
+    # restart: always
+    # environment:
+    #   KAFKA_BROKER_ID: 1
+    #   KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    #   KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
+    #   KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:19092
+    #   KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+    #   KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    #   KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    # networks:
+    #   - app-network
 
   # --- Redis ---
   # redis:
   #   image: redis:7.2.4
   #   container_name: redis
   #   command: ["redis-server", "--appendonly", "yes"]
-  #   ports:
-  #     - "6379:6379"
+  #   # ports:
+  #   #   - "6379:6379"
   #   restart: always
   #   healthcheck:
   #     test: ["CMD-SHELL", "redis-cli INFO replication | grep -q 'role:master'"]
@@ -101,7 +101,7 @@ services:
     container_name: authservice
     networks:
       - app-network
-    depends_on:
+    # depends_on:
       # - kafka-1
       # # - kafka-2
       # # - kafka-3
@@ -116,7 +116,7 @@ services:
     container_name: profileservice
     networks:
       - app-network
-    depends_on:
+    # depends_on:
       # - kafka-1
       # # - kafka-2
       # # - kafka-3
@@ -136,7 +136,7 @@ services:
     restart: always
     networks:
       - app-network
-    depends_on:
+    # depends_on:
       # - kafka-1
       # # - kafka-2
       # # - kafka-3
@@ -155,7 +155,7 @@ services:
     restart: on-failure
     networks:
       - app-network
-    depends_on:
+    # depends_on:
       # - kafka-1
       # # - kafka-2
       # # - kafka-3
@@ -174,7 +174,7 @@ services:
     restart: on-failure
     networks:
       - app-network
-    depends_on:
+    # depends_on:
       # - kafka-1
       # # - kafka-2
       # # - kafka-3
@@ -192,7 +192,7 @@ services:
     restart: on-failure
     networks:
       - app-network
-    depends_on:
+    # depends_on:
       # - kafka-1
       # # - kafka-2
       # # - kafka-3
@@ -211,7 +211,7 @@ services:
     restart: on-failure
     networks:
       - app-network
-    depends_on:
+    # depends_on:
       # - kafka-1
       # # - kafka-2
       # # - kafka-3
@@ -230,7 +230,7 @@ services:
     restart: on-failure
     networks:
       - app-network
-    depends_on:
+    # depends_on:
       # - kafka-1
       # # - kafka-2
       # # - kafka-3
@@ -248,7 +248,7 @@ services:
     restart: always
     networks:
       - app-network
-    depends_on:
+    # depends_on:
       # - kafka-1
       # # - kafka-2
       # # - kafka-3
@@ -266,7 +266,7 @@ services:
     restart: always
     networks:
       - app-network
-    depends_on:
+    # depends_on:
       # - kafka-1
       # # - kafka-2
       # # - kafka-3
@@ -285,7 +285,7 @@ services:
       - caddy_config:/config
     restart: unless-stopped
     networks: [app-network]
-    depends_on: [api-gateway]
+    # depends_on: [api-gateway]
 
 networks:
   app-network:

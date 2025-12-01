@@ -20,11 +20,11 @@ services:
       - profileservice
       - taskservice
       - classservice
-      # - chatservice
-      # - documentservice
+      - chatservice
+      - documentservice
       - scheduleservice
       - notificationservice
-      # - scoreservice
+      - scoreservice
       - topicservice
       # - searchservice
 
