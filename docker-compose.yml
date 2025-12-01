@@ -3,28 +3,28 @@ version: '3.2'
 services:
 
   # --- API Gateway ---
-  api-gateway:
-    image: nginx:1.24.0-alpine
-    container_name: api-gateway
-    # ports:
-    #   - "80"
-    expose:
-      - "80"  
-    restart: always
-    volumes:
-      - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
-    networks:
-      - app-network
-    depends_on:
-      - authservice
-      - profileservice
-      - taskservice
-      - classservice
-      - chatservice
-      - documentservice
-      - scheduleservice
-      - notificationservice
-      - scoreservice
+  # api-gateway:
+  #   image: nginx:1.24.0-alpine
+  #   container_name: api-gateway
+  #   # ports:
+  #   #   - "80"
+  #   expose:
+  #     - "80"  
+  #   restart: always
+  #   volumes:
+  #     - ./api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+  #   networks:
+  #     - app-network
+  #   depends_on:
+  #     - authservice
+  #     - profileservice
+  #     - taskservice
+  #     - classservice
+  #     - chatservice
+  #     - documentservice
+  #     - scheduleservice
+  #     - notificationservice
+  #     - scoreservice
       # - searchservice
 
   # --- Prometheus ---
@@ -42,56 +42,56 @@ services:
   #     - app-network    
 
   # --- Zookeeper ---
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
-    restart: always
-    networks:
-      - app-network
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:7.5.0
+  #   container_name: zookeeper
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+  #     ZOOKEEPER_TICK_TIME: 2000
+  #   ports:
+  #     - "2181:2181"
+  #   restart: always
+  #   networks:
+  #     - app-network
 
   # --- Kafka Brokers ---
-  kafka-1:
-    image: confluentinc/cp-kafka:7.5.0
-    container_name: kafka-1
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-      - "19092:19092"
-    restart: always
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:19092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    networks:
-      - app-network
+  # kafka-1:
+  #   image: confluentinc/cp-kafka:7.5.0
+  #   container_name: kafka-1
+  #   depends_on:
+  #     - zookeeper
+  #   ports:
+  #     - "9092:9092"
+  #     - "19092:19092"
+  #   restart: always
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:9092
+  #     KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:19092
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #   networks:
+  #     - app-network
 
   # --- Redis ---
-  redis:
-    image: redis:7.2.4
-    container_name: redis
-    command: ["redis-server", "--appendonly", "yes"]
-    ports:
-      - "6379:6379"
-    restart: always
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli INFO replication | grep -q 'role:master'"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-    networks:
-      app-network:
-          aliases:
-              - redis-master
+  # redis:
+  #   image: redis:7.2.4
+  #   container_name: redis
+  #   command: ["redis-server", "--appendonly", "yes"]
+  #   ports:
+  #     - "6379:6379"
+  #   restart: always
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "redis-cli INFO replication | grep -q 'role:master'"]
+  #     interval: 5s
+  #     timeout: 3s
+  #     retries: 20
+  #   networks:
+  #     app-network:
+  #         aliases:
+  #             - redis-master
 
   # # --- Auth Service ---
   authservice:
@@ -102,10 +102,10 @@ services:
     networks:
       - app-network
     depends_on:
-      - kafka-1
-      # - kafka-2
-      # - kafka-3
-      - redis
+      # - kafka-1
+      # # - kafka-2
+      # # - kafka-3
+      # - redis
     restart: on-failure
 
   # # --- Profile Service ---
@@ -117,10 +117,10 @@ services:
     networks:
       - app-network
     depends_on:
-      - kafka-1
-      # - kafka-2
-      # - kafka-3
-      - redis
+      # - kafka-1
+      # # - kafka-2
+      # # - kafka-3
+      # - redis
     restart: on-failure
 
   # # --- Task Service ---
@@ -137,10 +137,10 @@ services:
     networks:
       - app-network
     depends_on:
-      - kafka-1
-      # - kafka-2
-      # - kafka-3
-      - redis
+      # - kafka-1
+      # # - kafka-2
+      # # - kafka-3
+      # - redis
 
       # --- Class Service ---
   classservice:
@@ -156,10 +156,10 @@ services:
     networks:
       - app-network
     depends_on:
-      - kafka-1
-      # - kafka-2
-      # - kafka-3
-      - redis
+      # - kafka-1
+      # # - kafka-2
+      # # - kafka-3
+      # - redis
 
           # # --- Chat Service ---
   chatservice:
@@ -175,10 +175,10 @@ services:
     networks:
       - app-network
     depends_on:
-      - kafka-1
-      # - kafka-2
-      # - kafka-3
-      - redis
+      # - kafka-1
+      # # - kafka-2
+      # # - kafka-3
+      # - redis
             # # --- Document Service ---
   documentservice:
     build:
@@ -193,10 +193,10 @@ services:
     networks:
       - app-network
     depends_on:
-      - kafka-1
-      # - kafka-2
-      # - kafka-3
-      - redis
+      # - kafka-1
+      # # - kafka-2
+      # # - kafka-3
+      # - redis
 
                 # # --- Notification Service ---
   notificationservice:
@@ -212,10 +212,10 @@ services:
     networks:
       - app-network
     depends_on:
-      - kafka-1
-      # - kafka-2
-      # - kafka-3
-      - redis
+      # - kafka-1
+      # # - kafka-2
+      # # - kafka-3
+      # - redis
 
                 # # --- Score Service ---
   scoreservice:
@@ -231,10 +231,10 @@ services:
     networks:
       - app-network
     depends_on:
-      - kafka-1
-      # - kafka-2
-      # - kafka-3
-      - redis
+      # - kafka-1
+      # # - kafka-2
+      # # - kafka-3
+      # - redis
 
   scheduleservice:
     build:
@@ -249,10 +249,10 @@ services:
     networks:
       - app-network
     depends_on:
-      - kafka-1
-      # - kafka-2
-      # - kafka-3
-      - redis
+      # - kafka-1
+      # # - kafka-2
+      # # - kafka-3
+      # - redis
 
   topicservice:
     build:
@@ -267,10 +267,10 @@ services:
     networks:
       - app-network
     depends_on:
-      - kafka-1
-      # - kafka-2
-      # - kafka-3
-      - redis
+      # - kafka-1
+      # # - kafka-2
+      # # - kafka-3
+      # - redis
 
 
   caddy:
