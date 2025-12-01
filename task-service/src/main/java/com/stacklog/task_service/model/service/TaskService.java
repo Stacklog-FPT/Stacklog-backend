@@ -1,8 +1,14 @@
 package com.stacklog.task_service.model.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -17,6 +23,8 @@ import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.repo.TaskRepo;
 
 import jakarta.persistence.EntityManager;
+import lombok.Getter;
+import lombok.Setter;
 
 @Service
 public class TaskService implements IService<Task> {
@@ -41,6 +49,8 @@ public class TaskService implements IService<Task> {
     private SimpMessagingTemplate messagingTemplate;
     @Autowired
     private ClassServiceClient classServiceClient;
+    @Autowired
+    private KafkaProducer<SendBurnMessage> kafkaSendBurnMessage;
 
     @Autowired
     EntityManager entityManager;
@@ -205,4 +215,54 @@ public class TaskService implements IService<Task> {
         e.setTaskId(taskRepo.save(e).getTaskId());
         return e;
     }
+
+    private Map<String, List<Task>> getBurnDeadlineTask(List<String> userIds) {
+        LocalDateTime now = CommonFunction.getCurrentTime();
+        List<Task> burnTasks = taskRepo.findBurnTask(now, now.plusHours(1));
+        List<Task> filteredTasks = burnTasks.stream()
+                .filter(task -> task.getAssigns() != null)
+                .filter(task -> task.getAssigns().stream()
+                        .anyMatch(assign -> userIds.contains(assign.getAssignTo())))
+                .toList();
+        return filteredTasks.stream()
+                .flatMap(task -> task.getAssigns().stream()
+                        .filter(assign -> userIds.contains(assign.getAssignTo()))
+                        .map(assign -> Map.entry(assign.getAssignTo(), task)))
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList())));
+    }
+
+    public String sendEmailToAssignUser(Map<String, String> userIdMapToEmail) {
+        List<String> userIds = new ArrayList<>();
+        userIdMapToEmail.forEach((userId, Email) -> {
+            userIds.add(userId);
+        });
+
+        Map<String, List<Task>> burnTaskList = getBurnDeadlineTask(userIds);
+
+        burnTaskList.forEach((userId, burnPersonalList) -> {
+            SendBurnMessage message = new SendBurnMessage();
+            message.setSubject("⚠ YOUR TASK IS BURNING IN STACKLOG");
+            String content = "🔥 TASK IS BURNING: \n";
+            for (Task burnTask : burnPersonalList) {
+                content += burnTask.getTaskTitle() + "\n";
+            }
+            message.setContent(content);
+            String[] receivers = {userIdMapToEmail.get(userId)};
+            message.setReceivers(receivers);
+            kafkaSendBurnMessage.sendMessage(message, "notification-service.email.send");
+            System.out.println("send to " + userIdMapToEmail.get(userId));
+        });
+        return "DONE";
+    }
+
+}
+
+@Getter
+@Setter
+class SendBurnMessage {
+    private String subject;
+    private String content;
+    private String[] receivers;
 }
