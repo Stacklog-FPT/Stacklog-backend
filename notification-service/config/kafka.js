@@ -242,7 +242,7 @@ const topicHandlers = {
 
 
 
-  [process.env.TOPIC_SEND_EMAIL || 'notification-service.email.send']: async (payload) => {
+  ['notification-service.email.send']: async (payload) => {
     const {
       subject,
       content,

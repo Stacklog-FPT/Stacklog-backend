@@ -201,9 +201,10 @@ public class ClassService implements IService<Classes> {
 
         EmailMessageKafka emailMessageKafka = new EmailMessageKafka();
         emailMessageKafka.setSubject("[YOU HAVE JOINED CLASS]");
-        emailMessageKafka.setContent("You have join this class " + classes.getClassesName() + " Link to go that class:");
+        emailMessageKafka.setContent("You have join this class " + classes.getClassesName()
+                + " Link to go that class: https://localhost:5173/tasks/" + unassigned.getGroupsId());
         emailMessageKafka.setReceivers(emailReceiverEmail);
-        
+
         kafkaSendEmailProducer.sendMessage(emailMessageKafka, "notification-service.email.send");
 
         return savedProfiles;
@@ -262,7 +263,7 @@ public class ClassService implements IService<Classes> {
 
 @Getter
 @Setter
-class EmailMessageKafka{
+class EmailMessageKafka {
     private String subject;
     private String content;
     private List<String> receivers;
