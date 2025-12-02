@@ -219,12 +219,16 @@ exports.importExcel = async (req, res) => {
         for (const row of rows) {
             // Format yêu cầu theo cột Class, RollNumber, Email, MemberCode, FullName
             const user = {
-                class: '',
-                rollNumber: row.RollNumber,
-                email: row.Email,
-                memberCode: row.MemberCode,
-                fullName: row.FullName,
+                full_name: row.fullName,
+                work_id: row.memberCode,
+                email: row.email,
+                avatar_link: "",
+                description: "",
                 role: role,
+                isActive: true,
+                isDeleted: false,
+                personal_score: 0,
+                groupId: null
             };
 
             usersToCreate.push(user);
