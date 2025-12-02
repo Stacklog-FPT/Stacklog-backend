@@ -19,6 +19,7 @@ import com.stacklog.core_service.utils.CommonFunction;
 import com.stacklog.core_service.utils.kafka.KafkaProducer;
 import com.stacklog.core_service.utils.redis.RedisService;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -95,14 +96,16 @@ public class GroupsStudentService implements IService<GroupStudent> {
     @Override
     public GroupStudent save(GroupStudent e, String token) {
         boolean isCreate = (e.getGroupStudentId() == null || !groupsStudentRepo.existsById(e.getGroupStudentId()));
+        String oldNameGroup = "";
         try {
-        oldNameGroup = groupsStudentRepo.findById(e.getGroupStudentId())
-            .orElseThrow(() -> new EntityNotFoundException("GroupStudent with ID " + e.getGroupStudentId() + " not found"))
-            .getGroups().getGroupsName();
-    } catch (Exception ex) {
-        // Log warning and continue execution
-        ex.printStackTrace();
-    }
+            oldNameGroup = groupsStudentRepo.findById(e.getGroupStudentId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "GroupStudent with ID " + e.getGroupStudentId() + " not found"))
+                    .getGroups().getGroupsName();
+        } catch (Exception ex) {
+            // Log warning and continue execution
+            ex.printStackTrace();
+        }
 
         GroupStudent newGroupStudent = saveToDB(e, token);
         if (newGroupStudent == null) {
@@ -111,16 +114,16 @@ public class GroupsStudentService implements IService<GroupStudent> {
 
         if (isCreate) {
             kafkaGroupStudentProducer.sendMessage(newGroupStudent, KAFKA_TOPIC_CREATE);
-            
+
         } else {
             // kafkaGroupStudentProducer.sendMessage(newGroupStudent, KAFKA_TOPIC_UPDATE);
             CreateGroupNotice groupNoti = new CreateGroupNotice();
             groupNoti.setUserId(newGroupStudent.getUserId());
-            
+
             groupNoti.setGroupsId(newGroupStudent.getGroups().getGroupsId());
             String action = "ADDED";
-            if(newGroupStudent.getGroups().getGroupsName().equals("unassigned")) {
-                action="KICKED";
+            if (newGroupStudent.getGroups().getGroupsName().equals("unassigned")) {
+                action = "KICKED";
                 groupNoti.setGroupsName(newGroupStudent.getGroups().getGroupsName());
             } else {
                 groupNoti.setGroupsName(oldNameGroup);
@@ -170,13 +173,11 @@ public class GroupsStudentService implements IService<GroupStudent> {
                 .anyMatch(gs -> gs.getUserId().equals(redisGroupStudentService.getCurrentUserId(token))));
     }
 
-    
-
 }
 
 @Getter
 @Setter
-class CreateGroupNotice{
+class CreateGroupNotice {
     private String groupsName;
     private String userId;
     private String groupsId;
