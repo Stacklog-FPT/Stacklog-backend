@@ -11,6 +11,7 @@ const { initProducer, initConsumer } = require("./config/kafka");
 
 const boxesRoutes    = require("./routes/boxes");
 const messagesRoutes = require("./routes/messages");
+const aiagent        = require("./routes/aiagent")
 
 dotenv.config();
 connectDB();
@@ -45,6 +46,7 @@ app.use(morgan("dev"));
 // Routes nội bộ (Nginx /api/chat/... sẽ strip prefix và đẩy vào đây)
 app.use("/boxes", boxesRoutes);
 app.use("/messages", messagesRoutes);
+app.use("/ai", aiagent);
 
 // Health check
 app.get("/", (req, res) => {
