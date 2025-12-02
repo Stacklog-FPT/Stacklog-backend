@@ -171,6 +171,12 @@ exports.createListUser = async (req, res) => {
                 email: u.email,
                 isActive: true
             })));
+            const receivers = insertedUsers.map(u => {u.email})
+            await sendKafkaEvent('notification-service.email.send', {
+                subject: "[STACKLOG WELCOME]",
+                content: "You just create profile at stacklog!",
+                receivers: receivers
+            });
         }
 
         // 7. Trả về danh sách user cuối cùng
