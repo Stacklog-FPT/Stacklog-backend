@@ -194,6 +194,7 @@ public class ClassService implements IService<Classes> {
                 GroupStudent gs = new GroupStudent();
                 gs.setUserId(p.get_id());
                 gs.setGroups(unassigned);
+                gs.setGroupStudentId(UUID.randomUUID().toString());
                 groupsStudentService.save(gs, token);
                 emailReceiverEmail.add(p.getEmail());
             }
