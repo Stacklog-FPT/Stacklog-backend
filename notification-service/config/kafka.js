@@ -64,17 +64,17 @@ const topicHandlers = {
   // 
 
   // Nhóm được tạo (giữ nguyên nếu payload của bạn có memberIds & groupName, groupId)
-  ["class-service.groupsses.created"]: async (payload) => {
-    const memberIds = getMemberIdsFromGroupsStudent(payload.groupStudents);
-    const groupsName = payload.groupName || "Nhóm";
-    const groupsId = payload.groupsId;
+  ["class-service.groupstudent.created"]: async (payload) => {
+    const userId = payload.userId;
+    const groupsName = payload.groups.groupsName || "Nhóm";
+    const groupsId = payload.groups.groupsId;
 
     const path = `/tasks/${groupsId}`
 
 
     if (memberIds.length) {
       await createNotification(
-        memberIds,
+        [userId],
         `Nhóm ${groupsName} đã được tạo và đã thêm bạn vào`,
         "system",
         {},
@@ -102,6 +102,10 @@ const topicHandlers = {
           break;
         case "REJECTED":
           content = `Topic bạn đăng ký với tên "${piTitle}" đã bị từ chối.`;
+          break;
+        default:
+          // FIX HERE → đảm bảo luôn có content
+          content = `Topic bạn đăng ký với tên "${piTitle}" đã được cập nhật trạng thái: ${status}.`;
           break;
       }
 

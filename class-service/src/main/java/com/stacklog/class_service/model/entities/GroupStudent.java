@@ -2,7 +2,6 @@ package com.stacklog.class_service.model.entities;
 
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -28,7 +27,7 @@ public class GroupStudent extends CoreEntity {
 
     private String userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "groupsId")
     @JsonBackReference
     private Groupss groups;
