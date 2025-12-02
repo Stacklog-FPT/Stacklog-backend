@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import lombok.Setter;
+import lombok.Getter;
 
 import com.stacklog.class_service.model.entities.Classes;
 import com.stacklog.class_service.model.entities.GroupStudent;
@@ -35,6 +37,9 @@ public class GroupsStudentService implements IService<GroupStudent> {
 
     @Autowired
     KafkaProducer<GroupStudent> kafkaGroupStudentProducer;
+
+    @Autowired
+    KafkaProducer<CreateGroupNotice> kafkaCreateGroupNoticeProducer;
 
     // @Autowired SimpMessagingTemplate messagingTemplate;
 
@@ -90,6 +95,15 @@ public class GroupsStudentService implements IService<GroupStudent> {
     @Override
     public GroupStudent save(GroupStudent e, String token) {
         boolean isCreate = (e.getGroupStudentId() == null || !groupsStudentRepo.existsById(e.getGroupStudentId()));
+        try {
+        oldNameGroup = groupsStudentRepo.findById(e.getGroupStudentId())
+            .orElseThrow(() -> new EntityNotFoundException("GroupStudent with ID " + e.getGroupStudentId() + " not found"))
+            .getGroups().getGroupsName();
+    } catch (Exception ex) {
+        // Log warning and continue execution
+        ex.printStackTrace();
+    }
+
         GroupStudent newGroupStudent = saveToDB(e, token);
         if (newGroupStudent == null) {
             return null;
@@ -97,8 +111,22 @@ public class GroupsStudentService implements IService<GroupStudent> {
 
         if (isCreate) {
             kafkaGroupStudentProducer.sendMessage(newGroupStudent, KAFKA_TOPIC_CREATE);
+            
         } else {
-            kafkaGroupStudentProducer.sendMessage(newGroupStudent, KAFKA_TOPIC_UPDATE);
+            // kafkaGroupStudentProducer.sendMessage(newGroupStudent, KAFKA_TOPIC_UPDATE);
+            CreateGroupNotice groupNoti = new CreateGroupNotice();
+            groupNoti.setUserId(newGroupStudent.getUserId());
+            
+            groupNoti.setGroupsId(newGroupStudent.getGroups().getGroupsId());
+            String action = "ADDED";
+            if(newGroupStudent.getGroups().getGroupsName().equals("unassigned")) {
+                action="KICKED";
+                groupNoti.setGroupsName(newGroupStudent.getGroups().getGroupsName());
+            } else {
+                groupNoti.setGroupsName(oldNameGroup);
+            }
+            groupNoti.setAction(action);
+            kafkaCreateGroupNoticeProducer.sendMessage(groupNoti, KAFKA_TOPIC_UPDATE);
         }
 
         redisGroupStudentService.saveToRedis(newGroupStudent, token, NAME_SERVICE);
@@ -144,4 +172,13 @@ public class GroupsStudentService implements IService<GroupStudent> {
 
     
 
+}
+
+@Getter
+@Setter
+class CreateGroupNotice{
+    private String groupsName;
+    private String userId;
+    private String groupsId;
+    private String action;
 }

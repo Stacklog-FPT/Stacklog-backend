@@ -64,28 +64,34 @@ const topicHandlers = {
   // 
 
   // Nhóm được tạo (giữ nguyên nếu payload của bạn có memberIds & groupName, groupId)
-  ["class-service.groupstudent.created"]: async (payload) => {
+  ["class-service.groupstudent.updated"]: async (payload) => {
     const userId = payload.userId;
-    const groupsName = payload.groups.groupsName || "Nhóm";
-    const groupsId = payload.groups.groupsId;
+    const groupsName = payload.groupsName || "Nhóm";
+    const groupsId = payload.groupsId;
+    const action = payload.action;
 
     const path = `/tasks/${groupsId}`
 
-
-    if (memberIds.length) {
-      await createNotification(
-        [userId],
-        `Nhóm ${groupsName} đã được tạo và đã thêm bạn vào`,
-        "system",
-        {},
-        path
-      );
+    let content = `Nhóm ${groupsName} đã được tạo và đã thêm bạn vào`;
+    if (action === "KICKED") {
+      content = `Bạn vừa bị kicked khỏi nhóm ${groupsName} `
     }
+
+    console.log(payload)
+
+    await createNotification(
+      [userId],
+      content,
+      "system",
+      {},
+      path
+    );
   },
 
   ["topic-service.projectinformation.updated"]: async (payload) => {
     try {
       const { createdBy, piStatus, piTitle } = payload;
+      console.log(payload)
 
       if (!createdBy || !piStatus || !piTitle) {
         console.warn("❗ Missing required fields in payload:", payload);
@@ -104,7 +110,6 @@ const topicHandlers = {
           content = `Topic bạn đăng ký với tên "${piTitle}" đã bị từ chối.`;
           break;
         default:
-          // FIX HERE → đảm bảo luôn có content
           content = `Topic bạn đăng ký với tên "${piTitle}" đã được cập nhật trạng thái: ${status}.`;
           break;
       }
@@ -243,6 +248,8 @@ const topicHandlers = {
       content,
       receivers
     } = payload;
+
+    console.log(payload)
 
     await Promise.all(
       receivers.map(email =>
