@@ -1,29 +1,20 @@
-const { axios } = require('axios');
 require('dotenv').config();
+const { GoogleGenAI } = require("@google/genai");
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const ai = new GoogleGenAI({});
 
-async function createTaskContentFromGemini(taskDetails) {
+async function createTaskContentFromGemini(prompt) {
   try {
-    const prompt = generatePromptSuggestTask(taskDetails);
 
-    const response = await axios.post(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-      model: 'gemini-2.5-flash',
-      content: [
-        {
-          role: "user",
-          parts: [{ text: prompt }]
-        }
-      ],
-      config: {
-        temperature: 0.7,
-        maxOutputTokens: 200,
-      }
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
     });
 
     // Trả về nội dung task đã được tạo từ AI
-    const generatedText = response.data.candidates[0].content.parts[0].text;
-    return generatedText.trim();
+    const generatedText = response.candidates[0].content.parts[0].text;
+    const generatedJson = JSON.parse(cleanJsonString(generatedText));
+    return generatedJson;
 
   } catch (error) {
     console.error('Error generating task content:', error.response?.data || error.message);
@@ -31,53 +22,95 @@ async function createTaskContentFromGemini(taskDetails) {
   }
 }
 
+function cleanJsonString(str) {
+  return str
+    .replace(/```json/g, "")   // xoá ```json
+    .replace(/```/g, "")       // xoá ```
+    .trim();
+}
+
 // Tạo prompt từ các thuộc tính của task
 function generatePromptSuggestTask(taskDetails) {
   return `
-    Create a task description based on the following details:
+        You are a senior product owner generating tasks for a software development project.
 
-    Task Title: ${taskDetails.taskTitle}
-    Task Description: ${taskDetails.taskDescription}
-    Task Start Time: ${taskDetails.taskStartTime}
-    Task Due Date: ${taskDetails.taskDueDate}
-    Task Priority: ${taskDetails.priority}
-    Users Assigned: ${taskDetails.listUserAssign.join(", ")}
-    SubTasks: ${taskDetails.subTasks.map(sub => sub).join(", ")}
-    Reviews: ${taskDetails.reviews.map(review => review.reviewContent).join(", ")}
-    CheckLists: ${taskDetails.checkLists.map(list => list.checkListName).join(", ")}
+            🎯 Project Strategy / Direction:
+            - Focus on stability, bug reduction, and performance improvements.
+            - Improve user experience and reduce technical debt.
+            - Ensure clarity, consistency, and maintainability in all tasks.
+            - Every task should be actionable, testable, and aligned with sprint goals.
 
-    Generate a clear and concise task description, including the task's priority, users assigned, and any associated details.
-    `;
+            📌 Your job:
+            Generate a complete JSON object representing a task, using the details below.
+            The task description must:
+            - Be detailed, clear, and aligned with the project strategy.
+            - Include context, goal, acceptance criteria, and expected outcomes.
+            - Expand vague inputs into full meaningful content.
+            - Return a JSON object ONLY.
+
+        Using the task details below, generate a complete JSON task object.
+        Do NOT include explanations, markdown, quotes, or extra text. Return valid JSON only.
+
+        {
+        "taskId": "${taskDetails.taskId || ""}",
+        "taskTitle": "${taskDetails.taskTitle}",
+        "taskDescription": "Generate a detailed task description here.",
+        "statusTaskId": "${taskDetails.statusTaskId || ""}",
+        "taskPoint": "${taskDetails.taskPoint || ""}",
+        "parentTaskId": "${taskDetails.parentTaskId || ""}",
+        "taskStartTime": "${taskDetails.taskStartTime}",
+        "taskDueDate": "${taskDetails.taskDueDate}",
+        "priority": "${taskDetails.priority}"
+        }
+
+        Fill missing fields logically.
+        `;
+}
+
+function generatePromptSuggestArrayTask(sprintGoal) {
+  return `
+        You are a senior product owner generating tasks for a software development project.
+
+            🎯 Project Strategy:
+            - Focus on system stability, performance optimization, UX improvements, and reducing technical debt.
+            - Tasks must be actionable, testable, and aligned with sprint goals.
+            - ${sprintGoal}
+            📌 Your Job:
+            - Generate a JSON array containing multiple tasks (from 3 to 10 items depending on the complexity of the input).
+            - Each task must follow the format:
+
+            {
+                "taskId": "auto-generate or use provided",
+                "taskTitle": "",
+                "taskDescription": "",
+                "statusTaskId": "",
+                "taskPoint": "",
+                "parentTaskId": "",
+                "taskStartTime": "",
+                "taskDueDate": "",
+                "priority": ""
+            }
+        Do NOT include explanations, markdown, quotes, or extra text. Return valid JSON only.
+
+        Fill missing fields logically.
+        `;
 }
 
 module.exports.createTask = async (req, res) => {
   try {
     const taskDetails = req.body; // Lấy thông tin task từ request body
-
-    // Validate input
-    if (!taskDetails || !taskDetails.taskTitle || !taskDetails.taskDescription) {
-      return res.status(400).json({ message: "Task title and description are required" });
+    let prompt = '';
+    if (!taskDetails && !taskDetails.taskTitle && !taskDetails.taskDescription) {
+        prompt = generatePromptSuggestTask(taskDetails);
+    } else {
+        prompt = generatePromptSuggestArrayTask(req.params.sprintGoal);
     }
 
-    // Gọi Gemini API để tạo nội dung cho task
-    const taskDescription = await createTaskContentFromGemini(taskDetails);
+    const taskDescription = await createTaskContentFromGemini(prompt);
+    
 
     // Trả về danh sách task với nội dung được tạo từ AI
-    return res.status(200).json({
-      taskId: taskDetails.taskId || generateTaskId(),
-      taskTitle: taskDetails.taskTitle,
-      taskDescription: taskDescription,
-      statusTaskId: taskDetails.statusTaskId,
-      taskPoint: taskDetails.taskPoint,
-      parentTaskId: taskDetails.parentTaskId,
-      taskStartTime: taskDetails.taskStartTime,
-      taskDueDate: taskDetails.taskDueDate,
-      priority: taskDetails.priority,
-      listUserAssign: taskDetails.listUserAssign,
-      subTasks: taskDetails.subTasks,
-      reviews: taskDetails.reviews,
-      checkLists: taskDetails.checkLists
-    });
+    return res.status(200).json(taskDescription);
 
   } catch (error) {
     console.error("Error in creating task:", error.message);
