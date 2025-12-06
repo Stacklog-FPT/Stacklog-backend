@@ -1,6 +1,6 @@
 {
   email admin@stacklog.id.vn
-  acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+  # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
 }
 
 stacklog.id.vn {
