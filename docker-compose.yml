@@ -164,14 +164,9 @@ services:
           # # --- Chat Service ---
   chatservice:
     build:
-      context: .
-      dockerfile: chat-service/Dockerfile
-    volumes:
-      - ~/.m2:/root/.m2
+      context: ./chat-service
+      dockerfile: Dockerfile
     container_name: chatservice
-    ports:
-      - "2004:2004"
-    restart: on-failure
     networks:
       - app-network
     # depends_on:
