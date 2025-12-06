@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.stacklog.task_service.model.entities.StatusTask;
 import com.stacklog.task_service.model.entities.Task;
 import com.stacklog.task_service.model.entities.TaskAssign;
+import com.stacklog.task_service.model.entities.Task.Priority;
 import com.stacklog.task_service.model.repo.StatusTaskRepo;
 import com.stacklog.task_service.model.repo.TaskRepo;
 import com.stacklog.task_service.payload.ResponseOverall;
@@ -64,26 +65,37 @@ public class TaskDashboardService {
                                         percent(noStatus, totalTasks)));
                 }
 
-                // ====== 3️⃣ Tính % đóng góp task của từng thành viên ======
+                // ====== 3️⃣ Tính % đóng góp theo độ khó task ======
 
-                Map<String, Long> completedByMember = allTasks.stream()
-                                .filter(t -> t.getStatusTask() != null && t.getStatusTask().getStatusTaskName()
-                                                .toLowerCase().contains("complete"))
-                                .flatMap(t -> t.getAssigns() == null ? Stream.empty() : t.getAssigns().stream())
-                                .map(TaskAssign::getAssignTo)
-                                .filter(Objects::nonNull)
-                                .filter(name -> !name.isBlank())
-                                .collect(Collectors.groupingBy(name -> name, Collectors.counting()));
+                Map<String, Double> completedByMember = allTasks.stream()
+                                .filter(t -> t.getStatusTask() != null
+                                                && t.getStatusTask().getStatusTaskName().toLowerCase()
+                                                                .contains("complete"))
 
-                long totalCompleted = completedByMember.values()
-                                .stream()
-                                .mapToLong(Long::longValue)
+                                .flatMap(t -> {
+                                        if (t.getAssigns() == null)
+                                                return Stream.<AbstractMap.SimpleEntry<String, Double>>empty();
+                                        return t.getAssigns().stream()
+                                                        .map(a -> new AbstractMap.SimpleEntry<String, Double>(
+                                                                        a.getAssignTo(),
+                                                                        convertPriority(t.getPriority())));
+                                })
+
+                                .filter(e -> e.getKey() != null && !e.getKey().isBlank())
+
+                                .collect(Collectors.groupingBy(
+                                                AbstractMap.SimpleEntry::getKey,
+                                                Collectors.summingDouble(AbstractMap.SimpleEntry::getValue)));
+
+                // Tổng độ khó của tất cả thành viên
+                double totalDifficulty = completedByMember.values().stream()
+                                .mapToDouble(Double::doubleValue)
                                 .sum();
 
+                // Tính %
                 Map<String, Double> memberContribution = new LinkedHashMap<>();
-
-                for (Map.Entry<String, Long> e : completedByMember.entrySet()) {
-                        memberContribution.put(e.getKey(), percent(e.getValue(), totalCompleted));
+                for (var e : completedByMember.entrySet()) {
+                        memberContribution.put(e.getKey(), percent(e.getValue(), totalDifficulty));
                 }
 
                 // ====== 4️⃣ Điểm trung bình theo nhóm ======
@@ -167,7 +179,22 @@ public class TaskDashboardService {
                                 .build();
         }
 
-        private static Double percent(long part, double total) {
+        private static Double percent(double part, double total) {
                 return total == 0 ? 0 : Math.round((part / total) * 10000.0) / 100.0;
+        }
+
+        private Double convertPriority(Priority p) {
+                if (p == null)
+                        return 1.00; // Mặc định LOW
+                switch (p.name()) {
+                        case "HIGH":
+                                return 3.00;
+                        case "MEDIUM":
+                                return 2.00;
+                        case "LOW":
+                                return 1.00;
+                        default:
+                                return 1.00; // fallback
+                }
         }
 }
