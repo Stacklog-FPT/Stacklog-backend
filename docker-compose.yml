@@ -102,10 +102,10 @@ services:
     networks:
       - app-network
     # depends_on:
-      # - kafka-1
-      # # - kafka-2
-      # # - kafka-3
-      # - redis
+    #   - kafka-1
+    #   # - kafka-2
+    #   # - kafka-3
+    #   - redis
     restart: on-failure
 
   # # --- Profile Service ---
@@ -117,10 +117,10 @@ services:
     networks:
       - app-network
     # depends_on:
-      # - kafka-1
-      # # - kafka-2
-      # # - kafka-3
-      # - redis
+    #   - kafka-1
+    #   # - kafka-2
+    #   # - kafka-3
+    #   - redis
     restart: on-failure
 
   # # --- Task Service ---
@@ -137,10 +137,10 @@ services:
     networks:
       - app-network
     # depends_on:
-      # - kafka-1
-      # # - kafka-2
-      # # - kafka-3
-      # - redis
+    #   - kafka-1
+    #   # - kafka-2
+    #   # - kafka-3
+    #   - redis
 
       # --- Class Service ---
   classservice:
@@ -156,10 +156,10 @@ services:
     networks:
       - app-network
     # depends_on:
-      # - kafka-1
-      # # - kafka-2
-      # # - kafka-3
-      # - redis
+    #   - kafka-1
+    #   # - kafka-2
+    #   # - kafka-3
+    #   - redis
 
           # # --- Chat Service ---
   chatservice:
@@ -170,11 +170,13 @@ services:
     networks:
       - app-network
     # depends_on:
-      # - kafka-1
-      # # - kafka-2
-      # # - kafka-3
-      # - redis
-            # # --- Document Service ---
+    #   - kafka-1
+    #   # - kafka-2
+    #   # - kafka-3
+    #   - redis
+    restart: on-failure
+            
+        # --- Document Service ---
   documentservice:
     build:
       context: .
@@ -188,29 +190,25 @@ services:
     networks:
       - app-network
     # depends_on:
-      # - kafka-1
-      # # - kafka-2
-      # # - kafka-3
-      # - redis
+    #   - kafka-1
+    #   # - kafka-2
+    #   # - kafka-3
+    #   - redis
 
                 # # --- Notification Service ---
   notificationservice:
     build:
-      context: .
-      dockerfile: notification-service/Dockerfile
-    volumes:
-      - ~/.m2:/root/.m2
+      context: ./notification-service
+      dockerfile: Dockerfile
     container_name: notificationservice
-    ports:
-      - "2007:2007"
-    restart: on-failure
     networks:
       - app-network
     # depends_on:
-      # - kafka-1
-      # # - kafka-2
-      # # - kafka-3
-      # - redis
+    #   - kafka-1
+    #   # - kafka-2
+    #   # - kafka-3
+    #   - redis
+    restart: on-failure
 
                 # # --- Score Service ---
   scoreservice:
@@ -226,10 +224,10 @@ services:
     networks:
       - app-network
     # depends_on:
-      # - kafka-1
-      # # - kafka-2
-      # # - kafka-3
-      # - redis
+    #   - kafka-1
+    #   # - kafka-2
+    #   # - kafka-3
+    #   - redis
 
   scheduleservice:
     build:
@@ -244,10 +242,10 @@ services:
     networks:
       - app-network
     # depends_on:
-      # - kafka-1
-      # # - kafka-2
-      # # - kafka-3
-      # - redis
+    #   - kafka-1
+    #   # - kafka-2
+    #   # - kafka-3
+    #   - redis
 
   topicservice:
     build:
@@ -262,10 +260,10 @@ services:
     networks:
       - app-network
     # depends_on:
-      # - kafka-1
-      # # - kafka-2
-      # # - kafka-3
-      # - redis
+    #   - kafka-1
+    #   # - kafka-2
+    #   # - kafka-3
+    #   - redis
 
 
   # caddy:
