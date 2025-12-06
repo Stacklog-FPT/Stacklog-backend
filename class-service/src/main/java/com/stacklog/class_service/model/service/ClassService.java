@@ -126,7 +126,7 @@ public class ClassService implements IService<Classes> {
             e.setCreatedBy(redisClassService.getCurrentUserId(token));
             e.setClassesId(UUID.randomUUID().toString());
         }
-        e.setLectureId(redisClassService.getCurrentUserId(token));
+        // e.setLectureId(redisClassService.getCurrentUserId(token));
         return classesRepo.save(e);
     }
 

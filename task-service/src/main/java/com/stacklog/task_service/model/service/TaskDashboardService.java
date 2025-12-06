@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.stacklog.task_service.model.entities.StatusTask;
 import com.stacklog.task_service.model.entities.Task;
-import com.stacklog.task_service.model.entities.TaskAssign;
+// import com.stacklog.task_service.model.entities.TaskAssign;
 import com.stacklog.task_service.model.entities.Task.Priority;
 import com.stacklog.task_service.model.repo.StatusTaskRepo;
 import com.stacklog.task_service.model.repo.TaskRepo;
