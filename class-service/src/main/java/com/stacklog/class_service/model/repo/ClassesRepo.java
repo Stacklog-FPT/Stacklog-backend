@@ -27,4 +27,6 @@ public interface ClassesRepo extends JpaRepository<Classes, String> {
 
   List<Classes> findAllByLectureIdAndSemesterSemesterId(String lectureId, String semesterId);
 
+  List<Classes> findAllBySemesterSemesterId(String semesterId);
+
 }

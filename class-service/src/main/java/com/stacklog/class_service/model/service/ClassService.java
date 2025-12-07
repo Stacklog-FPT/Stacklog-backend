@@ -152,7 +152,7 @@ public class ClassService implements IService<Classes> {
                 }
                 break;
             case "admin":
-                classes = classesRepo.findAll();
+                classes = classesRepo.findAllBySemesterSemesterId(semesterId);
                 break;
             default:
                 break;
