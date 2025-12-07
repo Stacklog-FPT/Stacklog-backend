@@ -86,6 +86,19 @@ public class GroupStudentRestController {
         return ResponseEntity.ok().body(null);
 
     }
+
+    @DeleteMapping("/delete-student")
+    public ResponseEntity<?> deleteStudentOutClass(@RequestHeader("Authorization") String token,
+            @RequestParam(name = "studentId") String studentId,
+            @RequestParam(name = "classId") String classId) {
+        GroupStudent gs = groupsStudentService.deleteGroupStudentByClassId(classId, studentId, token);
+        if (gs == null) {
+            return ResponseEntity.noContent().build();
+        }
+        
+        return ResponseEntity.ok().body(gs);
+
+    }
 }
 
 @Getter

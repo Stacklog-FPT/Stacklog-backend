@@ -60,6 +60,15 @@ public class GroupsStudentService implements IService<GroupStudent> {
         return gs;
     }
 
+    @Transactional
+    public GroupStudent deleteGroupStudentByClassId(String classId, String studentId, String token) {
+        GroupStudent gs = groupsStudentRepo.findByGroupsClassesClassesIdAndUserId(classId, studentId).orElseThrow();
+        if (gs != null) {
+            groupsStudentRepo.delete(gs);   
+        }
+        return gs;
+    }
+
     @Override
     public List<GroupStudent> getAllByUserId(String token) {
         List<GroupStudent> groupStudents = redisGroupStudentService.getAll(token, NAME_SERVICE);
