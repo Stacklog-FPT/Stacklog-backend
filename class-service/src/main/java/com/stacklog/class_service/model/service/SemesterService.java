@@ -102,9 +102,13 @@ public class SemesterService implements IService<Semester> {
     }
 
     @Override
-    public Semester delete(String id, String token) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    public Semester delete(String id, String token){
+        Semester semester = semesterRepo.findById(id).orElseThrow();
+        if (semester.getSemesterStartDate().isAfter(CommonFunction.getCurrentTime().toLocalDate())) {
+            return null;
+        }
+        semesterRepo.delete(semester);
+        return semester;
     }
 
     public List<Semester> getAll() {
