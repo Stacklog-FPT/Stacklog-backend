@@ -138,6 +138,15 @@ public class GroupService implements IService<Groupss> {
         return ids;
     }
 
+    public Groupss pickNewLeader(String newLeaderId, String groupId, String token) throws Exception {
+        Groupss groupss = groupsRepo.findById(groupId).orElseThrow();
+        if (!groupss.getGroupsLeaderId().equals(redisGroupsService.getCurrentUserId(token))) {
+            throw new Exception("You are not an old leader");
+        }
+        groupss.setGroupsLeaderId(newLeaderId);
+        return groupsRepo.save(groupss);
+    }
+
 }
 
 record GroupssFindReq(

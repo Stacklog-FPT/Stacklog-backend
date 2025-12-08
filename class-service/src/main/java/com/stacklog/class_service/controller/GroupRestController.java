@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping(path = "/group")
@@ -176,6 +177,21 @@ public class GroupRestController {
 
         logger.info("Group {} updated successfully", groupss.getGroupsId());
         return ResponseEntity.ok().body(groupss);
+    }
+
+    @PostMapping("/pick-new-leader")
+    public ResponseEntity<?> pickNewLeader(@RequestParam(name = "newLeaderId") String newLeaderId,
+            @RequestParam(name = "groupId") String groupId, @RequestHeader("Authorization") String token) {
+        try {
+            Groupss groupss = groupService.pickNewLeader(newLeaderId, groupId, token);
+            if (groupss == null) {
+                return ResponseEntity.ok("Dont have group with that ID");
+            }
+            return ResponseEntity.ok(groupss);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e);
+        }
     }
 
     @DeleteMapping("/{groupsId}")

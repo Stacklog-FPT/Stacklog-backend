@@ -67,7 +67,7 @@ function generatePromptSuggestTask(taskDetails) {
         `;
 }
 
-function generatePromptSuggestArrayTask(sprintGoal) {
+function generatePromptSuggestArrayTask(sprintGoal, startTime, endTime, amountTask) {
   return `
         You are a senior product owner generating tasks for a software development project.
 
@@ -75,6 +75,9 @@ function generatePromptSuggestArrayTask(sprintGoal) {
             - Focus on system stability, performance optimization, UX improvements, and reducing technical debt.
             - Tasks must be actionable, testable, and aligned with sprint goals.
             - ${sprintGoal}
+            - Time to start the project: ${startTime}
+            - Time to end the project: ${endTime}
+            - Approximate number of tasks: ${amountTask}
             📌 Your Job:
             - Generate a JSON array containing multiple tasks (from 3 to 10 items depending on the complexity of the input).
             - Each task must follow the format:
@@ -103,7 +106,7 @@ module.exports.createTask = async (req, res) => {
     if (!taskDetails && !taskDetails.taskTitle && !taskDetails.taskDescription) {
         prompt = generatePromptSuggestTask(taskDetails);
     } else {
-        prompt = generatePromptSuggestArrayTask(req.params.sprintGoal);
+        prompt = generatePromptSuggestArrayTask(req.params.sprintGoal, req.params.startTime, req.params.endTime, req.params.amount);
     }
 
     const taskDescription = await createTaskContentFromGemini(prompt);
