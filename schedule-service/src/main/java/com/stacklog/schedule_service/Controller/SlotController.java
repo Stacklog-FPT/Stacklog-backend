@@ -7,10 +7,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.stacklog.schedule_service.model.entities.Slot;
 import com.stacklog.schedule_service.model.entities.SlotAssign;
+import com.stacklog.schedule_service.model.entities.SlotAssign.StatusSlotAssign;
 import com.stacklog.schedule_service.model.service.SlotAssignService;
 import com.stacklog.schedule_service.model.service.SlotService;
 
@@ -24,11 +26,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-
 @RestController
 @RequestMapping(value = "")
 public class SlotController {
-    
+
     @Autowired
     SlotService slotService;
 
@@ -45,16 +46,17 @@ public class SlotController {
     }
 
     @GetMapping("/{groupId}")
-    public ResponseEntity<List<Slot>> getTasksByGroupId(@RequestHeader("Authorization") String token, @PathVariable("groupId") String groupId) {
+    public ResponseEntity<List<Slot>> getTasksByGroupId(@RequestHeader("Authorization") String token,
+            @PathVariable("groupId") String groupId) {
         List<Slot> lists = slotService.getAllByGroupId(token, groupId);
         if (lists.isEmpty() || lists == null) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().body(lists);
     }
-    
+
     @PostMapping("/save")
-    public ResponseEntity<Slot> saveTask(@RequestHeader("Authorization") String token, @RequestBody SlotDTO e) {
+    public ResponseEntity<Slot> saveSlot(@RequestHeader("Authorization") String token, @RequestBody SlotDTO e) {
         Slot slot = new Slot();
         slot.setSlotId(e.getSlotId());
         slot.setSlotTitle(e.slotTitle);
@@ -66,7 +68,8 @@ public class SlotController {
             SlotAssign slotAssign = new SlotAssign();
             slotAssign.setSlot(slot);
             slotAssign.setUserId(userId);
-            slotAssigns.add(slotAssign);   
+            slotAssign.setStatusSlotAssign(StatusSlotAssign.PENDING);
+            slotAssigns.add(slotAssign);
         }
         slot.setSlotAssigns(slotAssigns);
         slot = slotService.save(slot, token);
@@ -75,9 +78,23 @@ public class SlotController {
         }
         return ResponseEntity.ok().body(slot);
     }
-    
+
+    @PostMapping("/confirm")
+    public ResponseEntity<?> confirmSlot(@RequestHeader("Authorization") String token,
+            @RequestParam(name = "statusAssign") String statusAssign, @RequestParam(name = "slotId") String slotId) {
+        try {
+            Slot slot = slotAssignService.confirmStatusAssign(statusAssign, slotId, token);
+            return ResponseEntity.ok().body(slot);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e);
+        }
+
+    }
+
     @DeleteMapping("/delete/{slotId}")
-    public ResponseEntity<String> deleteTask(@RequestHeader("Authorization") String token, @PathVariable("slotId") String slotId) {
+    public ResponseEntity<String> deleteTask(@RequestHeader("Authorization") String token,
+            @PathVariable("slotId") String slotId) {
         Slot slot = slotService.delete(slotId, token);
         if (slot == null) {
             return ResponseEntity.badRequest().build();

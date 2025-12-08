@@ -12,7 +12,9 @@ import com.stacklog.core_service.model.service.IService;
 import com.stacklog.core_service.utils.CommonFunction;
 import com.stacklog.core_service.utils.kafka.KafkaProducer;
 import com.stacklog.core_service.utils.redis.RedisService;
+import com.stacklog.schedule_service.model.entities.Slot;
 import com.stacklog.schedule_service.model.entities.SlotAssign;
+import com.stacklog.schedule_service.model.entities.SlotAssign.StatusSlotAssign;
 import com.stacklog.schedule_service.model.repo.SlotAssignRepo;
 
 @Service
@@ -23,7 +25,8 @@ public class SlotAssignService implements IService<SlotAssign> {
     private static final String KAFKA_TOPIC_UPDATE = "schedule-service.slotAssign.updated";
     private static final String KAFKA_TOPIC_CREATE = "schedule-service.slotAssign.created";
 
-    @Autowired SlotAssignRepo slotAssignRepo;
+    @Autowired
+    SlotAssignRepo slotAssignRepo;
 
     @Autowired
     private KafkaProducer<SlotAssign> kafkaSlotProducer;
@@ -49,7 +52,7 @@ public class SlotAssignService implements IService<SlotAssign> {
         if (slotes.isEmpty()) {
             slotes = slotAssignRepo.findByUserId(redisSlotService.getCurrentUserId(token));
             redisSlotService.saveListToRedis(slotes, token, NAME_SERVICE);
-        } 
+        }
         return slotes;
     }
 
@@ -100,5 +103,23 @@ public class SlotAssignService implements IService<SlotAssign> {
         }
         return slotAssigns;
     }
-    
+
+    public Slot confirmStatusAssign(String statusAssign, String slotId, String token) throws Exception {
+        SlotAssign slotAssign = slotAssignRepo.findBySlotSlotIdAndUserId(slotId, redisSlotService.getCurrentUserId(token));
+        if (slotAssign == null) {
+            throw new Exception("Don't have slotAssign with slotId: " + slotId + " and userId: " + redisSlotService.getCurrentUserId(token));
+        }
+        switch (statusAssign.toLowerCase()) {
+            case "accept":
+                slotAssign.setStatusSlotAssign(StatusSlotAssign.ACCEPT);
+                break;
+            case "reject":
+                slotAssign.setStatusSlotAssign(StatusSlotAssign.REJECT);
+                break;
+            default:
+                break;
+        }
+        return slotAssignRepo.save(slotAssign).getSlot();
+    }
+
 }

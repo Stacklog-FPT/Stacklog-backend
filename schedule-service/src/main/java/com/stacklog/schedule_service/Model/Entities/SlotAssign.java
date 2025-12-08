@@ -5,6 +5,8 @@ import com.stacklog.core_service.model.entities.CoreEntity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -22,6 +24,13 @@ public class SlotAssign extends CoreEntity {
     private String slotAssignId;
 
     private String userId;
+
+    @Enumerated(EnumType.STRING)
+    private StatusSlotAssign statusSlotAssign;
+
+    public enum StatusSlotAssign {
+        ACCEPT, REJECT, PENDING
+    }
 
     @ManyToOne
     @JoinColumn(name = "slotId")

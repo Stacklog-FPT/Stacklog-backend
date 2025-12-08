@@ -7,8 +7,8 @@ async function createTaskContentFromGemini(prompt) {
   try {
 
     const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
+      model: "gemini-2.5-flash",
+      contents: prompt,
     });
 
     // Trả về nội dung task đã được tạo từ AI
@@ -103,14 +103,14 @@ module.exports.createTask = async (req, res) => {
   try {
     const taskDetails = req.body; // Lấy thông tin task từ request body
     let prompt = '';
-    if (!taskDetails && !taskDetails.taskTitle && !taskDetails.taskDescription) {
-        prompt = generatePromptSuggestTask(taskDetails);
-    } else {
-        prompt = generatePromptSuggestArrayTask(req.params.sprintGoal, req.params.startTime, req.params.endTime, req.params.amount);
-    }
+    // if (!taskDetails && !taskDetails.taskTitle && !taskDetails.taskDescription) {
+    //     prompt = generatePromptSuggestTask(taskDetails);
+    // } else {
+    prompt = generatePromptSuggestArrayTask(req.params.sprintGoal, req.params.startTime, req.params.endTime, req.params.amount);
+    // }
 
     const taskDescription = await createTaskContentFromGemini(prompt);
-    
+
 
     // Trả về danh sách task với nội dung được tạo từ AI
     return res.status(200).json(taskDescription);
