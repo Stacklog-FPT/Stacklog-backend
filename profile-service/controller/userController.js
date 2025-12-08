@@ -26,6 +26,30 @@ exports.updateUser = async (req, res) => {
     }
 };
 
+exports.lockUnlockUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        // Toggle trạng thái thật từ database
+        const newStatus = !user.isActive;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.id,
+            { $set: { isActive: newStatus } },
+            { new: true }
+        );
+
+        // Gửi message Kafka
+        await produceMessage('user.lock', updatedUser);
+
+        res.json(updatedUser);
+
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+};
+
 // Delete user (soft delete)
 exports.deleteUser = async (req, res) => {
     try {
@@ -171,7 +195,7 @@ exports.createListUser = async (req, res) => {
                 email: u.email,
                 isActive: true
             })));
-            const receivers = insertedUsers.map(u => {u.email})
+            const receivers = insertedUsers.map(u => { u.email })
             await sendKafkaEvent('notification-service.email.send', {
                 subject: "[STACKLOG WELCOME]",
                 content: "You just create profile at stacklog!",

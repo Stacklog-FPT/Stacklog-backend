@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, updateUser, deleteUser, findByEmail, findByClassId, findByRole, findById, findByNameOrEmail, createListUser, importExcel, exportExcel } = require('../controller/userController');
+const { createUser, updateUser, deleteUser, findByEmail, findByClassId, findByRole, findById, findByNameOrEmail, createListUser, importExcel, exportExcel, lockUnlockUser } = require('../controller/userController');
 const { validateUser } = require('../middleware/validateUserMiddleware');
 const multer = require("multer");
 
@@ -14,6 +14,7 @@ router.get('/:userId', findById);
 
 // Update User
 router.put('/update/:id', updateUser);
+router.put('/lockunlock/:id', lockUnlockUser)
 
 // Soft Delete User
 router.delete('/delete/:id', deleteUser);
