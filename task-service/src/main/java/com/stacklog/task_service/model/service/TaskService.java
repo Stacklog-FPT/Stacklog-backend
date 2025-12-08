@@ -254,6 +254,22 @@ public class TaskService implements IService<Task> {
         return "DONE";
     }
 
+    public List<Task> saveAllTasks(List<Task> e, String token) throws Exception {
+        if (e.isEmpty() || e == null) {
+            throw new Exception("List task is invalid");
+        }
+        String userId = redisTaskService.getCurrentUserId(token);
+        e.forEach(task -> {
+            task.setTaskId(UUID.randomUUID().toString());
+            LocalDateTime now = CommonFunction.getCurrentTime();
+            task.setCreatedAt(now);
+            task.setCreatedBy(userId);
+            task.setUpdateAt(now);
+            task.setUpdateBy(userId);
+        });
+        return taskRepo.saveAll(e);
+    }
+
 }
 
 @Getter

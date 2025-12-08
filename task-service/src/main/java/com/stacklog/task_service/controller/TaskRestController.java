@@ -146,6 +146,33 @@ public class TaskRestController {
         return ResponseEntity.ok().body(new ResponseTask(task));
     }
 
+    @PostMapping("/saveAll")
+    public ResponseEntity<?> saveAllTasks(@RequestHeader("Authorization") String token,
+            @RequestBody List<TaskAIDto> e, @RequestParam(name = "groupId") String groupId) {
+        try {
+            List<Task> newAiList = new ArrayList<>();
+            e.forEach(taskai -> {
+                Task task = new Task();
+                task.setTaskTitle(taskai.getTaskTitle());
+                task.setTaskDescription(taskai.getTaskDescription());
+                task.setGroupId(groupId);
+                task.setTaskPoint(taskai.getTaskPoint());
+                task.setTaskStartTime(taskai.getTaskStartTime());
+                task.setTaskDueDate(taskai.getTaskDueDate());
+                task.setPriority(taskai.getPriority());
+                task.setStatusTask(statusTaskService.getByGroupIdNStatusTaskName(groupId, "todo", token));
+                newAiList.add(task);
+            });
+
+            List<Task> result = taskService.saveAllTasks(newAiList, token);
+            return ResponseEntity.ok(result);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+
+        return ResponseEntity.badRequest().body("can't add list from ai");
+    }
+
     @DeleteMapping("/{taskId}")
     public ResponseEntity<String> deleteTask(@RequestHeader("Authorization") String token,
             @PathVariable("taskId") String taskId) {
@@ -230,4 +257,15 @@ class SubTaskDTO {
     private String statusTaskId;
     private List<String> listUserAssign;
     private String parentTaskId;
+}
+
+@Getter
+@Setter
+class TaskAIDto {
+    private String taskTitle;
+    private String taskDescription;
+    private Integer taskPoint;
+    private LocalDateTime taskStartTime;
+    private LocalDateTime taskDueDate;
+    private Priority priority;
 }

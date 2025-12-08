@@ -13,5 +13,7 @@ public interface StatusTaskRepo extends JpaRepository<StatusTask, String> {
     List<StatusTask> findAllByGroupId(String groupId);
 
     List<StatusTask> findByCreatedBy(String userId);
+
+    StatusTask findByGroupIdAndStatusTaskName(String groupId, String statusTaskName);
     
 }
