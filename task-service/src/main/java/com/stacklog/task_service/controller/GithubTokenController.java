@@ -33,8 +33,7 @@ public class GithubTokenController {
     @PostMapping("/setup-repo")
     public ResponseEntity<?> setupRepository(
             @RequestHeader("Authorization") String systemJwtToken,
-            @RequestBody Map<String, String> body
-    ) {
+            @RequestBody Map<String, String> body) {
         String groupId = body.get("groupId");
         String repoName = body.get("repoName");
         String collaborator = body.get("collaborator");
@@ -51,7 +50,15 @@ public class GithubTokenController {
         String owner = githubTokenService.getGithubAuthenticatedUser(githubToken);
 
         // 3. Thêm collaborator
-        githubTokenService.addCollaborator(githubToken, owner, createdRepoName, collaborator);
+        String[] collaboratorList = collaborator.split(",");
+        for (String col : collaboratorList) {
+            githubTokenService.addCollaborator(
+                    githubToken,
+                    owner,
+                    createdRepoName,
+                    col.trim() // trim để bỏ khoảng trắng
+            );
+        }
 
         // 4. Tạo webhook
         githubTokenService.createWebhook(githubToken, owner, createdRepoName, callbackUrl, secret);
