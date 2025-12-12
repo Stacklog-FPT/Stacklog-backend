@@ -65,15 +65,10 @@ public class StatusTaskService implements IService<StatusTask> {
         return null;
     }
 
-    public StatusTask getByGroupIdNStatusTaskName(String groupId, String statusTaskName, String token) {
-        StatusTask statusTasks = redisStatusTaskService.getAll(token, NAME_SERVICE).stream()
-                .filter(st -> st.getGroupId().equals(groupId) && st.getStatusTaskName().trim().toLowerCase().equals(statusTaskName)).findFirst().orElse(null);
-        if (statusTasks == null) {
-            statusTasks = statusTaskRepo.findByGroupIdAndStatusTaskName(groupId, statusTaskName);
-        }
-        return statusTasks;
+    public StatusTask getByGroupIdNStatusTaskName(String groupId, String statusTaskName) {
+        return statusTaskRepo.findByGroupIdAndStatusTaskName(groupId, statusTaskName.toUpperCase());
     }
- 
+
     public List<StatusTask> getAllByGroupId(String token, String groupId) {
         List<StatusTask> statusTasks = redisStatusTaskService.getAll(token, NAME_SERVICE).stream()
                 .filter(st -> st.getGroupId().equals(groupId)).toList();

@@ -26,5 +26,7 @@ public class GithubToken extends CoreEntity {
     private String groupId;
 
     private String accessToken;
+    private String githubRepo;
+    private String owner;
 
 }

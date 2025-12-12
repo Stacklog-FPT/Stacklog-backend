@@ -2,6 +2,7 @@ package com.stacklog.task_service.model.repo;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -48,5 +49,7 @@ public interface TaskRepo extends JpaRepository<Task, String> {
             AND t.taskDueDate <= :nowPlus1h
       """)
   public List<Task> findBurnTask(@Param("now") LocalDateTime now, @Param("nowPlus1h") LocalDateTime nowPlus1h);
+
+  public Optional<Task> findByTaskTitleAndGroupId(String title, String groupId);
 
 }

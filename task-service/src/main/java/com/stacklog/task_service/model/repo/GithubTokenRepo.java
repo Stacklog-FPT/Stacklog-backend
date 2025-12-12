@@ -12,4 +12,6 @@ public interface GithubTokenRepo extends JpaRepository<GithubToken, String> {
     
     Optional<GithubToken> findByGroupId(String groupId);
 
+    Optional<GithubToken> findByOwnerAndGithubRepo(String accessToken, String repoName);
+
 }

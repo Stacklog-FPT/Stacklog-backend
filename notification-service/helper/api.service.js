@@ -16,6 +16,21 @@ async function getGroups(classId, token) {
   }
 }
 
+async function getGroupStudent(groupId) {
+  try {
+    console.log(token);
+    const response = await axios.get(`http://classservice:2003/groupstudent/find/${groupId}`, {
+      headers: {
+        Authorization: `Bearer`
+      }
+    });
+    return response.data; // Trả về dữ liệu nhóm
+  } catch (error) {
+    console.error('Error fetching groups:', error);
+    throw error;
+  }
+}
+
 // Hàm lấy thông tin email của học viên từ API profile-service
 async function getUserEmail(userId, token) {
   try {
@@ -70,5 +85,6 @@ async function getStudentEmails(listClassId, token) {
 module.exports = {
   getGroups,
   getUserEmail,
-  getStudentEmails
+  getStudentEmails,
+  getGroupStudent
 };

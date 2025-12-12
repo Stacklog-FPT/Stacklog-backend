@@ -1,7 +1,7 @@
 const { Kafka } = require("kafkajs");
 require("dotenv").config();
 const { sendEmail } = require("./email")
-
+const { getGroupStudent } = require("../helper/api.service")
 const { createNotification } = require("../controllers/notification.controller");
 
 const KAFKA_BROKER = process.env.KAFKA_BROKER || "localhost:9092";
@@ -193,6 +193,30 @@ const topicHandlers = {
         path
       );
     }
+  },
+
+  ["task-service.github"]: async (payload) => {
+    const { groupId, content } = payload;
+
+    const groupStudents = await getGroupStudent(groupId) 
+
+    const memberIds = getMemberIdsFromGroupsStudent(groupStudents)
+
+    const path = `/tasks/${groupId}`
+
+    console.log(payload);
+
+    if (memberIds.length) {
+      await createNotification(
+        memberIds,
+        `Git có thông báo mới: ${content}`,
+        "task",
+        {},
+        path
+      );
+
+    }
+
   },
 
   [process.env.TOPIC_CHAT_MENTION || "chat-service.message.mention"]: async (payload) => {

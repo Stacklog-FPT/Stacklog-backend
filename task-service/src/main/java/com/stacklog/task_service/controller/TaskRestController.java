@@ -160,7 +160,7 @@ public class TaskRestController {
                 task.setTaskStartTime(taskai.getTaskStartTime());
                 task.setTaskDueDate(taskai.getTaskDueDate());
                 task.setPriority(taskai.getPriority());
-                task.setStatusTask(statusTaskService.getByGroupIdNStatusTaskName(groupId, "todo", token));
+                task.setStatusTask(statusTaskService.getByGroupIdNStatusTaskName(groupId, "todo"));
                 newAiList.add(task);
             });
 

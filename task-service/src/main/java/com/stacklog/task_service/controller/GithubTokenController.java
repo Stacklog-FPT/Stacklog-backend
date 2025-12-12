@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.stacklog.task_service.model.service.GithubTokenService;
 
 @RestController
@@ -61,9 +62,20 @@ public class GithubTokenController {
         }
 
         // 4. Tạo webhook
-        githubTokenService.createWebhook(githubToken, owner, createdRepoName, callbackUrl, secret);
+        githubTokenService.createWebhook(githubToken, owner, createdRepoName, callbackUrl, secret, groupId);
 
         return ResponseEntity.ok("Repository setup completed: " + createdRepoName);
+    }
+
+    @PostMapping("/webhook")
+    public ResponseEntity<String> handleWebhook(@RequestHeader("X-GitHub-Event") String event,
+                                                @RequestBody JsonNode payload) {
+
+        if ("pull_request".equals(event)) {
+            githubTokenService.handlePullRequestWebhook(payload);
+        }
+
+        return ResponseEntity.ok("Webhook received");
     }
 
 }

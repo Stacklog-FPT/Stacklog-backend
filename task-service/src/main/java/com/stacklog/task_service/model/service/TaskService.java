@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -246,7 +247,7 @@ public class TaskService implements IService<Task> {
                 content += burnTask.getTaskTitle() + "\n";
             }
             message.setContent(content);
-            String[] receivers = {userIdMapToEmail.get(userId)};
+            String[] receivers = { userIdMapToEmail.get(userId) };
             message.setReceivers(receivers);
             kafkaSendBurnMessage.sendMessage(message, "notification-service.email.send");
             System.out.println("send to " + userIdMapToEmail.get(userId));
@@ -268,6 +269,10 @@ public class TaskService implements IService<Task> {
             task.setUpdateBy(userId);
         });
         return taskRepo.saveAll(e);
+    }
+
+    public Optional<Task> findByTaskTitleAndGroupId(String title, String groupId) {
+        return taskRepo.findByTaskTitleAndGroupId(title, groupId);
     }
 
 }
