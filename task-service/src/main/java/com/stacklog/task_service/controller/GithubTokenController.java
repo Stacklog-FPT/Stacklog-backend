@@ -38,7 +38,7 @@ public class GithubTokenController {
         String groupId = body.get("groupId");
         String repoName = body.get("repoName");
         String collaborator = body.get("collaborator");
-        String callbackUrl = body.get("callbackUrl");
+        // String callbackUrl = body.get("callbackUrl");
         String secret = body.get("secret");
 
         // Lấy GitHub PAT từ DB theo group
@@ -50,19 +50,24 @@ public class GithubTokenController {
         // 2. Lấy owner từ token GitHub
         String owner = githubTokenService.getGithubAuthenticatedUser(githubToken);
 
-        // 3. Thêm collaborator
-        String[] collaboratorList = collaborator.split(",");
-        for (String col : collaboratorList) {
-            githubTokenService.addCollaborator(
-                    githubToken,
-                    owner,
-                    createdRepoName,
-                    col.trim() // trim để bỏ khoảng trắng
-            );
+        try {
+            // 3. Thêm collaborator
+            String[] collaboratorList = collaborator.split(",");
+            for (String col : collaboratorList) {
+                githubTokenService.addCollaborator(
+                        githubToken,
+                        owner,
+                        createdRepoName,
+                        col.trim() // trim để bỏ khoảng trắng
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         // 4. Tạo webhook
-        githubTokenService.createWebhook(githubToken, owner, createdRepoName, callbackUrl, secret, groupId);
+        githubTokenService.createWebhook(githubToken, owner, createdRepoName,
+                "https://stacklog.id.vn/api/task/github/webhook", secret, groupId);
 
         return ResponseEntity.ok("Repository setup completed: " + createdRepoName);
     }
