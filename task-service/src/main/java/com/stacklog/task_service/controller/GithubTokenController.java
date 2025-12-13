@@ -69,7 +69,10 @@ public class GithubTokenController {
 
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(@RequestHeader("X-GitHub-Event") String event,
-                                                @RequestBody JsonNode payload) {
+            @RequestBody JsonNode payload) {
+
+        System.out.println("Received event: " + event);
+        System.out.println("Payload: " + payload.toString());
 
         if ("pull_request".equals(event)) {
             githubTokenService.handlePullRequestWebhook(payload);
