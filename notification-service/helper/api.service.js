@@ -18,7 +18,6 @@ async function getGroups(classId, token) {
 
 async function getGroupStudent(groupId) {
   try {
-    console.log(token);
     const response = await axios.get(`http://classservice:2003/groupstudent/find/${groupId}`, {
       headers: {
         Authorization: `Bearer`
