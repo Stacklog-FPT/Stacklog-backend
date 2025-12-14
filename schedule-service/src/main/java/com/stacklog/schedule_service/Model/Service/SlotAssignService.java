@@ -36,8 +36,11 @@ public class SlotAssignService implements IService<SlotAssign> {
 
     RedisService<SlotAssign> redisSlotService;
 
-    public SlotAssignService(RedisService<SlotAssign> redisSlotService) {
+    RedisService<Slot> redisMainSlotService;
+
+    public SlotAssignService(RedisService<SlotAssign> redisSlotService, RedisService<Slot> redisMainSlotService) {
         this.redisSlotService = redisSlotService;
+        this.redisMainSlotService = redisMainSlotService;
     }
 
     @Override
@@ -90,6 +93,8 @@ public class SlotAssignService implements IService<SlotAssign> {
 
         redisSlotService.saveToRedis(e, token, NAME_SERVICE);
 
+        redisMainSlotService.deleteAllByUserId(token, NAME_SERVICE);
+
         messagingTemplate.convertAndSend("/topic/schedule-service", e);
 
         return e;
@@ -119,7 +124,7 @@ public class SlotAssignService implements IService<SlotAssign> {
             default:
                 break;
         }
-        return slotAssignRepo.save(slotAssign).getSlot();
+        return save(slotAssign, token).getSlot();
     }
 
 }
