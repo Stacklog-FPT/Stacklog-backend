@@ -37,4 +37,12 @@ public interface SemesterRepo extends JpaRepository<Semester, String> {
             @Param("quarter") Semester.Quarter quarter,
             @Param("userId") String userId);
 
+        @Query("""
+                SELECT DISTINCT s
+                FROM Semester s
+                JOIN s.classes c
+                WHERE c.lectureId = :userId
+            """)
+    List<Semester> findAllByLectureId(@Param("userId") String userId);
+
 }

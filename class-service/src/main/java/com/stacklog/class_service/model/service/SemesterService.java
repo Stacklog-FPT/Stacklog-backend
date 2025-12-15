@@ -1,5 +1,6 @@
 package com.stacklog.class_service.model.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,12 +38,15 @@ public class SemesterService implements IService<Semester> {
 
     @Override
     public List<Semester> getAllByUserId(String token) {
-        List<Semester> semesters = redisSemestService.getAll(token, NAME_SERVICE);
-        if (semesters.isEmpty()) {
-            semesters = semesterRepo.findAllByMemberUserId(redisSemestService.getCurrentUserId(token));
-            redisSemestService.saveListToRedis(semesters, token, NAME_SERVICE);
+        String currentUserRole = redisSemestService.getCurrentRoleId(token);
+        String userId = redisSemestService.getCurrentUserId(token);
+        switch (currentUserRole.toLowerCase()) {
+            case "student":
+                return semesterRepo.findAllByMemberUserId(userId);
+            case "lecturer":
+                return semesterRepo.findAllByLectureId(userId);
         }
-        return semesters;
+        return new ArrayList<>();
     }
 
     @Transactional
