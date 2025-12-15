@@ -129,19 +129,19 @@ public class StatusTaskService implements IService<StatusTask> {
             switch (i) {
                 case 0:
                     defaulStatusTask.setStatusTaskName("TODO");
-                    defaulStatusTask.setStatusTaskColor("blue");
+                    defaulStatusTask.setStatusTaskColor("#3498db");
                     break;
                 case 1:
                     defaulStatusTask.setStatusTaskName("DOING");
-                    defaulStatusTask.setStatusTaskColor("blue");
+                    defaulStatusTask.setStatusTaskColor("#92bb33ff");
                     break;
                 case 2:
-                    defaulStatusTask.setStatusTaskName("DONE");
-                    defaulStatusTask.setStatusTaskColor("blue");
+                    defaulStatusTask.setStatusTaskName("CANCEL");
+                    defaulStatusTask.setStatusTaskColor("#c34f4fff");
                     break;
                 case 3:
                     defaulStatusTask.setStatusTaskName("COMPLETED");
-                    defaulStatusTask.setStatusTaskColor("blue");
+                    defaulStatusTask.setStatusTaskColor("#109679ff");
                     break;
                 default:
                     break;
