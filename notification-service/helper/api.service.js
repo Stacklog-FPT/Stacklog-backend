@@ -38,7 +38,7 @@ async function getLectureIdFromGroupss(groupId) {
       }
     });
     console.log("get lectureId from group: ", response.data)
-    return response.data.class.lecturerId;
+    return response.data.class.lectureId;
   } catch (error) {
     console.error('Error fetching groups:', error);
     throw error;

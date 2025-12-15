@@ -143,7 +143,7 @@ const topicHandlers = {
 
       const content = `Có topic mới được đăng ký với nội dung "${piTitle}"`;
 
-      const lectureId = getLectureIdFromGroupss(groupId)
+      const lectureId = await getLectureIdFromGroupss(groupId)
 
       await createNotification(
         [lectureId],
