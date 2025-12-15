@@ -62,12 +62,7 @@ public class GroupService implements IService<Groupss> {
 
     @Override
     public Groupss getById(String id, String token) {
-        Groupss groupss = redisGroupsService.getById(id, token, NAME_SERVICE);
-        if (groupss == null) {
-            groupss = groupsRepo.findById(id).orElseThrow();
-            redisGroupsService.saveToRedis(groupss, token, NAME_SERVICE);
-        }
-        return groupss;
+        return groupsRepo.findById(id).orElseThrow();
     }
 
     @Override

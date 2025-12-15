@@ -77,9 +77,17 @@ function generatePromptSuggestArrayTask(sprintGoal, startTime, endTime, amountTa
             - ${sprintGoal}
             - Time to start the project: ${startTime}
             - Time to end the project: ${endTime}
-            - Approximate number of tasks: ${amountTask}
+            - Target number of tasks: ${amountTask}
+            - Generate exactly this number if possible.
+            - Only adjust the number (minimum 3, maximum 10) if the sprint goal complexity clearly requires it.
+            📌 Content Constraints (VERY IMPORTANT):
+            - taskTitle: maximum 100 characters
+            - taskDescription: maximum 300 characters
+            - taskDescription must be clear, concise, and no more than 3 short sentences
+            - Do NOT repeat the task title in the description
+            - Ensure all text can be safely stored in a database (no overly long text)
             📌 Your Job:
-            - Generate a JSON array containing multiple tasks (from 3 to 10 items depending on the complexity of the input).
+            - Generate a JSON array containing multiple tasks.
             - Each task must follow the format:
 
             {

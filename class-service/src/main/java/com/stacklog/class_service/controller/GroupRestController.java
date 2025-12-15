@@ -50,6 +50,16 @@ public class GroupRestController {
         return ResponseEntity.ok().body(groupsses);
     }
 
+    @GetMapping("/findbyid")
+    public ResponseEntity<?> getById(@RequestParam(name = "groupId") String groupId) {
+        Groupss group = groupService.getById(groupId, groupId);
+        if (group == null) {
+            return ResponseEntity.badRequest().body("Dont have data with that id " + groupId);
+        }
+        return ResponseEntity.ok(group);
+    }
+    
+
     @GetMapping("/class/{classId}")
     public ResponseEntity<List<Groupss>> getGroupByClassId(@RequestHeader("Authorization") String token,
             @PathVariable(name = "classId") String classId) {

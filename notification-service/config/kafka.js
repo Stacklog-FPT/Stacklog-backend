@@ -1,7 +1,7 @@
 const { Kafka } = require("kafkajs");
 require("dotenv").config();
 const { sendEmail } = require("./email")
-const { getGroupStudent } = require("../helper/api.service")
+const { getGroupStudent, getLectureIdFromGroupss } = require("../helper/api.service")
 const { createNotification } = require("../controllers/notification.controller");
 
 const KAFKA_BROKER = process.env.KAFKA_BROKER || "localhost:9092";
@@ -122,6 +122,38 @@ const topicHandlers = {
       );
       console.log(
         `📨 Notification sent to user ${createdBy} | Status: ${status} | Title: ${piTitle}`
+      );
+
+    } catch (error) {
+      console.error("🔥 Error handling projectinformation.updated event:", error);
+    }
+  },
+
+  ["topic-service.projectinformation.created"]: async (payload) => {
+    try {
+      const { groupId, piTitle, createdBy } = payload;
+      console.log(payload)
+
+      if (!createdBy || !groupId || !piTitle) {
+        console.warn("❗ Missing required fields in payload:", payload);
+        return;
+      }
+
+      const path = `/tasks/${groupId}`
+
+      const content = `Có topic mới được đăng ký với nội dung "${piTitle}"`;
+
+      const lectureId = getLectureIdFromGroupss(groupId)
+
+      await createNotification(
+        [lectureId],
+        content,
+        "system",
+        {},
+        path
+      );
+      console.log(
+        `📨 Notification sent to user ${createdBy} | | Title: ${piTitle}`
       );
 
     } catch (error) {
