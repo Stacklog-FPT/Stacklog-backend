@@ -2,8 +2,10 @@ package com.stacklog.class_service.controller;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -104,8 +106,8 @@ public class ClassRestController {
     }
 
     @PostMapping("/import")
-    public ResponseEntity<?> importClasses(@RequestHeader("Authorization") String token, 
-            @RequestParam("file") MultipartFile file, 
+    public ResponseEntity<?> importClasses(@RequestHeader("Authorization") String token,
+            @RequestParam("file") MultipartFile file,
             @RequestParam(name = "classId") String classId) {
         try {
             // Lưu file tạm
@@ -173,6 +175,25 @@ public class ClassRestController {
             return ResponseEntity.badRequest().body("Export error: " + e.getMessage());
 
         }
+    }
+
+    @PostMapping("/update-deadline")
+    public ResponseEntity<?> updateDeadline(@RequestHeader("Authorization") String token,
+            @RequestBody Map<String, String> e) {
+        Classes classes = classService.getById(e.get("classesId"), token);
+        if (classes == null) {
+            return ResponseEntity.badRequest().body("Don't have classes with id: " + e.get("classesId"));
+        }
+        try {
+            classes.setDeadlineAdd(LocalDateTime.parse(e.get("deadlineAdd")));
+            classes.setDeadlineSubmit(LocalDateTime.parse(e.get("deadlineSubmit")));
+            classes = classService.save(classes, token);
+            return ResponseEntity.ok(classes);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseEntity.badRequest().body("fail to update deadline " + exception);
+        }
+
     }
 
     private String generateInviteCodeFromClassId(String classesId) {
