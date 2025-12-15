@@ -1,5 +1,6 @@
 package com.stacklog.topic_service.model.entities;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.stacklog.core_service.model.entities.CoreEntity;
@@ -40,7 +41,8 @@ public class ProjectInformation extends CoreEntity {
 
     private List<String> piDocumentIds;
 
-
+    private LocalDateTime deadlineAdd;
+    private LocalDateTime deadlineSubmit;
 
     
 }
