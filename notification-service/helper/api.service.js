@@ -37,6 +37,7 @@ async function getLectureIdFromGroupss(groupId) {
         Authorization: `Bearer`
       }
     });
+    console.log("get lectureId from group: ", response.data)
     return response.data.class.lecturerId;
   } catch (error) {
     console.error('Error fetching groups:', error);

@@ -1,6 +1,8 @@
 package com.stacklog.class_service.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +58,10 @@ public class GroupRestController {
         if (group == null) {
             return ResponseEntity.badRequest().body("Dont have data with that id " + groupId);
         }
-        return ResponseEntity.ok(group);
+        Map<String, Object> response = new HashMap<>();
+        response.put("group", group);
+        response.put("class", group.getClasses());
+        return ResponseEntity.ok(response);
     }
     
 
