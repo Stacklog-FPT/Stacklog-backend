@@ -1,5 +1,6 @@
 package com.stacklog.class_service.model.entities;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -31,6 +32,9 @@ public class Classes extends CoreEntity {
 
     private String classesName;
     private String lectureId;
+
+    private LocalDateTime deadlineAdd = LocalDateTime.now();
+    private LocalDateTime deadlineSubmit = LocalDateTime.now();
 
     @OneToMany(mappedBy = "classes", cascade = CascadeType.REMOVE)
     @JsonManagedReference
