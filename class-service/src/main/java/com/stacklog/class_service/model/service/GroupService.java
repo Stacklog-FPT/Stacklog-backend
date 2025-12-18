@@ -73,7 +73,8 @@ public class GroupService implements IService<Groupss> {
     public Groupss save(Groupss e, String token) {
         boolean isCreate = (e.getGroupsId() == null || !groupsRepo.existsById(e.getGroupsId()));
 
-        if (getGroupssByNameAndClassId("unassigned", e.getClasses().getClassesId()) != null) {
+        Groupss existingGroup = getGroupssByNameAndClassId(e.getGroupsName(), e.getClasses().getClassesId());
+        if (isCreate && existingGroup != null && existingGroup.getGroupsName().trim().toLowerCase().equals(e.getGroupsName().trim().toLowerCase())) {
             return null;
         }
 
