@@ -65,9 +65,18 @@ public class GroupService implements IService<Groupss> {
         return groupsRepo.findById(id).orElseThrow();
     }
 
+    private Groupss getGroupssByNameAndClassId(String groupsName, String classesId) {
+        return groupsRepo.findByGroupsNameAndClassesClassesId(groupsName, classesId).orElse(null);
+    }
+
     @Override
     public Groupss save(Groupss e, String token) {
         boolean isCreate = (e.getGroupsId() == null || !groupsRepo.existsById(e.getGroupsId()));
+
+        if (getGroupssByNameAndClassId("unassigned", e.getClasses().getClassesId()) != null) {
+            return null;
+        }
+
         e.setGroupsLeaderId(redisGroupsService.getCurrentUserId(token));
         Groupss newGroupss = saveToDB(e, token);
         if (newGroupss == null) {

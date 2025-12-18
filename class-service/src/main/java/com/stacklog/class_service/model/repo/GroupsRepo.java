@@ -1,6 +1,7 @@
 package com.stacklog.class_service.model.repo;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,5 +28,14 @@ public interface GroupsRepo extends JpaRepository<Groupss, String> {
               AND gs.user_id = :userId
             """, nativeQuery = true)
     List<Groupss> findBySemesterIdAndUserId(@Param("semesterId") String semesterId, @Param("userId") String userId);
+
+    @Query(value = """
+            SELECT g.*
+            FROM groupss g
+            JOIN classes c ON g.classes_id = c.classes_id
+            WHERE g.groups_name = :groupsName
+              AND c.classes_id = :classesId
+            """, nativeQuery = true)
+    Optional<Groupss> findByGroupsNameAndClassesClassesId(@Param("groupsName") String groupsName, @Param("classesId") String classesId);
 
 }

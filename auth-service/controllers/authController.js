@@ -25,6 +25,11 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    const userProfile = await getUserInfo(user._id);
+    if (!userProfile || !userProfile.isActive) {
+      return res.status(403).json({ message: "User account is inactive" });
+    }
+
     const token = generateToken(user);
 
     // Lưu token vào Redis với TTL 1 ngày
