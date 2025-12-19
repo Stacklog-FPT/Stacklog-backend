@@ -2,7 +2,7 @@ const axios = require('axios');
 
 // Tạo 1 instance để call đến http://profile-service:2001/user/:userId để lấy thông tin user
 const profileServiceApi = axios.create({
-    baseURL: process.env.PROFILE_SERVICE_URL || 'http://profile-service:2001',
+    baseURL: process.env.PROFILE_SERVICE_URL || 'http://profileservice:2001',
     timeout: 5000,
 });
 
