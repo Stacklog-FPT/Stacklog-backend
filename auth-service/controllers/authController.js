@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const redisClient = require("../config/redis");
 const { sendKafkaEvent } = require("../config/kafka");
 const { decodedTokenGoogle } = require('../utils/helperMethod');
-const { getUserInfo } = require("../services/userService");
+const { getUserInfo } = require("../helper/api.service");
 
 const generateToken = (user) => {
   return jwt.sign(
