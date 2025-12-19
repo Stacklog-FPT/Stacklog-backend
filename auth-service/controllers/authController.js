@@ -27,7 +27,8 @@ const login = async (req, res) => {
     }
 
     const userProfile = await getUserInfo(user._id);
-    if (!userProfile || !userProfile.isActive) {
+    if (!userProfile.isActive) {
+      console.log(userProfile);
       return res.status(403).json({ message: "User account is inactive" });
     }
 
