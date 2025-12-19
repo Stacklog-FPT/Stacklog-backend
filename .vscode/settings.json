@@ -1,3 +1,4 @@
 {
-    "files.autoSave": "off"
+    "files.autoSave": "off",
+    "java.compile.nullAnalysis.mode": "disabled"
 }
