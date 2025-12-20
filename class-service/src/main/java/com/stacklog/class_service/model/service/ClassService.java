@@ -204,29 +204,40 @@ public class ClassService implements IService<Classes> {
         emailMessageKafka.setSubject("[YOU HAVE JOINED CLASS]");
         emailMessageKafka.setContent(
                 "<html>" +
-                        "<head>" +
-                        "<style>" +
-                        "  body { font-family: Arial, sans-serif; color: #333333; line-height: 1.6; }" +
-                        "  .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4; border-radius: 8px; }"
+                        "<body style='margin:0;padding:0;font-family:Arial,sans-serif;background-color:#f4f4f4;'>" +
+
+                        "<div style='max-width:600px;margin:30px auto;background-color:#ffffff;" +
+                        "border-radius:8px;overflow:hidden;box-shadow:0 4px 10px rgba(0,0,0,0.1);'>" +
+
+                        // Header
+                        "<div style='background-color:#4CAF50;color:#ffffff;text-align:center;" +
+                        "padding:16px;font-size:20px;font-weight:bold;'>" +
+                        "Welcome to " + classes.getClassesName() +
+                        "</div>" +
+
+                        // Content
+                        "<div style='padding:24px;color:#333333;font-size:15px;line-height:1.6;'>" +
+                        "<p>Hello,</p>" +
+                        "<p>You have <strong>successfully joined</strong> the class:</p>" +
+                        "<p style='font-size:16px;font-weight:bold;color:#4CAF50;'>" +
+                        classes.getClassesName() +
+                        "</p>" +
+
+                        "<p>Please click the button below to access your class:</p>" +
+
+                        // Button
+                        "<div style='text-align:center;margin:30px 0;'>" +
+                        "<a href='https://stacklog.io.vn/tasks/" + unassigned.getGroupsId() + "' " +
+                        "style='background-color:#4CAF50;color:#ffffff;text-decoration:none;" +
+                        "padding:12px 24px;border-radius:6px;font-size:15px;display:inline-block;'>" +
+                        "Go to Your Class" +
+                        "</a>" +
+                        "</div>" +
+
+                        "<p style='font-size:13px;color:#777777;'>If you did not expect this email, you can safely ignore it.</p>"
                         +
-                        "  .header { background-color: #4CAF50; color: #fff; padding: 10px 0; text-align: center; font-size: 18px; border-radius: 8px 8px 0 0; }"
-                        +
-                        "  .message { padding: 20px; background-color: #fff; border-radius: 0 0 8px 8px; }" +
-                        "  .button { display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 10px; }"
-                        +
-                        "  .button:hover { background-color: #45a049; }" +
-                        "</style>" +
-                        "</head>" +
-                        "<body>" +
-                        "<div class='container'>" +
-                        "  <div class='header'>Welcome to " + classes.getClassesName() + "!</div>" +
-                        "  <div class='message'>" +
-                        "    <p>You have successfully joined the class: <strong>" + classes.getClassesName()
-                        + "</strong>.</p>" +
-                        "    <p>Click the link below to access your class:</p>" +
-                        "    <a href='https://stacklog.io.vn/tasks/" + unassigned.getGroupsId()
-                        + "' class='button'>Go to Your Class</a>" +
-                        "  </div>" +
+                        "</div>" +
+
                         "</div>" +
                         "</body>" +
                         "</html>");
