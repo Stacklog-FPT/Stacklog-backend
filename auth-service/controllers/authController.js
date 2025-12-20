@@ -99,6 +99,10 @@ const loginGoogle = async (req, res) => {
     if (!payload?.email) return res.status(400).json({ errMsg: 'Invalid Google Token!' });
 
     let user = await User.findOne({ email: payload.email });
+    const userProfile = await getUserInfo(user._id);
+    if (!userProfile || !userProfile.isActive) {
+      return res.status(403).json({ message: "User account is inactive" });
+    }
     if (!user) {
       user = await User.create({
         name: payload.name,
