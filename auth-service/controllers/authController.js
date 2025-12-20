@@ -102,9 +102,11 @@ const loginGoogle = async (req, res) => {
 
     let user = await User.findOne({ email: payload.email });
     const userProfile = await getUserInfo(user._id);
-    if (!userProfile || !userProfile.isActive) {
+    if (!userProfile.user.isActive) {
+      console.log(userProfile);
       return res.status(403).json({ message: "User account is inactive" });
     }
+
     if (!user) {
       user = await User.create({
         name: payload.name,
