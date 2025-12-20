@@ -202,8 +202,34 @@ public class ClassService implements IService<Classes> {
 
         EmailMessageKafka emailMessageKafka = new EmailMessageKafka();
         emailMessageKafka.setSubject("[YOU HAVE JOINED CLASS]");
-        emailMessageKafka.setContent("You have join this class " + classes.getClassesName()
-                + " Link to go that class: https://localhost:5173/tasks/" + unassigned.getGroupsId());
+        emailMessageKafka.setContent(
+                "<html>" +
+                        "<head>" +
+                        "<style>" +
+                        "  body { font-family: Arial, sans-serif; color: #333333; line-height: 1.6; }" +
+                        "  .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4; border-radius: 8px; }"
+                        +
+                        "  .header { background-color: #4CAF50; color: #fff; padding: 10px 0; text-align: center; font-size: 18px; border-radius: 8px 8px 0 0; }"
+                        +
+                        "  .message { padding: 20px; background-color: #fff; border-radius: 0 0 8px 8px; }" +
+                        "  .button { display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: #fff; text-decoration: none; border-radius: 5px; margin-top: 10px; }"
+                        +
+                        "  .button:hover { background-color: #45a049; }" +
+                        "</style>" +
+                        "</head>" +
+                        "<body>" +
+                        "<div class='container'>" +
+                        "  <div class='header'>Welcome to " + classes.getClassesName() + "!</div>" +
+                        "  <div class='message'>" +
+                        "    <p>You have successfully joined the class: <strong>" + classes.getClassesName()
+                        + "</strong>.</p>" +
+                        "    <p>Click the link below to access your class:</p>" +
+                        "    <a href='https://stacklog.io.vn/tasks/" + unassigned.getGroupsId()
+                        + "' class='button'>Go to Your Class</a>" +
+                        "  </div>" +
+                        "</div>" +
+                        "</body>" +
+                        "</html>");
         emailMessageKafka.setReceivers(emailReceiverEmail);
 
         kafkaSendEmailProducer.sendMessage(emailMessageKafka, "notification-service.email.send");
