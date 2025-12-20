@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const redisClient = require("../config/redis");
 const { sendKafkaEvent } = require("../config/kafka");
 const { decodedTokenGoogle } = require('../utils/helperMethod');
+const { getUserInfo } = require("../helper/api.service");
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -26,7 +27,8 @@ const login = async (req, res) => {
     }
 
     const userProfile = await getUserInfo(user._id);
-    if (!userProfile || !userProfile.isActive) {
+    if (!userProfile.user.isActive) {
+      console.log(userProfile);
       return res.status(403).json({ message: "User account is inactive" });
     }
 
