@@ -17,7 +17,7 @@ async function sendEmail(from, to, subject, text, attachments = []) {
       from: "chumlu2102@gmail.com",
       to: to,
       subject: subject,
-      text: text,
+      html: text,
       attachments: attachments
     };
 

@@ -84,7 +84,15 @@ async function sendNotification(req, res) {
 
         // Tiến hành gửi email cho tất cả học viên
         const subject = req.body.subject;  // Tiêu đề email
-        const text = req.body.content;  // Nội dung email
+        const text = `<html>
+            <body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial">
+            <div style="max-width:600px;margin:30px auto;background:#ffffff;
+                        border-radius:8px;padding:24px">
+                ${req.body.content}
+            </div>
+            </body>
+        </html>
+        `;
 
         for (const email of emails) {
             await sendEmail(
