@@ -137,24 +137,24 @@ public class ScoreCategoryService implements IService<ScoreCategory> {
             Double weight = 0.4;
             switch (i) {
                 case 1:
-                    name = "assignment";
+                    name = "On-going Assessment 1";
                     weight = 0.2;
                     break;
                 case 2:
-                    name = "Group Project";
-                    weight = 0.1;
+                    name = "On-going Assessment 2";
+                    weight = 0.2;
                     break;
                 case 3:
-                    name = "Practical Exam";
-                    weight = 0.1;
+                    name = "On-going Assessment 3";
+                    weight = 0.2;
                     break;
                 case 4:
-                    name = "Progess Test 1";
-                    weight = 0.1;
+                    name = "Final Project Presentation";
+                    weight = 0.2;
                     break;
                 case 5:
-                    name = "Progess Test 2";
-                    weight = 0.1;
+                    name = "assignment";
+                    weight = 0.2;
                     break;
                 default:
                     break;
