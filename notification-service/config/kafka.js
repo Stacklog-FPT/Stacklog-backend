@@ -90,13 +90,15 @@ const topicHandlers = {
 
   ["topic-service.projectinformation.updated"]: async (payload) => {
     try {
-      const { createdBy, piStatus, piTitle } = payload;
+      const { createdBy, piStatus, piTitle, groupId } = payload;
       console.log(payload)
 
       if (!createdBy || !piStatus || !piTitle) {
         console.warn("❗ Missing required fields in payload:", payload);
         return;
       }
+
+      const path = `/tasks/${groupId}`
 
       // Normalize status
       const status = String(piStatus).toUpperCase().trim();
@@ -118,7 +120,8 @@ const topicHandlers = {
         [createdBy],
         content,
         "system",
-        {}
+        {},
+        path
       );
       console.log(
         `📨 Notification sent to user ${createdBy} | Status: ${status} | Title: ${piTitle}`
